@@ -1,12 +1,12 @@
-import { Component, inject, Inject } from "@angular/core";
+import { Component, inject, Injectable } from "@angular/core";
 import { environment } from "../../environments/development.environment";
 import { HttpClient } from "@angular/common/http";
 import { Observable } from "rxjs";
 import { Contract } from "../../domain/Entities/contract/contract.model";
 
-@Inject({
+@Injectable({
     
-    provideIn: 'root'
+   providedIn: 'root'
     
 })
 
@@ -23,6 +23,15 @@ export class ContractService{
         
         return this.http.post<Contract>(this.apiUrl, contract);
         
+        
+    }
+    
+ 
+    
+    getContracts(): Observable<Contract[]> {
+        
+        
+        return this.http.get<Contract[]>(`${this.apiUrl}`);
         
     }
     
