@@ -161,6 +161,7 @@ export class ProjectDashboardComponent implements OnInit {
   }
 
   loadProjects(): void {
+    
     this.projectService.getAllProjects().subscribe({
       next: (data) => {
         this.projects = data;
