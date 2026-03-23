@@ -67,10 +67,12 @@ export const routes: Routes = [
         
         loadComponent: () =>
           
-          import('./presentation/pages/contract/contract.component')
+          import('./presentation/pages/contract-page/contract-page.component')
+          
+            .then(m => m.ContractPageComponent)
         
         
-          .then(m => m.ContractPage)
+           
       },
       {
         path: 'planner',

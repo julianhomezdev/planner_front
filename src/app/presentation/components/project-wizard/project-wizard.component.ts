@@ -34,6 +34,7 @@ import { ReusableOds, ReusableOdsSummary } from '../../../domain/Entities/orderS
 import { ResourceAssignmentMode } from '../../../domain/enums/resource-assignment-mode.enum';
 import { ProjectService } from '../../../core/services/project.service';
 import { EmployeeMonthlyAvailability } from '../../../domain/Entities/employee/employee-monthly-availabilty.model';
+import { ContractService } from '../../../core/services/contract.service';
 
 enum ViewMode {
   CONTRACT = 'contract',
@@ -88,6 +89,7 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
   private draftService = inject(ProjectDraftService);
   private route = inject(ActivatedRoute);
   private odsService = inject(OrderServiceService);
+  private contractService = inject(ContractService);
 
   employeeMonthlyAvailability: Map<number, EmployeeMonthlyAvailability> = new Map();
 
@@ -153,6 +155,9 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
   availableEmployees: any[] = [];
   availableEquipment: any[] = [];
   availableVehicles: any[] = [];
+  
+  contracts: any[] = [];
+  
   resourceDatesSet: boolean = false;
 
   employeeSearchTerm: string = '';
@@ -162,10 +167,10 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
   employeeCategoryFilter: string = '';
   equipmentCategoryFilter: string = '';
   vehicleLocationFilter: string = '';
-
-
-
+  
   odsSameDatesAsContract: boolean = false;
+  
+  selectedContract: any = '';
 
 
   projectResourceMode: number = 0;
@@ -183,22 +188,38 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
   private formChanges$ = new Subject<void>();
 
   ngOnInit(): void {
+    
     this.initializeForms();
+    
     this.loadCatalogs();
+    
     this.setupAutoSave();
+    
+    
     this.checkForDraftToLoad();
+    
     this.route.queryParams.subscribe(params => {
+      
       const mode = params['mode'];
+      
       const projectId = params['projectId'];
+      
       const planId = params['planId'];
+      
       const odsIndex = params['odsIndex'];
 
       if (mode === 'edit-resources' && projectId && planId && odsIndex !== undefined) {
+        
         this.loadProjectForResourceEdit(+projectId, +planId, +odsIndex);
+        
       } else {
+        
         this.checkForDraftToLoad();
+        
       }
+      
     });
+    
 
   }
 
@@ -810,6 +831,28 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
     if (remaining <= 5) return 'text-amber-600';
     return 'text-emerald-600';
   }
+  
+  
+  onContractSelected(contractId: any): void {
+    
+    
+    const contract = this.contracts.find(c => c.id === +contractId);
+    
+    
+    
+    if (!contract) return;
+    
+    const client = this.clients.find(c => c.name === contract.clientName);
+    
+      this.contractForm.patchValue({
+      contractCode: contract.contractCode || contract.projectName,
+      contractName: contract.contractName || contract.projectName,
+      clientId: client?.id || '',
+      startDate: contract.initialDate || '',
+      endDate: contract.finalDate || ''
+    });
+    
+  }
 
 
   private checkAllResourcesLoaded(): void {
@@ -891,6 +934,7 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
     this.loading = true;
 
     Promise.all([
+      this.contractService.getContracts().toPromise(),
       this.clientService.getAllClients().toPromise(),
       this.employeeService.getAllEmployees().toPromise(),
       this.equipmentService.getAllEquipment().toPromise(),
@@ -898,7 +942,10 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
       this.matrixService.getAllMatrix().toPromise(),
       this.coordinatorService.getAllCoordinators().toPromise(),
       this.odsService.getReusableOdsList().toPromise()
-    ]).then(([clients, employees, equipment, vehicles, matrices, coordinators, reusableOds]) => {
+      
+    ]).then(([contracts,clients, employees, equipment, vehicles, matrices, coordinators, reusableOds]) => {
+      
+      this.contracts = contracts || [];
       this.clients = clients || [];
       this.employees = employees || [];
       this.equipment = equipment || [];

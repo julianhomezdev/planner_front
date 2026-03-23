@@ -4,7 +4,9 @@ import { Observable } from 'rxjs';
 import { environment } from '../../environments/development.environment';
 
 @Injectable({
+  
   providedIn: 'root'
+  
 })
 export class ProjectService {
   
