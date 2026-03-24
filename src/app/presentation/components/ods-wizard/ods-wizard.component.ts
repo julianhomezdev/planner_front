@@ -391,18 +391,55 @@ export class AddOdsWizardComponent implements OnInit, OnDestroy {
     const count    = this.planForm.value.totalSites || 1;
     const planCode = this.planForm.value.planCode;
     const planName = this.planForm.value.planName;
+    const startDate = this.planForm.value.startDate;
+    const endDate   = this.planForm.value.endDate;
 
     if (!planCode || !planName) {
       this.errorMessage = 'Complete el código y nombre del plan antes de generar sitios';
       return;
     }
 
+    const executionDates= this.distributeDatesAcrossSites(startDate, endDate, count);
+    
     this.sitesArray.clear();
 
     for (let i = 0; i < count; i++) {
-      this.sitesArray.push(this.buildSiteGroup(`Sitio #${i + 1} ${planName}-${planCode}`));
+      const siteName = `Sitio #${i + 1} ${planName}-${planCode}`;
+        const siteGroup = this.buildSiteGroup(siteName);
+        siteGroup.patchValue({ executionDate: executionDates[i] });
+        this.sitesArray.push(siteGroup);
     }
   }
+  
+  private distributeDatesAcrossSites(
+  startDateStr: string,
+  endDateStr: string,
+  siteCount: number
+): string[] {
+  // Si no hay fechas, retorna array vacío de strings
+  if (!startDateStr || !endDateStr || siteCount <= 0) {
+    return Array(siteCount).fill('');
+  }
+
+  const start     = new Date(startDateStr);
+  const end       = new Date(endDateStr);
+  const totalDays = Math.floor(
+    (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)
+  );
+
+  // Intervalo en días por sitio (mínimo 1)
+  const interval  = Math.max(1, Math.floor(totalDays / siteCount));
+
+  return Array.from({ length: siteCount }, (_, i) => {
+    const date = new Date(start);
+    date.setDate(date.getDate() + i * interval);
+    // Asegura que no pase la fecha fin
+    const capped = date > end ? end : date;
+    return capped.toISOString().split('T')[0]; // formato yyyy-MM-dd
+  });
+}
+  
+  
 
   private buildSiteGroup(name = ''): FormGroup {
     const g = this.fb.group({

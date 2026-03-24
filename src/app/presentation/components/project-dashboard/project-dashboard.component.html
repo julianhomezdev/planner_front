@@ -112,6 +112,24 @@
             <p class="text-gray-500 text-xs mt-0.5">
               {{ grupo.contrato.initialDate || 'N/A' }} — {{ grupo.contrato.finalDate || 'N/A' }}
             </p>
+            
+            
+            <!-- ── LISTA DE PLANES ── -->
+            @if (getPlanesDelContrato(grupo).length > 0) {
+              <div class="flex flex-wrap gap-1.5 mt-2">
+                @for (plan of getPlanesDelContrato(grupo); track plan.planCode) {
+                  <span class="inline-flex items-center gap-1 px-1.5 py-0.5 bg-white/5 border border-white/10 rounded text-[10px] text-gray-400">
+                    <span class="font-mono text-white/60">{{ plan.planCode }}</span>
+                    <span class="text-gray-500">·</span>
+                    <span class="truncate max-w-30">{{ plan.planName }}</span>
+                  </span>
+                }
+              </div>
+            }
+            
+            
+            
+            
           </div>
         </div>
 
@@ -171,7 +189,7 @@
               <div class="flex items-start justify-between gap-3 mb-3">
                 <div class="min-w-0">
                   <!-- Etiqueta nivel -->
-                  <span class="text-[10px] font-bold tracking-widest text-gray-400 uppercase">Proyecto</span>
+                  <span class="text-[10px] font-bold tracking-widest text-gray-400 uppercase"></span>
                   <h3 class="text-sm font-bold text-gray-900 leading-tight mt-0.5">
                     {{ proyecto.projectName || 'Sin nombre' }}
                   </h3>

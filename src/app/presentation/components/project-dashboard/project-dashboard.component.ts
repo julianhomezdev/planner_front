@@ -485,4 +485,14 @@ export class ProjectDashboardComponent implements OnInit {
       
     }   
   }
+  
+  
+  
+  getPlanesDelContrato(grupo: GrupoContrato): { planCode: string; planName: string }[] {
+    return grupo.proyectos
+      .flatMap(p => p.serviceOrders ?? [])
+      .flatMap((o: any) => o.samplingPlans ?? [])
+      .map((sp: any) => ({ planCode: sp.planCode, planName: sp.planName }));
+  }
+  
 }
