@@ -1,0 +1,880 @@
+<!-- ╔══════════════════════════════════════════════════════╗
+     ║  ADD ODS WIZARD — /projects/:projectId/add-ods     ║
+     ╚══════════════════════════════════════════════════════╝ -->
+
+<div class="min-h-screen bg-gray-50 py-6 px-4">
+  <div class="max-w-4xl mx-auto">
+
+    <!-- ── HEADER ──────────────────────────────────────────── -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 mb-6">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <button (click)="cancelar()"
+            class="p-2 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <div>
+            <p class="text-xs font-bold tracking-widest text-gray-400 uppercase">Nueva Orden de Servicio</p>
+            <h1 class="text-lg font-bold text-gray-900 mt-0.5">
+              {{ projectInfo?.contract?.contractName || projectInfo?.projectName || 'Cargando...' }}
+            </h1>
+            <p class="text-xs text-gray-500 mt-0.5">
+              {{ projectInfo?.contract?.contractCode || '' }}
+              @if (projectInfo?.client?.name) { · {{ projectInfo.client.name }} }
+            </p>
+          </div>
+        </div>
+
+        <!-- Stepper visual -->
+        <div class="hidden sm:flex items-center gap-2">
+          <div class="flex items-center gap-1.5">
+            <span class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold"
+              [class]="currentView === ViewMode.ODS_FORM
+                ? 'bg-gray-900 text-white'
+                : 'bg-emerald-500 text-white'">
+              @if (currentView === ViewMode.ODS_FORM) { 1 } @else {
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                </svg>
+              }
+            </span>
+            <span class="text-xs font-medium" [class]="currentView === ViewMode.ODS_FORM ? 'text-gray-900' : 'text-emerald-600'">
+              Datos ODS
+            </span>
+          </div>
+          <div class="w-8 h-px bg-gray-300"></div>
+          <div class="flex items-center gap-1.5">
+            <span class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold"
+              [class]="currentView === ViewMode.PLAN_FORM ? 'bg-gray-900 text-white' : 'bg-gray-200 text-gray-500'">
+              2
+            </span>
+            <span class="text-xs font-medium" [class]="currentView === ViewMode.PLAN_FORM ? 'text-gray-900' : 'text-gray-400'">
+              Planes
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ALERTAS ──────────────────────────────────────────── -->
+    @if (errorMessage) {
+      <div class="bg-red-50 border-l-4 border-red-500 rounded-lg p-4 mb-4 flex items-center justify-between">
+        <p class="text-sm text-red-800">{{ errorMessage }}</p>
+        <button (click)="errorMessage = ''" class="text-red-400 hover:text-red-600">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+    }
+    @if (successMessage) {
+      <div class="bg-emerald-50 border-l-4 border-emerald-500 rounded-lg p-4 mb-4">
+        <p class="text-sm text-emerald-800">{{ successMessage }}</p>
+      </div>
+    }
+
+
+    <!-- ════════════════════════════════════════════════════════
+         PASO 1 — DATOS DE LA ODS
+         ════════════════════════════════════════════════════════ -->
+    @if (currentView === ViewMode.ODS_FORM) {
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+        <h2 class="text-base font-semibold text-gray-900 mb-4 pb-3 border-b border-gray-100">
+          Información de la Orden de Servicio
+        </h2>
+
+        <!-- Selector modo: nueva / reutilizar -->
+        <div class="flex gap-2 mb-6">
+          <button type="button" (click)="setOdsCreationMode('new')"
+            [class]="'flex-1 px-4 py-2 text-sm font-medium rounded-lg transition-colors ' +
+              (odsCreationMode === 'new' ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200')">
+            <svg class="w-4 h-4 inline mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            Nueva ODS
+          </button>
+          <button type="button" (click)="setOdsCreationMode('reuse')"
+            [class]="'flex-1 px-4 py-2 text-sm font-medium rounded-lg transition-colors ' +
+              (odsCreationMode === 'reuse' ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200')">
+            <svg class="w-4 h-4 inline mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            Reutilizar Configuración
+          </button>
+        </div>
+
+        <!-- Selector de ODS a reutilizar -->
+        @if (odsCreationMode === 'reuse') {
+          <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-5">
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">
+              ODS a Reutilizar <span class="text-red-500">*</span>
+            </label>
+            <select [(ngModel)]="selectedReusableOdsCode"
+              class="w-full px-3 py-2 border border-blue-300 rounded-lg text-sm bg-white focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+              <option [value]="null">Seleccione una ODS existente...</option>
+              @for (ods of reusableOdsList; track ods.odsCode) {
+                <option [value]="ods.odsCode">{{ ods.odsCode }} — {{ ods.odsName }} ({{ ods.quantitySamplingPlans }} planes)</option>
+              }
+            </select>
+            <p class="text-xs text-blue-700 mt-2">Se copiarán todos los planes con sitios y presupuestos. Los recursos se asignan después.</p>
+          </div>
+        }
+
+        <form [formGroup]="odsForm" class="space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1.5">
+                Código ODS <span class="text-red-500">*</span>
+              </label>
+              <input type="text" formControlName="odsCode"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
+                placeholder="Ej: ODS-118631" />
+              @if (odsForm.get('odsCode')?.invalid && odsForm.get('odsCode')?.touched) {
+                <p class="text-xs text-red-500 mt-1">Campo requerido</p>
+              }
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1.5">Nombre ODS</label>
+              <input type="text" formControlName="odsName"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
+                placeholder="Ej: Tocancipá" />
+            </div>
+
+            <div class="md:col-span-2">
+              <label class="block text-sm font-medium text-gray-700 mb-1.5">
+                Valor ODS <span class="text-red-500">*</span>
+              </label>
+              <div class="relative">
+                <span class="absolute left-3 top-2 text-gray-400 text-sm">$</span>
+                <input type="number" formControlName="odsValue" min="0"
+                  class="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
+                  placeholder="0" />
+              </div>
+              <p class="text-xs text-gray-400 mt-1">Presupuesto total disponible para esta ODS</p>
+            </div>
+
+            <!-- Checkbox mismas fechas que proyecto -->
+            <div class="md:col-span-2">
+              <label class="inline-flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" [(ngModel)]="odsSameDatesAsProject" [ngModelOptions]="{standalone: true}"
+                  (change)="onOdsSameDatesChange()"
+                  class="w-4 h-4 rounded text-gray-900 border-gray-300" />
+                <span class="text-sm text-gray-700 font-medium">Mismas fechas que el proyecto</span>
+                @if (projectInfo?.initialDate) {
+                  <span class="text-xs text-gray-400">({{ projectInfo.initialDate }} → {{ projectInfo.finalDate }})</span>
+                }
+              </label>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1.5">Fecha Inicio</label>
+              <input type="date" formControlName="startDate"
+                [attr.disabled]="odsSameDatesAsProject ? true : null"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-1 focus:ring-gray-900 focus:border-gray-900 disabled:bg-gray-100 disabled:cursor-not-allowed" />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1.5">Fecha Fin</label>
+              <input type="date" formControlName="endDate"
+                [attr.disabled]="odsSameDatesAsProject ? true : null"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-1 focus:ring-gray-900 focus:border-gray-900 disabled:bg-gray-100 disabled:cursor-not-allowed" />
+            </div>
+
+          </div>
+
+          <div class="flex justify-end pt-2">
+            <button type="button"
+              (click)="odsCreationMode === 'new' ? confirmarOds() : confirmarOdsReusable()"
+              [disabled]="!odsForm.valid || (odsCreationMode === 'reuse' && !selectedReusableOdsCode) || loadingReusableOds"
+              class="px-6 py-2.5 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm">
+              @if (loadingReusableOds) { Cargando... } @else { Continuar → }
+            </button>
+          </div>
+        </form>
+      </div>
+    }
+
+
+    <!-- ════════════════════════════════════════════════════════
+         PASO 2 — PLANES DE MUESTREO
+         ════════════════════════════════════════════════════════ -->
+    @if (currentView === ViewMode.PLAN_FORM) {
+
+      <!-- Resumen de la ODS -->
+      <div class="bg-gray-900 text-white rounded-xl p-4 mb-5 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 bg-white/10 rounded-lg flex items-center justify-center border border-white/10">
+            <svg class="w-4.5 h-4.5 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </div>
+          <div>
+            <span class="text-[10px] font-bold tracking-widest text-gray-400 uppercase">ODS confirmada</span>
+            <div class="flex items-center gap-2 mt-0.5">
+              <span class="font-mono text-xs text-gray-300 bg-white/10 px-1.5 py-0.5 rounded">{{ currentOds.odsCode }}</span>
+              <span class="text-white font-semibold text-sm">{{ currentOds.odsName }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="text-right shrink-0">
+          <p class="text-xs text-gray-400">Presupuesto</p>
+          <p class="text-sm font-bold text-white">${{ currentOds.odsValue?.toLocaleString() || 0 }}</p>
+        </div>
+      </div>
+
+      <!-- Barra de presupuesto ODS -->
+      @if (currentOds.odsValue > 0) {
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-5">
+          <div class="grid grid-cols-3 gap-4 mb-2 text-sm">
+            <div><span class="text-gray-500 text-xs">Total ODS</span><p class="font-semibold">${{ currentOds.odsValue?.toLocaleString() }}</p></div>
+            <div><span class="text-gray-500 text-xs">Consumido</span><p class="font-semibold text-blue-600">${{ getOdsBudgetSummary().used.toLocaleString() }}</p></div>
+            <div><span class="text-gray-500 text-xs">Disponible</span>
+              <p class="font-semibold" [class]="getOdsBudgetSummary().available >= 0 ? 'text-emerald-600' : 'text-red-600'">
+                ${{ getOdsBudgetSummary().available.toLocaleString() }}</p>
+            </div>
+          </div>
+          <div class="w-full bg-gray-200 rounded-full h-2">
+            <div class="h-2 rounded-full transition-all"
+              [class]="getOdsBudgetSummary().percentage > 100 ? 'bg-red-500' : getOdsBudgetSummary().percentage > 90 ? 'bg-amber-500' : 'bg-blue-500'"
+              [style.width.%]="Math.min(getOdsBudgetSummary().percentage, 100)"></div>
+          </div>
+        </div>
+      }
+
+      <!-- Planes ya agregados -->
+      @if (currentOds.samplingPlans.length > 0) {
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 mb-5">
+          <h3 class="text-sm font-semibold text-gray-900 mb-3">
+            Planes Configurados ({{ currentOds.samplingPlans.length }})
+          </h3>
+          <div class="space-y-2">
+            @for (plan of currentOds.samplingPlans; track $index; let idx = $index) {
+              <div class="bg-gray-50 rounded-lg border border-gray-200 p-3">
+                <div class="flex justify-between items-start">
+                  <div>
+                    <div class="flex items-center gap-2 mb-1">
+                      <span class="px-2 py-0.5 bg-gray-900 text-white text-xs font-medium rounded">{{ plan.planCode }}</span>
+                      <span class="text-sm font-medium text-gray-900">{{ plan.planName }}</span>
+                    </div>
+                    <div class="flex gap-3 text-xs text-gray-500">
+                      <span>{{ plan.sites?.length || 0 }} sitios</span>
+                      <span>{{ plan.matrixNames }}</span>
+                      @if (plan.coordinatorName) { <span>· {{ plan.coordinatorName }}</span> }
+                    </div>
+                  </div>
+                  <div class="flex gap-1 shrink-0">
+                    <button (click)="editPlan(idx)" type="button"
+                      class="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors">
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                    </button>
+                    <button (click)="removePlan(idx)" type="button"
+                      class="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors">
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- ── FORMULARIO NUEVO PLAN ───────────────────────────── -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-5">
+        <h3 class="text-base font-semibold text-gray-900 mb-5">
+          {{ editingPlanLocalIndex !== null ? 'Editar Plan' : 'Nuevo Plan de Muestreo' }}
+        </h3>
+
+        <form [formGroup]="planForm" class="space-y-8">
+
+          <!-- 1. Información básica -->
+          <div>
+            <h4 class="text-sm font-semibold text-gray-800 mb-3 pb-2 border-b border-gray-100">Información Básica</h4>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Código Plan <span class="text-red-500">*</span></label>
+                <input type="text" formControlName="planCode"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
+                  placeholder="PM2345" />
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Nombre Plan <span class="text-red-500">*</span></label>
+                <input type="text" formControlName="planName"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
+                  placeholder="Ej: Tocancipá" />
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Cant. Sitios <span class="text-red-500">*</span></label>
+                <input type="number" formControlName="totalSites" min="1"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-1 focus:ring-gray-900 focus:border-gray-900" />
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Matrices <span class="text-red-500">*</span></label>
+                <div class="max-h-32 overflow-y-auto border border-gray-300 rounded-lg p-2 bg-white">
+                  @for (matrix of matrices; track matrix.id) {
+                    <label class="flex items-center py-1 cursor-pointer">
+                      <input type="checkbox" [checked]="isMatrixSelected(matrix.id)" (change)="toggleMatrixSelection(matrix.id)"
+                        class="w-4 h-4 rounded text-gray-900 border-gray-300" />
+                      <span class="ml-2 text-sm text-gray-700">{{ matrix.matrixName }}</span>
+                    </label>
+                  }
+                </div>
+                <p class="text-xs text-gray-400 mt-1">{{ planForm.value.selectedMatrixIds?.length || 0 }} seleccionadas</p>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Coordinador <span class="text-red-500">*</span></label>
+                <select formControlName="coordinatorId"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white">
+                  <option value="">Seleccione...</option>
+                  @for (coord of coordinators; track coord.id) {
+                    <option [value]="coord.id">{{ coord.name }}</option>
+                  }
+                </select>
+              </div>
+
+              <div class="flex items-center gap-4 pt-5">
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" formControlName="hasReport" class="w-4 h-4 rounded text-gray-900" />
+                  <span class="text-sm text-gray-700">Informe</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" formControlName="hasGDB" class="w-4 h-4 rounded text-gray-900" />
+                  <span class="text-sm text-gray-700">GDB</span>
+                </label>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Fecha Inicio</label>
+                <input type="date" formControlName="startDate"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-1 focus:ring-gray-900 focus:border-gray-900" />
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Fecha Fin</label>
+                <input type="date" formControlName="endDate"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-1 focus:ring-gray-900 focus:border-gray-900" />
+              </div>
+
+            </div>
+            <div class="flex justify-end mt-3">
+              <button type="button" (click)="generateMultipleSites()"
+                class="px-5 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors">
+                Generar {{ planForm.value.totalSites || 0 }} Sitios
+              </button>
+            </div>
+          </div>
+
+          <!-- 2. Sitios -->
+          <div>
+            <h4 class="text-sm font-semibold text-gray-800 mb-3 pb-2 border-b border-gray-100">
+              Sitios de Monitoreo <span class="text-xs font-normal text-gray-400 ml-1">({{ sitesArray.length }} sitios)</span>
+            </h4>
+            <div class="max-h-96 overflow-y-auto border border-gray-200 rounded-lg p-2 bg-gray-50">
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                @for (siteControl of sitesArray.controls; track $index; let idx = $index) {
+                  <div [formGroup]="$any(siteControl)" class="bg-white p-2.5 rounded-lg border border-gray-200">
+                    <div class="flex justify-between items-start mb-2">
+                      <span class="text-xs font-medium text-gray-800 truncate">{{ siteControl.value.name || 'Sitio ' + (idx + 1) }}</span>
+                      @if (sitesArray.length > 1) {
+                        <button type="button" (click)="removeSite(idx)" class="text-gray-300 hover:text-red-500 ml-1">
+                          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      }
+                    </div>
+                    <div class="space-y-2">
+                      <div>
+                        <label class="block text-xs text-gray-500 mb-1">Fecha Ejecución</label>
+                        <input type="date" formControlName="executionDate"
+                          class="w-full px-2 py-1 border border-gray-200 rounded text-xs focus:ring-1 focus:ring-gray-900" />
+                      </div>
+                      <label class="flex items-center gap-1.5 cursor-pointer">
+                        <input type="checkbox" formControlName="isSubcontracted" class="w-3 h-3 rounded" />
+                        <span class="text-xs text-gray-600">Subcontratado</span>
+                      </label>
+                      @if (siteControl.get('isSubcontracted')?.value) {
+                        <input type="text" formControlName="subcontractorName"
+                          class="w-full px-2 py-1 border border-amber-300 rounded text-xs bg-amber-50"
+                          placeholder="Proveedor..." />
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+            <button type="button" (click)="addSite()"
+              class="mt-2 text-xs text-gray-500 hover:text-gray-700 font-medium">
+              + Agregar sitio manualmente
+            </button>
+          </div>
+
+          <!-- 3. Recursos -->
+          <div>
+            <h4 class="text-sm font-semibold text-gray-800 mb-3 pb-2 border-b border-gray-100">Recursos</h4>
+
+            <!-- Fechas de recursos -->
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+              <p class="text-xs text-blue-700 mb-2">Las fechas determinan la disponibilidad de recursos</p>
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs text-gray-600 mb-1">Fecha Inicio Recursos</label>
+                  <input type="date" formControlName="resourceStartDate"
+                    class="w-full px-2 py-1.5 border border-blue-300 rounded text-sm focus:ring-1 focus:ring-blue-500" />
+                </div>
+                <div>
+                  <label class="block text-xs text-gray-600 mb-1">Fecha Fin Recursos</label>
+                  <input type="date" formControlName="resourceEndDate"
+                    class="w-full px-2 py-1.5 border border-blue-300 rounded text-sm focus:ring-1 focus:ring-blue-500" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Selector de modo -->
+            <div class="flex gap-2 mb-5">
+              <button type="button" (click)="setResourceMode(ResourceAssignmentMode.QUANTITY)"
+                [class]="'flex-1 px-4 py-2 text-sm font-medium rounded-lg transition-colors ' +
+                  (currentResourceMode === ResourceAssignmentMode.QUANTITY ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200')">
+                Por Cantidad
+              </button>
+              <button type="button" (click)="setResourceMode(ResourceAssignmentMode.DETAILED)"
+                [class]="'flex-1 px-4 py-2 text-sm font-medium rounded-lg transition-colors ' +
+                  (currentResourceMode === ResourceAssignmentMode.DETAILED ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200')">
+                Detallado
+              </button>
+            </div>
+
+            <!-- MODO CANTIDAD -->
+            @if (currentResourceMode === ResourceAssignmentMode.QUANTITY) {
+
+              <!-- Personal por cantidad -->
+              <div class="mb-5">
+                <div class="flex justify-between items-center mb-2">
+                  <label class="text-sm font-medium text-gray-700">Personal</label>
+                  <button type="button" (click)="addEmployeeQuantity()"
+                    class="px-3 py-1 bg-gray-900 text-white rounded text-xs font-medium hover:bg-gray-800">+ Categoría</button>
+                </div>
+                @if (!employeeQuantities.length) {
+                  <p class="text-xs text-gray-400 italic">Sin categorías definidas</p>
+                }
+                @for (item of employeeQuantities; track $index; let idx = $index) {
+                  <div class="flex gap-2 items-center mb-2">
+                    <select [(ngModel)]="item.categoryName" [ngModelOptions]="{standalone: true}"
+                      class="flex-1 px-2 py-1.5 border border-gray-300 rounded text-sm">
+                      <option value="">Categoría...</option>
+                      @for (cat of employeeCategories; track cat) { <option [value]="cat">{{ cat }}</option> }
+                    </select>
+                    <input type="number" [(ngModel)]="item.quantity" [ngModelOptions]="{standalone: true}" min="1"
+                      class="w-20 px-2 py-1.5 border border-gray-300 rounded text-sm" />
+                    <button type="button" (click)="removeEmployeeQuantity(idx)" class="text-gray-400 hover:text-red-500">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                }
+              </div>
+
+              <!-- Equipos por cantidad -->
+              <div class="mb-5">
+                <div class="flex justify-between items-center mb-2">
+                  <label class="text-sm font-medium text-gray-700">Equipos</label>
+                  <button type="button" (click)="addEquipmentQuantity()"
+                    class="px-3 py-1 bg-gray-900 text-white rounded text-xs font-medium hover:bg-gray-800">+ Categoría</button>
+                </div>
+                @if (!equipmentQuantities.length) {
+                  <p class="text-xs text-gray-400 italic">Sin categorías definidas</p>
+                }
+                @for (item of equipmentQuantities; track $index; let idx = $index) {
+                  <div class="flex gap-2 items-center mb-2">
+                    <select [(ngModel)]="item.categoryName" [ngModelOptions]="{standalone: true}"
+                      class="flex-1 px-2 py-1.5 border border-gray-300 rounded text-sm">
+                      <option value="">Categoría...</option>
+                      @for (cat of equipmentCategories; track cat) { <option [value]="cat">{{ cat }}</option> }
+                    </select>
+                    <input type="number" [(ngModel)]="item.quantity" [ngModelOptions]="{standalone: true}" min="1"
+                      class="w-20 px-2 py-1.5 border border-gray-300 rounded text-sm" />
+                    <button type="button" (click)="removeEquipmentQuantity(idx)" class="text-gray-400 hover:text-red-500">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                }
+              </div>
+
+              <!-- Vehículos por cantidad -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Vehículos</label>
+                <div class="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-lg p-3">
+                  <span class="text-sm text-gray-600">Cantidad:</span>
+                  <input type="number" [(ngModel)]="vehicleQuantity" [ngModelOptions]="{standalone: true}"
+                    (ngModelChange)="updateVehicleQuantity()" min="0"
+                    class="w-24 px-3 py-1.5 border border-gray-300 rounded text-sm" />
+                </div>
+              </div>
+            }
+
+            <!-- MODO DETALLADO -->
+            @if (currentResourceMode === ResourceAssignmentMode.DETAILED) {
+
+              @if (!resourceDatesSet) {
+                <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 text-sm text-amber-800">
+                  Configure las fechas de recursos para ver disponibilidad
+                </div>
+              }
+
+              @if (resourceDatesSet) {
+
+                <!-- Personal -->
+                <div class="mb-5">
+                  <div class="flex justify-between items-center mb-2">
+                    <label class="text-sm font-medium text-gray-700">Personal</label>
+                    <span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
+                      {{ planForm.value.selectedEmployeeIds?.length || 0 }} seleccionados
+                    </span>
+                  </div>
+                  <div class="grid grid-cols-2 gap-2 mb-2">
+                    <input type="text" [(ngModel)]="employeeSearchTerm" [ngModelOptions]="{standalone: true}"
+                      placeholder="Buscar nombre..."
+                      class="px-3 py-2 border border-gray-300 rounded text-sm" />
+                    <select [(ngModel)]="employeeCategoryFilter" [ngModelOptions]="{standalone: true}"
+                      class="px-3 py-2 border border-gray-300 rounded text-sm bg-white">
+                      <option value="">Todas las posiciones</option>
+                      @for (cat of uniqueEmployeeCategories; track cat) { <option [value]="cat">{{ cat }}</option> }
+                    </select>
+                  </div>
+                  <div class="max-h-56 overflow-y-auto border border-gray-200 rounded-lg p-2 bg-gray-50">
+                    @for (emp of filteredEmployees; track emp.id) {
+                      <label class="flex items-start py-2 px-2 rounded hover:bg-white cursor-pointer transition-colors"
+                        [class.opacity-50]="!emp.isAvailable || isEmployeeMonthFull(emp.id)">
+                        <input type="checkbox" [checked]="isEmployeeSelected(emp.id)"
+                          (change)="toggleEmployeeSelection(emp.id)"
+                          [disabled]="!emp.isAvailable || isEmployeeMonthFull(emp.id)"
+                          class="mt-0.5 w-4 h-4 rounded text-gray-900" />
+                        <div class="ml-2.5 flex-1 min-w-0">
+                          <div class="flex items-center gap-2">
+                            <span class="text-sm font-medium text-gray-900">{{ emp.name }}</span>
+                            <span class="text-xs bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded">{{ emp.position }}</span>
+                          </div>
+                          <div class="flex items-center gap-2 mt-0.5">
+                            @if (emp.isAvailable && !isEmployeeMonthFull(emp.id)) {
+                              <span class="text-xs text-emerald-600 font-medium">Disponible</span>
+                            } @else if (!emp.isAvailable) {
+                              <span class="text-xs text-red-500 font-medium">No disponible</span>
+                            } @else {
+                              <span class="text-xs text-red-500 font-medium">Mes completo</span>
+                            }
+                            <span class="text-xs" [class]="getRemainingDaysColor(emp.id)">
+                              {{ getEmployeeRemainingDays(emp.id) }}d restantes
+                            </span>
+                          </div>
+                        </div>
+                      </label>
+                    }
+                  </div>
+                </div>
+
+                <!-- Equipos -->
+                <div class="mb-5">
+                  <div class="flex justify-between items-center mb-2">
+                    <label class="text-sm font-medium text-gray-700">Equipos</label>
+                    <span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
+                      {{ planForm.value.selectedEquipmentIds?.length || 0 }} seleccionados
+                    </span>
+                  </div>
+                  <div class="grid grid-cols-2 gap-2 mb-2">
+                    <input type="text" [(ngModel)]="equipmentSearchTerm" [ngModelOptions]="{standalone: true}"
+                      placeholder="Buscar equipo..."
+                      class="px-3 py-2 border border-gray-300 rounded text-sm" />
+                    <select [(ngModel)]="equipmentCategoryFilter" [ngModelOptions]="{standalone: true}"
+                      class="px-3 py-2 border border-gray-300 rounded text-sm bg-white">
+                      <option value="">Todas las categorías</option>
+                      @for (cat of uniqueEquipmentCategories; track cat) { <option [value]="cat">{{ cat }}</option> }
+                    </select>
+                  </div>
+                  <div class="max-h-48 overflow-y-auto border border-gray-200 rounded-lg p-2 bg-gray-50">
+                    @for (eq of filteredEquipment; track eq.id) {
+                      <label class="flex items-center py-2 px-2 rounded hover:bg-white cursor-pointer transition-colors"
+                        [class.opacity-50]="!eq.isAvailable">
+                        <input type="checkbox" [checked]="isEquipmentSelected(eq.id)"
+                          (change)="toggleEquipmentSelection(eq.id)" [disabled]="!eq.isAvailable"
+                          class="w-4 h-4 rounded text-gray-900" />
+                        <div class="ml-2.5">
+                          <span class="text-sm font-medium text-gray-900">{{ eq.name }}</span>
+                          <span class="ml-2 text-xs text-gray-500">{{ eq.code }}</span>
+                          @if (eq.isAvailable) { <span class="ml-2 text-xs text-emerald-600">Disponible</span> }
+                          @else { <span class="ml-2 text-xs text-red-500">No disponible</span> }
+                        </div>
+                      </label>
+                    }
+                  </div>
+                </div>
+
+                <!-- Vehículos -->
+                <div>
+                  <div class="flex justify-between items-center mb-2">
+                    <label class="text-sm font-medium text-gray-700">Vehículos</label>
+                    <span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
+                      {{ planForm.value.selectedVehicleIds?.length || 0 }} seleccionados
+                    </span>
+                  </div>
+                  <input type="text" [(ngModel)]="vehicleSearchTerm" [ngModelOptions]="{standalone: true}"
+                    placeholder="Buscar placa..."
+                    class="w-full px-3 py-2 border border-gray-300 rounded text-sm mb-2" />
+                  <div class="max-h-48 overflow-y-auto border border-gray-200 rounded-lg p-2 bg-gray-50">
+                    @for (v of filteredVehicles; track v.id) {
+                      <label class="flex items-start py-2 px-2 rounded hover:bg-white cursor-pointer transition-colors"
+                        [class.opacity-50]="!v.isAvailable">
+                        <input type="checkbox" [checked]="isVehicleSelected(v.id)"
+                          (change)="toggleVehicleSelection(v.id)" [disabled]="!v.isAvailable"
+                          class="mt-0.5 w-4 h-4 rounded text-gray-900" />
+                        <div class="ml-2.5">
+                          <div class="flex items-center gap-2">
+                            <span class="text-sm font-medium">{{ v.plateNumber }}</span>
+                            <span class="text-xs text-gray-500">{{ v.brand }} {{ v.model }}</span>
+                          </div>
+                          <div class="flex items-center gap-2 text-xs mt-0.5">
+                            <span class="text-gray-500">{{ v.location }}</span>
+                            <span>${{ v.costPerDay?.toLocaleString() }}/día</span>
+                            @if (v.isAvailable) { <span class="text-emerald-600">Disponible</span> }
+                            @else { <span class="text-red-500">No disponible</span> }
+                          </div>
+                        </div>
+                      </label>
+                    }
+                  </div>
+                </div>
+              }
+            }
+          </div>
+
+          <!-- 4. Presupuesto -->
+          <div>
+            <div class="flex justify-between items-center mb-3 pb-2 border-b border-gray-100">
+              <h4 class="text-sm font-semibold text-gray-800">Presupuesto</h4>
+              <button type="button" (click)="openBudgetItemModal()"
+                class="px-4 py-1.5 bg-gray-900 text-white rounded-lg text-xs font-medium hover:bg-gray-800">
+                + Agregar Ítem
+              </button>
+            </div>
+
+            @if (!budgetItems.length) {
+              <p class="text-xs text-gray-400 italic">Sin ítems de presupuesto</p>
+            }
+
+            @for (item of budgetItems; track item.id; let idx = $index) {
+              <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 mb-2">
+                <div class="flex justify-between items-start">
+                  <div>
+                    <div class="flex items-center gap-2 mb-1">
+                      <span class="px-2 py-0.5 bg-blue-100 text-blue-800 text-xs rounded font-medium">{{ item.category }}</span>
+                      <span class="text-sm font-medium text-gray-900">{{ item.concept }}</span>
+                    </div>
+                    <div class="flex gap-3 text-xs text-gray-500">
+                      <span>{{ item.quantity }} {{ item.unit }}</span>
+                      <span>Costo: ${{ (item.quantity * item.costPerUnit).toLocaleString() }}</span>
+                      <span class="text-emerald-600">Fact: ${{ (item.quantity * item.billedPerUnit).toLocaleString() }}</span>
+                    </div>
+                  </div>
+                  <div class="flex gap-1">
+                    <button type="button" (click)="editBudgetItem(idx)" class="p-1 text-gray-400 hover:text-blue-600">
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                    </button>
+                    <button type="button" (click)="removeBudgetItem(idx)" class="p-1 text-gray-400 hover:text-red-600">
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            }
+
+            @if (budgetItems.length > 0) {
+              <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mt-2">
+                <div class="grid grid-cols-3 gap-3 text-sm">
+                  <div><span class="text-xs text-gray-500">Total Costo</span><p class="font-semibold">${{ getCurrentBudgetCostTotal().toLocaleString() }}</p></div>
+                  <div><span class="text-xs text-gray-500">Total Facturado</span><p class="font-semibold text-emerald-600">${{ getCurrentBudgetBilledTotal().toLocaleString() }}</p></div>
+                  <div><span class="text-xs text-gray-500">Utilidad</span><p class="font-semibold text-emerald-600">${{ getCurrentBudgetProfit().toLocaleString() }}</p></div>
+                </div>
+              </div>
+            }
+          </div>
+
+          <!-- Botones del formulario de plan -->
+          <div class="flex justify-between items-center pt-4 border-t border-gray-100">
+            @if (editingPlanLocalIndex !== null) {
+              <button type="button" (click)="editingPlanLocalIndex = null; resetPlanForm()"
+                class="px-5 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50">
+                Cancelar edición
+              </button>
+            } @else { <span></span> }
+            <button type="button" (click)="addPlanToOds()"
+              class="px-6 py-2.5 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 transition-colors text-sm">
+              @if (editingPlanLocalIndex !== null) { ✓ Guardar cambios } @else { + Agregar Plan a ODS }
+            </button>
+          </div>
+
+        </form>
+      </div>
+
+      <!-- ── FOOTER — Guardar ODS final ─────────────────────── -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-semibold text-gray-900">Guardar ODS en el proyecto</p>
+            <p class="text-xs text-gray-400 mt-0.5">
+              {{ currentOds.samplingPlans.length }} plan(es) configurado(s)
+              @if (!canFinalize()) { · Agrega al menos 1 plan }
+            </p>
+          </div>
+          <div class="flex gap-3">
+            <button (click)="volverAOds()" type="button"
+              class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50">
+              ← Volver
+            </button>
+            <button (click)="finalizeOds()" [disabled]="!canFinalize() || loading"
+              class="px-6 py-2.5 bg-gray-900 text-white rounded-lg font-medium hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm">
+              @if (loading) { Guardando... } @else { Crear ODS }
+            </button>
+          </div>
+        </div>
+      </div>
+
+    }
+    <!-- fin PLAN_FORM -->
+
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════════
+     MODAL PRESUPUESTO
+     ════════════════════════════════════════════════════════════ -->
+@if (showBudgetItemModal) {
+  <div class="fixed inset-0 bg-gray-900/50 flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-xl shadow-xl max-w-xl w-full max-h-[90vh] overflow-y-auto">
+
+      <div class="bg-gray-900 px-5 py-4 flex justify-between items-center rounded-t-xl">
+        <h3 class="text-base font-semibold text-white">
+          {{ editingBudgetItemIndex === -1 ? 'Agregar' : 'Editar' }} Ítem de Presupuesto
+        </h3>
+        <button (click)="closeBudgetItemModal()" class="text-gray-400 hover:text-white">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <form [formGroup]="budgetItemForm" class="p-5 space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">Categoría <span class="text-red-500">*</span></label>
+            <select formControlName="category"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:ring-1 focus:ring-gray-900">
+              @for (cat of budgetCategories; track cat) { <option [value]="cat">{{ cat }}</option> }
+            </select>
+          </div>
+
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">Concepto <span class="text-red-500">*</span></label>
+            <input type="text" formControlName="concept"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-1 focus:ring-gray-900"
+              placeholder="Ej: Camioneta alquilada" />
+          </div>
+
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">Proveedor</label>
+            <input type="text" formControlName="provider"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-1 focus:ring-gray-900" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">Cantidad <span class="text-red-500">*</span></label>
+            <input type="number" formControlName="quantity" min="1"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-1 focus:ring-gray-900" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">Unidad <span class="text-red-500">*</span></label>
+            <input type="text" formControlName="unit"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-1 focus:ring-gray-900"
+              placeholder="días" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">Costo Unitario <span class="text-red-500">*</span></label>
+            <div class="relative">
+              <span class="absolute left-3 top-2 text-gray-400 text-sm">$</span>
+              <input type="number" formControlName="costPerUnit" min="0"
+                class="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-1 focus:ring-gray-900" />
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">Tarifa Cliente <span class="text-red-500">*</span></label>
+            <div class="relative">
+              <span class="absolute left-3 top-2 text-gray-400 text-sm">$</span>
+              <input type="number" formControlName="billedPerUnit" min="0"
+                class="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-1 focus:ring-gray-900" />
+            </div>
+          </div>
+
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium text-gray-700 mb-1.5">Notas</label>
+            <textarea formControlName="notes" rows="2"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg resize-none text-sm focus:ring-1 focus:ring-gray-900"></textarea>
+          </div>
+        </div>
+
+        <!-- Vista previa -->
+        @if (budgetItemForm.valid) {
+          <div class="bg-gray-50 border border-gray-200 rounded-lg p-3">
+            <p class="text-xs font-semibold text-gray-700 mb-2">Vista Previa</p>
+            <div class="grid grid-cols-3 gap-3 text-xs">
+              <div><span class="text-gray-500">Costo:</span><p class="font-semibold">${{ (budgetItemForm.value.quantity * budgetItemForm.value.costPerUnit).toLocaleString() }}</p></div>
+              <div><span class="text-gray-500">Facturado:</span><p class="font-semibold text-emerald-600">${{ (budgetItemForm.value.quantity * budgetItemForm.value.billedPerUnit).toLocaleString() }}</p></div>
+              <div><span class="text-gray-500">Utilidad:</span>
+                <p class="font-semibold text-emerald-600">
+                  ${{ ((budgetItemForm.value.quantity * budgetItemForm.value.billedPerUnit) - (budgetItemForm.value.quantity * budgetItemForm.value.costPerUnit)).toLocaleString() }}
+                </p>
+              </div>
+            </div>
+          </div>
+        }
+
+        <div class="flex justify-end gap-3 pt-2 border-t border-gray-100">
+          <button type="button" (click)="closeBudgetItemModal()"
+            class="px-5 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50">
+            Cancelar
+          </button>
+          <button type="button" (click)="saveBudgetItem()" [disabled]="!budgetItemForm.valid"
+            class="px-5 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 disabled:opacity-50">
+            {{ editingBudgetItemIndex === -1 ? 'Agregar' : 'Guardar' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

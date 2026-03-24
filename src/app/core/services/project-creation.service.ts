@@ -30,5 +30,15 @@ export class ProjectCreationService {
     
   );
   
-}
+  }
+  
+  
+  // Agregar ods a un contrato-proyecto
+  addServiceOrderToProject(projectId : number, serviceOrderDto: any): Observable<any> {
+    
+    return this.http.post(`${this.apiUrl}/${projectId}/add-ods`, serviceOrderDto)
+    
+  }
+  
+
 }

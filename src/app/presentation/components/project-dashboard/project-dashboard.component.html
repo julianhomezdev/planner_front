@@ -1,6 +1,4 @@
-<!-- ========================================================
-     HEADER
-     ======================================================== -->
+
 <div class="mb-5 flex items-center justify-between">
   <div>
     <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Contratos</h1>
@@ -78,16 +76,14 @@
 
 <!-- ========================================================
      LISTA DE CONTRATOS
-     Jerarquía visual: Contrato (negro) > Proyecto (blanco)
-                     > ODS (franja azul-gris) > Plan (filas indentadas)
      ======================================================== -->
 <div class="space-y-5 mb-6">
 
   @for (grupo of gruposFiltrados; track grupo.contrato.id) {
 
-    <!-- ╔══════════════════════════════════════════════════╗
-         ║  NIVEL 1 — CONTRATO                             ║
-         ╚══════════════════════════════════════════════════╝ -->
+    <!-- 
+        NIVEL 1 — CONTRATO                             
+         -->
     <div class="rounded-xl overflow-hidden shadow-md border border-gray-900/20">
 
       <!-- Cabecera del contrato -->
@@ -120,6 +116,19 @@
         </div>
 
         <div class="flex items-center gap-2 shrink-0">
+          
+          
+          <button 
+          
+          (click)="navegarAgregarOds(grupo.contrato.id, $event)"
+          
+            class="px-2.5 py-1 bg-white/10 text-gray-300 text-xs font-medium rounded-lg border border-white/10 cursor-pointer">
+            
+            Agregar nueva Ods
+            
+          </button>
+          
+          
           <span class="px-2.5 py-1 bg-white/10 text-gray-300 text-xs font-medium rounded-lg border border-white/10">
             {{ grupo.proyectos.length }} {{ grupo.proyectos.length === 1 ? 'Orden de servicio' : 'Ordenes de servicio' }}
           </span>

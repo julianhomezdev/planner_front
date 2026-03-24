@@ -469,4 +469,20 @@ export class ProjectDashboardComponent implements OnInit {
     if (this.filtroFechaFin)    return `hasta_${this.filtroFechaFin}`;
     return hoy;
   }
+  
+  navegarAgregarOds(contratoId: number, evento: Event): void {
+    
+    
+    evento.stopPropagation();
+    
+    const grupo = this.grupos.find( g => g.contrato.id === contratoId);
+    
+    const proyectoId = grupo?.proyectos[0]?.id;
+    
+    if(proyectoId) {     
+      
+      this.router.navigate(['/projects', proyectoId, 'add-ods']);
+      
+    }   
+  }
 }
