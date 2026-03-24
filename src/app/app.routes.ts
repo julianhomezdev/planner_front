@@ -86,6 +86,14 @@ export const routes: Routes = [
           { path: 'create-sampling-plan', loadComponent: () => import('./presentation/pages/sampling-plan/sampling-plan.component').then(m => m.SamplingPlanPage) },
           { path: 'order-service', loadComponent: () => import('./presentation/pages/order-service/order-service.component').then(m => m.OrderServicePage) }
         ]
+      }, {
+        
+        
+        path: 'projects/:projectId/add-ods',
+        
+        loadComponent: () => import('./presentation/pages/ods-wizard-page/ods-wizard-page.component')
+          .then(m => m.OdsWizardPage)        
+        
       }
     ]
   }

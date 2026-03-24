@@ -469,4 +469,30 @@ export class ProjectDashboardComponent implements OnInit {
     if (this.filtroFechaFin)    return `hasta_${this.filtroFechaFin}`;
     return hoy;
   }
+  
+  navegarAgregarOds(contratoId: number, evento: Event): void {
+    
+    
+    evento.stopPropagation();
+    
+    const grupo = this.grupos.find( g => g.contrato.id === contratoId);
+    
+    const proyectoId = grupo?.proyectos[0]?.id;
+    
+    if(proyectoId) {     
+      
+      this.router.navigate(['/projects', proyectoId, 'add-ods']);
+      
+    }   
+  }
+  
+  
+  
+  getPlanesDelContrato(grupo: GrupoContrato): { planCode: string; planName: string }[] {
+    return grupo.proyectos
+      .flatMap(p => p.serviceOrders ?? [])
+      .flatMap((o: any) => o.samplingPlans ?? [])
+      .map((sp: any) => ({ planCode: sp.planCode, planName: sp.planName }));
+  }
+  
 }

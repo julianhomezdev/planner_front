@@ -219,7 +219,7 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
         this.checkForDraftToLoad();
         
       }
-      
+        
       else {
         
         this.checkForDraftToLoad();
@@ -1012,6 +1012,10 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
     const baseName = this.planForm.value.planName || this.planForm.value.planCode;
 
     const executionDate = this.planForm.value.startDate || '';
+    
+    const startDate = this.planForm.value.startDate;
+  
+    const endDate   = this.planForm.value.endDate;
 
     if (!planCode || !planName) {
 
@@ -1020,30 +1024,24 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
       return;
 
     }
+    
+    
+    const executionDates = this.distributeDatesAcrossSites(startDate, endDate, count);
+
 
     this.sitesArray.clear();
 
     for (let i = 0; i < count; i++) {
-
-      const siteName = `$Sitio #${i} ${planName}-${planCode}`;
-
+      const siteName  = `Sitio #${i + 1} ${planName}-${planCode}`;
       const siteGroup = this.fb.group({
-
-        name: [siteName],
-
-        matrixId: [''],
-
-        isSubcontracted: [false],
-
+        name:              [siteName],
+        matrixId:          [''],
+        isSubcontracted:   [false],
         subcontractorName: [''],
-
-        executionDate: [executionDate],
-
-        hasReport: [false],
-
-        hasGDB: [false]
-
-      });
+        executionDate:     [executionDates[i]],
+        hasReport:         [false],
+        hasGDB:            [false]
+    });
 
       siteGroup.get('isSubcontracted')?.valueChanges
         .pipe(takeUntil(this.destroy$))
@@ -1061,6 +1059,33 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
     }
     this.formChanges$.next();
   }
+  
+  
+  
+  private distributeDatesAcrossSites(
+  startDateStr: string,
+  endDateStr: string,
+  siteCount: number
+): string[] {
+  if (!startDateStr || !endDateStr || siteCount <= 0) {
+    return Array(siteCount).fill('');
+  }
+
+  const start     = new Date(startDateStr);
+  const end       = new Date(endDateStr);
+  const totalDays = Math.floor(
+    (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)
+  );
+
+  const interval  = Math.max(1, Math.floor(totalDays / siteCount));
+
+  return Array.from({ length: siteCount }, (_, i) => {
+    const date = new Date(start);
+    date.setDate(date.getDate() + i * interval);
+    const capped = date > end ? end : date;
+    return capped.toISOString().split('T')[0];
+  });
+}
 
   get sitesArray(): FormArray {
     return this.planForm.get('sites') as FormArray;
