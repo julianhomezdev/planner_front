@@ -1,9 +1,47 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
-import { ProjectService } from '../../../core/services/project.service';
-import * as XLSX from 'xlsx';
 import { FormsModule } from '@angular/forms';
+import * as XLSX from 'xlsx';
+
+import { ProjectService } from '../../../core/services/project.service';
+
+// ─── Interfaces locales ───────────────────────────────────────────────────────
+
+interface ContratoInfo {
+  id: number;
+  contractCode: string;
+  contractName: string;
+  initialDate: string;
+  finalDate: string;
+}
+
+interface PlanResumen {
+  planCode: string;
+  planName: string;
+}
+
+interface ProyectoResumen {
+  id: number;
+  projectName: string;
+  contract: ContratoInfo;
+  client: { id: number; name: string };
+  initialDate: string;
+  finalDate: string;
+  totalServiceOrders: number;
+  totalSamplingPlans: number;
+  samplingPlans: PlanResumen[];
+  projectResourceAssignementMode: number;
+  serviceOrders?: any[];
+}
+
+interface GrupoContrato {
+  contrato: ContratoInfo;
+  proyectos: ProyectoResumen[];
+  abierto: boolean;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 
 @Component({
   selector: 'project-dashboard-component',
@@ -13,493 +51,422 @@ import { FormsModule } from '@angular/forms';
   styleUrls: ['./project-dashboard.component.css']
 })
 export class ProjectDashboardComponent implements OnInit {
-  
-  private projectService = inject(ProjectService);
-  private router = inject(Router);
-  
-  projects: any[] = [];
-  filteredProjects: any[] = [];
-  loading = true;
-  selectedProject: any = null;
-  filterStartDate: string = '';
-  filterEndDate: string = '';
 
-  showResourceEditModal = false;
-  selectedPlanForEdit: any = null;
-  
+  // ─── Dependencias ─────────────────────────────────────────────────────────
+
+  private readonly projectService = inject(ProjectService);
+  private readonly router         = inject(Router);
+
+  // ─── Estado del componente ────────────────────────────────────────────────
+
+  proyectos: ProyectoResumen[] = [];
+  proyectoSeleccionado: any = null;
+
+  cargando = true;
+
+  // Filtros
+  filtroFechaInicio: string = '';
+  filtroFechaFin:    string = '';
+  filtroBusqueda:    string = '';
+
+  // Grupos principales (fuente de verdad tras cargar datos)
+  grupos: GrupoContrato[] = [];
+
+  // Grupos filtrados (los que se muestran en el template)
+  gruposFiltrados: GrupoContrato[] = [];
+
+  // Controla qué ODS están abiertas/cerradas
+  odsAbiertos: Record<string, boolean> = {};
+
+  // ─── Ciclo de vida ────────────────────────────────────────────────────────
+
   ngOnInit(): void {
-    this.loadProjects();
+    this.cargarProyectos();
   }
 
-  editResources(planId: number): void {
-    
-    const plan = this.findPlanById(planId);
-    
-    if (plan) {
-      
-      this.selectedPlanForEdit = plan;
-      
-      this.showResourceEditModal = true;
-      
-    }
-  }
-  
-  getPendingCount(): number {
-    return this.filteredProjects.filter(p => p.projectResourceAssignementMode === 0).length;
-  }
+  // ─── Carga de datos ───────────────────────────────────────────────────────
 
-  getAssignedCount(): number {
-    return this.filteredProjects.filter(p => p.projectResourceAssignementMode !== 0).length;
-  }
+  cargarProyectos(): void {
+    this.cargando = true;
 
-  assignDetailedResources(planId: number): void {
-    const plan = this.findPlanById(planId);
-    if (plan) {
-      this.selectedPlanForEdit = {
-        ...plan,
-        resourceMode: 'DETAILED' 
-      };
-      this.showResourceEditModal = true;
-    }
-  }
-  
-  
-  isQuantityMode(plan: any): boolean {
-    return plan.resourceAssignmentMode?.toUpperCase() === 'QUANTITY';
-  }
-
-  isDetailedMode(plan: any): boolean {
-    return plan.resourceAssignmentMode?.toUpperCase() === 'DETAILED';
-  }
-  
-  findPlanById(planId: number): any {
-    if (!this.selectedProject?.serviceOrders) return null;
-    
-    for (const ods of this.selectedProject.serviceOrders) {
-      for (const plan of ods.samplingPlans) {
-        if (plan.id === planId) {
-          return plan;
-        }
+    this.projectService.getAllProjects().subscribe({
+      next: (datos: ProyectoResumen[]) => {
+        this.proyectos = datos;
+        this.grupos = this.construirGrupos(datos);
+        this.inicializarEstados();
+        this.gruposFiltrados = this.grupos.map(g => ({ ...g }));
+        this.cargando = false;
+      },
+      error: (error: any) => {
+        console.error('Error al cargar proyectos:', error);
+        this.cargando = false;
       }
-    }
-    return null;
+    });
   }
-  
-  
-  navigateToAssignResources(planId: number, projectId: number): void {
+
+  verProyecto(proyectoId: number): void {
+    this.projectService.getProjectById(proyectoId).subscribe({
+      next: (datos: any) => {
+        this.proyectoSeleccionado = datos;
+      },
+      error: (error: any) => {
+        console.error('Error al cargar el detalle del proyecto:', error);
+      }
+    });
+  }
+
+  // ─── Construcción de grupos ───────────────────────────────────────────────
+
+  private construirGrupos(proyectos: ProyectoResumen[]): GrupoContrato[] {
+    const mapa = new Map<number, GrupoContrato>();
+
+    for (const proyecto of proyectos) {
+      const contratoId = proyecto.contract?.id;
+
+      if (!mapa.has(contratoId)) {
+        mapa.set(contratoId, {
+          contrato: proyecto.contract,
+          proyectos: [],
+          abierto: true
+        });
+      }
+
+      mapa.get(contratoId)!.proyectos.push(proyecto);
+    }
+
+    return Array.from(mapa.values());
+  }
+
+  // ─── Inicializar estado abierto/cerrado ───────────────────────────────────
+
+  inicializarEstados(): void {
+    this.grupos.forEach(grupo => {
+      grupo.abierto = true;
+
+      grupo.proyectos.forEach(proyecto => {
+        proyecto.serviceOrders?.forEach((orden: any) => {
+          this.odsAbiertos[orden.id] = false;
+        });
+      });
+    });
+  }
+
+  // ─── Colapsar / expandir contrato ────────────────────────────────────────
+
+  toggleContrato(grupo: GrupoContrato): void {
+    grupo.abierto = !grupo.abierto;
+
+    // Sincronizar en gruposFiltrados
+    const grupoFiltrado = this.gruposFiltrados.find(
+      g => g.contrato.id === grupo.contrato.id
+    );
+    if (grupoFiltrado) {
+      grupoFiltrado.abierto = grupo.abierto;
+    }
+  }
+
+  // ─── Colapsar / expandir ODS ─────────────────────────────────────────────
+
+  toggleODS(odsId: string): void {
+    this.odsAbiertos[odsId] = !this.odsAbiertos[odsId];
+  }
+
+  // ─── Filtros ──────────────────────────────────────────────────────────────
+
+  aplicarFiltros(): void {
+    const q = this.filtroBusqueda.toLowerCase().trim();
+
+    let base = this.grupos;
+
+    // Filtro por rango de fechas sobre los proyectos
+    if (this.filtroFechaInicio || this.filtroFechaFin) {
+      const inicio = this.filtroFechaInicio ? new Date(this.filtroFechaInicio) : null;
+      const fin    = this.filtroFechaFin    ? new Date(this.filtroFechaFin)    : null;
+
+      base = base.map(grupo => ({
+        ...grupo,
+        proyectos: grupo.proyectos.filter(proyecto => {
+          const fechaInicioProyecto = proyecto.initialDate ? new Date(proyecto.initialDate) : null;
+          const fechaFinProyecto    = proyecto.finalDate   ? new Date(proyecto.finalDate)   : null;
+
+          if (inicio && fechaFinProyecto    && fechaFinProyecto    < inicio) return false;
+          if (fin    && fechaInicioProyecto && fechaInicioProyecto > fin)    return false;
+
+          return true;
+        })
+      })).filter(g => g.proyectos.length > 0);
+    }
+
+    // Filtro por texto
+    if (q) {
+      base = base.map(grupo => ({
+        ...grupo,
+        proyectos: grupo.proyectos.filter(p => {
+          const matchNombre = p.projectName?.toLowerCase().includes(q);
+          const matchPlan   = (p.samplingPlans ?? []).some(plan =>
+            plan.planCode?.toLowerCase().includes(q) ||
+            plan.planName?.toLowerCase().includes(q)
+          );
+          const matchODS = p.serviceOrders?.some((o: any) =>
+            o.samplingPlans?.some(
+              (pl: any) =>
+                pl.planCode?.toLowerCase().includes(q) ||
+                pl.planName?.toLowerCase().includes(q)
+            )
+          );
+          return matchNombre || matchPlan || matchODS;
+        })
+      })).filter(g => g.proyectos.length > 0);
+    }
+
+    this.gruposFiltrados = base;
+  }
+
+  limpiarFiltros(): void {
+    this.filtroFechaInicio = '';
+    this.filtroFechaFin    = '';
+    this.filtroBusqueda    = '';
+    this.gruposFiltrados   = this.grupos.map(g => ({ ...g }));
+  }
+
+  // ─── Contadores ───────────────────────────────────────────────────────────
+
+  totalProyectos(): number {
+    return this.grupos.reduce((sum, g) => sum + g.proyectos.length, 0);
+  }
+
+  totalProyectosVisibles(): number {
+    return this.gruposFiltrados.reduce((sum, g) => sum + g.proyectos.length, 0);
+  }
+
+  contarPendientes(): number {
+    return this.grupos.reduce((sum, g) =>
+      sum + g.proyectos.filter(p => p.projectResourceAssignementMode === 0).length, 0);
+  }
+
+  contarAsignados(): number {
+    return this.grupos.reduce((sum, g) =>
+      sum + g.proyectos.filter(p => p.projectResourceAssignementMode !== 0).length, 0);
+  }
+
+  // ─── Navegación ───────────────────────────────────────────────────────────
+
+  crearNuevoProyecto(): void {
+    this.router.navigate(['/planner']);
+  }
+
+  navegarAAsignarRecursos(planId: number, proyectoId: number): void {
     let odsIndex = -1;
-    
-    if (this.selectedProject?.serviceOrders) {
-      for (let i = 0; i < this.selectedProject.serviceOrders.length; i++) {
-        const ods = this.selectedProject.serviceOrders[i];
+
+    if (this.proyectoSeleccionado?.serviceOrders) {
+      for (let i = 0; i < this.proyectoSeleccionado.serviceOrders.length; i++) {
+        const ods = this.proyectoSeleccionado.serviceOrders[i];
         if (ods.samplingPlans?.some((p: any) => p.id === planId)) {
           odsIndex = i;
           break;
         }
       }
     }
-    
+
     this.router.navigate(['/planner'], {
       queryParams: {
         mode: 'edit-resources',
-        projectId: projectId,
-        planId: planId,
-        odsIndex: odsIndex
+        projectId: proyectoId,
+        planId,
+        odsIndex
       }
     });
   }
-  
-  projectHasPendingResources(project: any): boolean {
-    
-    if (!project.serviceOrders) return false;
-    
-    return project.serviceOrders.some((ods: any) => 
-      
-      ods.samplingPlans?.some((plan: any) => 
-        
-        this.isQuantityMode(plan)
-        
-      )
-      
-    );
-    
-  }
-  
-  
-  // Necesito modificar el back para que pueda incluir los coordinadores de todos los pm del project para poder mostrarlos en la card general
-  
-  // Metodo para poder mostrar coordinadores de todo el proyeto en la card general
-  // Estructura del proyecto para llegar a coords
-  // project -> serviceOrders[] -> samplingPlans[] -> coordinatorName
-  
-  /**getUniqueCoordinators(project: any): string[] {
-    
-    
-    if (!project || !project.serviceOrders?.length) return [];
-    if (!project?.serviceOrders) return [];
-    
-    return [...new Set<string>(
-      project.serviceOrders
-        .flatMap((ods: any) => ods?.samplingPlans ?? [])
-        .map((plan: any) => plan?.coordinatorName as string)
-        .filter((name: string) => !!name)
-    )];
-  }**/
-  
 
-  closeResourceEditModal(): void {
-    this.showResourceEditModal = false;
-    this.selectedPlanForEdit = null;
-  }
+  navegarAAsignarDesdeCard(proyecto: ProyectoResumen, evento: Event): void {
+    evento.stopPropagation();
 
-  onResourcesSaved(): void {
-    this.closeResourceEditModal();
-    // Recargar los detalles del proyecto
-    if (this.selectedProject?.id) {
-      this.viewProject(this.selectedProject.id);
+    if (proyecto.serviceOrders?.length) {
+      this.irAlPrimerPlanPendiente(proyecto.id, proyecto.serviceOrders);
+    } else {
+      this.projectService.getProjectById(proyecto.id).subscribe({
+        next: (proyectoCompleto: any) =>
+          this.irAlPrimerPlanPendiente(proyecto.id, proyectoCompleto.serviceOrders),
+        error: (err: any) => console.error('Error al cargar el proyecto:', err)
+      });
     }
   }
 
-  loadProjects(): void {
-    
-    this.projectService.getAllProjects().subscribe({
-      next: (data) => {
-        this.projects = data;
-        
-        console.log(data);
-        
-        
-        this.filteredProjects = [...data];
-        this.loading = false;
+  // ─── Modal de detalle ─────────────────────────────────────────────────────
+
+  cerrarModal(): void {
+    this.proyectoSeleccionado = null;
+  }
+
+  // ─── Eliminación ──────────────────────────────────────────────────────────
+
+  eliminarProyecto(proyectoId: number): void {
+    if (!confirm('¿Está seguro de eliminar este proyecto?')) return;
+
+    this.projectService.deleteProject(proyectoId).subscribe({
+      next: () => {
+        this.proyectos = this.proyectos.filter(p => p.id !== proyectoId);
+        this.grupos = this.construirGrupos(this.proyectos);
+        this.aplicarFiltros();
       },
-      error: (error) => {
-        console.error('Error cargando proyectos:', error);
-        this.loading = false;
+      error: (error: any) => {
+        console.error('Error al eliminar el proyecto:', error);
       }
     });
   }
-  
-  applyDateFilters(): void {
-    if (!this.filterStartDate && !this.filterEndDate) {
-      this.filteredProjects = [...this.projects];
-      return;
-    }
 
-    this.filteredProjects = this.projects.filter(project => {
-      const projectStartDate = project.initialDate ? new Date(project.initialDate) : null;
-      const projectEndDate = project.finalDate ? new Date(project.finalDate) : null;
-      const filterStart = this.filterStartDate ? new Date(this.filterStartDate) : null;
-      const filterEnd = this.filterEndDate ? new Date(this.filterEndDate) : null;
+  // ─── Helpers de visualización ─────────────────────────────────────────────
 
-      if (filterStart && projectEndDate && projectEndDate < filterStart) {
-        return false;
-      }
-      if (filterEnd && projectStartDate && projectStartDate > filterEnd) {
-        return false;
-      }
-      return true;
-    });
+  esModoNominal(plan: any): boolean {
+    return plan.resourceAssignmentMode?.toUpperCase() === 'QUANTITY';
   }
-  
-  clearFilters(): void {
-    this.filterStartDate = '';
-    this.filterEndDate = '';
-    this.filteredProjects = [...this.projects];
+
+  calcularMargen(presupuesto: any): number {
+    if (!presupuesto?.totalBilled || presupuesto.totalBilled === 0) return 0;
+    return ((presupuesto.totalProfit ?? 0) / presupuesto.totalBilled) * 100;
   }
-  
-  exportToExcel(): void {
-    if (this.filteredProjects.length === 0) {
+
+  obtenerNombresEmpleados(empleados: any[]): string {
+    return empleados
+      .map(e => `${e.firstName} ${e.lastName ?? ''}`.trim())
+      .join(', ');
+  }
+
+  obtenerNombresEquipos(equipos: any[]): string {
+    return equipos.map(e => `${e.name} (${e.code})`).join(', ');
+  }
+
+  obtenerPlacasVehiculos(vehiculos: any[]): string {
+    return vehiculos.map(v => v.plateNumber).join(', ');
+  }
+
+  // ─── Exportación a Excel ──────────────────────────────────────────────────
+
+  exportarAExcel(): void {
+    const todosLosProyectos = this.gruposFiltrados.flatMap(g => g.proyectos);
+
+    if (todosLosProyectos.length === 0) {
       alert('No hay proyectos para exportar');
       return;
     }
 
-    this.loading = true;
-    
-    const projectDetailPromises = this.filteredProjects.map(project => 
-      this.projectService.getProjectById(project.id).toPromise()
+    this.cargando = true;
+
+    const peticiones = todosLosProyectos.map(p =>
+      this.projectService.getProjectById(p.id).toPromise()
     );
 
-    Promise.all(projectDetailPromises).then(detailedProjects => {
-      const excelData = this.prepareExcelData(detailedProjects);
-      const worksheet = XLSX.utils.json_to_sheet(excelData);
-      
-      const columnWidths = [
-        { wch: 20 }, { wch: 15 }, { wch: 25 }, { wch: 25 },
-        { wch: 12 }, { wch: 12 }, { wch: 15 }, { wch: 20 },
-        { wch: 12 }, { wch: 12 }, { wch: 15 }, { wch: 12 },
-        { wch: 12 }, { wch: 30 }, { wch: 30 }, { wch: 30 },
-        { wch: 30 }, { wch: 15 }, { wch: 15 }, { wch: 15 },
-        { wch: 15 }, { wch: 15 }, { wch: 15 }, { wch: 15 },
-        { wch: 15 }, { wch: 15 }, { wch: 15 }, { wch: 15 },
-        { wch: 15 }, { wch: 15 }, { wch: 10 }
-      ];
-      worksheet['!cols'] = columnWidths;
+    Promise.all(peticiones)
+      .then(proyectosDetallados => {
+        const datos = this.prepararDatosExcel(proyectosDetallados);
+        const hoja  = XLSX.utils.json_to_sheet(datos);
 
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, 'Proyectos');
-      
-      const fileName = `Proyectos_${this.getExportFileName()}.xlsx`;
-      XLSX.writeFile(workbook, fileName);
-      
-      this.loading = false;
-    }).catch(error => {
-      console.error('Error cargando detalles para exportar:', error);
-      alert('Error al cargar los detalles de los proyectos');
-      this.loading = false;
-    });
+        hoja['!cols'] = Array(31).fill({ wch: 15 });
+
+        const libro = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(libro, hoja, 'Proyectos');
+        XLSX.writeFile(libro, `Proyectos_${this.obtenerNombreArchivoExport()}.xlsx`);
+
+        this.cargando = false;
+      })
+      .catch(error => {
+        console.error('Error al cargar detalles para exportar:', error);
+        alert('Error al cargar los detalles de los proyectos');
+        this.cargando = false;
+      });
   }
-  
-  private prepareExcelData(detailedProjects: any[]): any[] {
-    const data: any[] = [];
 
-    detailedProjects.forEach(project => {
-      if (!project.serviceOrders || project.serviceOrders.length === 0) {
-        data.push(this.createProjectRow(project, null, null));
+  // ─── Métodos privados ─────────────────────────────────────────────────────
+
+  private irAlPrimerPlanPendiente(proyectoId: number, ordenesDeServicio: any[]): void {
+    for (let odsIndex = 0; odsIndex < ordenesDeServicio.length; odsIndex++) {
+      const planPendiente = ordenesDeServicio[odsIndex].samplingPlans?.find(
+        (p: any) => this.esModoNominal(p)
+      );
+
+      if (planPendiente) {
+        this.router.navigate(['/planner'], {
+          queryParams: {
+            mode: 'edit-resources',
+            projectId: proyectoId,
+            planId: planPendiente.id,
+            odsIndex
+          }
+        });
+        return;
+      }
+    }
+  }
+
+  private prepararDatosExcel(proyectos: any[]): any[] {
+    const filas: any[] = [];
+
+    proyectos.forEach(proyecto => {
+      if (!proyecto.serviceOrders?.length) {
+        filas.push(this.crearFilaExcel(proyecto, null, null));
         return;
       }
 
-      project.serviceOrders.forEach((ods: any) => {
-        if (!ods.samplingPlans || ods.samplingPlans.length === 0) {
-          data.push(this.createProjectRow(project, ods, null));
+      proyecto.serviceOrders.forEach((ods: any) => {
+        if (!ods.samplingPlans?.length) {
+          filas.push(this.crearFilaExcel(proyecto, ods, null));
           return;
         }
-
         ods.samplingPlans.forEach((plan: any) => {
-          data.push(this.createProjectRow(project, ods, plan));
+          filas.push(this.crearFilaExcel(proyecto, ods, plan));
         });
       });
     });
 
-    return data;
+    return filas;
   }
-  
-  private createProjectRow(project: any, ods: any | null, plan: any | null): any {
-    const row: any = {
-      'Proyecto': project.projectName || 'Sin nombre',
-      'Código Contrato': project.contract?.contractCode || '',
-      'Cliente': project.client?.name || '',
-      'Coordinador': project.coordinator?.name || '',
-      'Fecha Inicio Proyecto': project.initialDate || '',
-      'Fecha Fin Proyecto': project.finalDate || '',
+
+  private crearFilaExcel(proyecto: any, ods: any | null, plan: any | null): any {
+    const fila: any = {
+      'Proyecto':              proyecto.projectName        ?? 'Sin nombre',
+      'Codigo Contrato':       proyecto.contract?.contractCode ?? '',
+      'Cliente':               proyecto.client?.name       ?? '',
+      'Coordinador':           proyecto.coordinator?.name  ?? '',
+      'Fecha Inicio Proyecto': proyecto.initialDate        ?? '',
+      'Fecha Fin Proyecto':    proyecto.finalDate          ?? '',
+      'Codigo ODS':            ods?.odsCode   ?? '',
+      'Nombre ODS':            ods?.odsName   ?? '',
+      'Fecha Inicio ODS':      ods?.startDate ?? '',
+      'Fecha Fin ODS':         ods?.endDate   ?? '',
+      'Codigo Plan':           plan?.planCode  ?? '',
+      'Fecha Inicio Plan':     plan?.startDate ?? '',
+      'Fecha Fin Plan':        plan?.endDate   ?? '',
+      'Sitios':   plan?.sites?.map((s: any) => `${s.name} (${s.matrixName})`).join('; ') ?? '',
+      'Personal': plan?.resources?.employees ? this.obtenerNombresEmpleados(plan.resources.employees) : '',
+      'Equipos':  plan?.resources?.equipment ? this.obtenerNombresEquipos(plan.resources.equipment)  : '',
+      'Vehiculos': plan?.resources?.vehicles ? this.obtenerPlacasVehiculos(plan.resources.vehicles)  : '',
     };
 
-    if (ods) {
-      row['Código ODS'] = ods.odsCode || '';
-      row['Nombre ODS'] = ods.odsName || '';
-      row['Fecha Inicio ODS'] = ods.startDate || '';
-      row['Fecha Fin ODS'] = ods.endDate || '';
-    } else {
-      row['Código ODS'] = '';
-      row['Nombre ODS'] = '';
-      row['Fecha Inicio ODS'] = '';
-      row['Fecha Fin ODS'] = '';
-    }
+    const p = plan?.budget ?? {};
+    fila['Costo Transporte']             = p.transportCostChemilab          ?? 0;
+    fila['Facturado Transporte']         = p.transportBilledToClient        ?? 0;
+    fila['Costo Logistica']              = p.logisticsCostChemilab          ?? 0;
+    fila['Facturado Logistica']          = p.logisticsBilledToClient        ?? 0;
+    fila['Costo Subcontratacion']        = p.subcontractingCostChemilab     ?? 0;
+    fila['Facturado Subcontratacion']    = p.subcontractingBilledToClient   ?? 0;
+    fila['Costo Transporte Fluvial']     = p.fluvialTransportCostChemilab   ?? 0;
+    fila['Facturado Transporte Fluvial'] = p.fluvialTransportBilledToClient ?? 0;
+    fila['Costo Informes']               = p.reportsCostChemilab            ?? 0;
+    fila['Facturado Informes']           = p.reportsBilledToClient          ?? 0;
+    fila['Costo Total']                  = p.totalCost                      ?? 0;
+    fila['Total Facturado']              = p.totalBilled                    ?? 0;
+    fila['Utilidad']                     = p.totalProfit                    ?? 0;
+    fila['Margen %']                     = this.calcularMargen(p);
+    fila['Notas Presupuesto']            = p.notes                          ?? '';
 
-    if (plan) {
-      row['Código Plan'] = plan.planCode || '';
-      row['Fecha Inicio Plan'] = plan.startDate || '';
-      row['Fecha Fin Plan'] = plan.endDate || '';
-      
-      row['Sitios'] = plan.sites?.map((s: any) => 
-        `${s.name} (${s.matrixName})`
-      ).join('; ') || '';
-      
-      row['Personal'] = plan.resources?.employees?.map((e: any) => {
-        const lastName = e.lastName || '';
-        return `${e.firstName} ${lastName}`.trim();
-      }).join(', ') || '';
-      
-      row['Equipos'] = plan.resources?.equipment?.map((e: any) => 
-        `${e.name} (${e.code})`
-      ).join(', ') || '';
-      
-      row['Vehículos'] = plan.resources?.vehicles?.map((v: any) => 
-        v.plateNumber
-      ).join(', ') || '';
-      
-      const budget = plan.budget || {};
-      row['Costo Transporte'] = budget.transportCostChemilab || 0;
-      row['Facturado Transporte'] = budget.transportBilledToClient || 0;
-      row['Costo Logística'] = budget.logisticsCostChemilab || 0;
-      row['Facturado Logística'] = budget.logisticsBilledToClient || 0;
-      row['Costo Subcontratación'] = budget.subcontractingCostChemilab || 0;
-      row['Facturado Subcontratación'] = budget.subcontractingBilledToClient || 0;
-      row['Costo Transporte Fluvial'] = budget.fluvialTransportCostChemilab || 0;
-      row['Facturado Transporte Fluvial'] = budget.fluvialTransportBilledToClient || 0;
-      row['Costo Informes'] = budget.reportsCostChemilab || 0;
-      row['Facturado Informes'] = budget.reportsBilledToClient || 0;
-      row['Costo Total'] = budget.totalCost || 0;
-      row['Total Facturado'] = budget.totalBilled || 0;
-      row['Utilidad'] = budget.totalProfit || 0;
-      row['Margen %'] = this.calculateMargin(budget);
-      row['Notas Presupuesto'] = budget.notes || '';
-    } else {
-      row['Código Plan'] = '';
-      row['Fecha Inicio Plan'] = '';
-      row['Fecha Fin Plan'] = '';
-      row['Sitios'] = '';
-      row['Personal'] = '';
-      row['Equipos'] = '';
-      row['Vehículos'] = '';
-      row['Costo Transporte'] = 0;
-      row['Facturado Transporte'] = 0;
-      row['Costo Logística'] = 0;
-      row['Facturado Logística'] = 0;
-      row['Costo Subcontratación'] = 0;
-      row['Facturado Subcontratación'] = 0;
-      row['Costo Transporte Fluvial'] = 0;
-      row['Facturado Transporte Fluvial'] = 0;
-      row['Costo Informes'] = 0;
-      row['Facturado Informes'] = 0;
-      row['Costo Total'] = 0;
-      row['Total Facturado'] = 0;
-      row['Utilidad'] = 0;
-      row['Margen %'] = 0;
-      row['Notas Presupuesto'] = '';
-    }
-
-    return row;
-  }
-  
-  private getExportFileName(): string {
-    const today = new Date();
-    const dateStr = today.toISOString().split('T')[0];
-    
-    if (this.filterStartDate && this.filterEndDate) {
-      return `${this.filterStartDate}_a_${this.filterEndDate}`;
-    } else if (this.filterStartDate) {
-      return `desde_${this.filterStartDate}`;
-    } else if (this.filterEndDate) {
-      return `hasta_${this.filterEndDate}`;
-    }
-    
-    return dateStr;
-  }
-  
-  calculateMargin(budget: any): number {
-    if (!budget || !budget.totalBilled || budget.totalBilled === 0) {
-      return 0;
-    }
-    const totalProfit = budget.totalProfit || 0;
-    const totalBilled = budget.totalBilled;
-    return (totalProfit / totalBilled) * 100;
-  }
-  
-  viewProject(projectId: number): void {
-    this.projectService.getProjectById(projectId).subscribe({
-      next: (data) => {
-        this.selectedProject = data;
-      },
-      error: (error) => {
-        console.error('Error cargando detalles:', error);
-      }
-    });
-  }
-  
-  closeModal(): void {
-    this.selectedProject = null;
-  }
-  
-  editProject(projectId: number): void {
-    this.router.navigate(['/projects', projectId, 'edit']);
-  }
-  
-  deleteProject(projectId: number): void {
-    if (!confirm('¿Está seguro de eliminar este proyecto?')) return;
-    
-    this.projectService.deleteProject(projectId).subscribe({
-      next: () => {
-        this.projects = this.projects.filter(p => p.id !== projectId);
-        this.filteredProjects = this.filteredProjects.filter(p => p.id !== projectId);
-      },
-      error: (error) => {
-        console.error('Error eliminando proyecto:', error);
-      }
-    });
-  }
-  
-  createNewProject(): void {
-    this.router.navigate(['/planner']);
+    return fila;
   }
 
-  getEmployeeNames(employees: any[]): string {
-    return employees.map(e => {
-      const lastName = e.lastName || '';
-      return `${e.firstName} ${lastName}`.trim();
-    }).join(', ');
-  }
-
-  getEquipmentNames(equipment: any[]): string {
-    return equipment.map(e => `${e.name} (${e.code})`).join(', ');
-  }
-
-  getVehiclePlates(vehicles: any[]): string {
-    return vehicles.map(v => v.plateNumber).join(', ');
-  }
-  
-  private findAndNavigatePendingPlan(projectId: number, serviceOrders: any[]):void {
-    
-    for ( let odsIndex = 0; odsIndex < serviceOrders.length; odsIndex++) {
-      
-      const pendingPlan = serviceOrders[odsIndex].samplingPlans?.find(
-        
-        (p: any) => this.isQuantityMode(p)
-        
-      );
-      
-      if(pendingPlan) {
-        
-        this.router.navigate(['/planner'], {
-          
-          queryParams: {
-            
-            mode: 'edit-resources',
-            
-            projectId,
-            
-            planId: pendingPlan.id,
-            
-            odsIndex
-            
-          }
-          
-          
-        });
-        
-        return;
-        
-      }
-      
-      
-    }
-    
-  }
-  
-  
-  // Method to go to assign the detail resources
-  navigateToAssignFromCard(project: any, event: Event) {
-    
-    event.stopPropagation();
-    
-    if (project.serviceOrders?.length) {
-      
-      this.findAndNavigatePendingPlan(project.id, project.serviceOrders); 
-      
-      
-    } else {
-      
-      this.projectService.getProjectById(project.id).subscribe({
-        
-        next:(fullProject) =>
-          
-          this.findAndNavigatePendingPlan(project.id, fullProject.serviceOrders),
-          
-        error: (err) => console.error('Error cargando el proyecto', err)
-        
-        
-      });
-      
-    }
-    
+  private obtenerNombreArchivoExport(): string {
+    const hoy = new Date().toISOString().split('T')[0];
+    if (this.filtroFechaInicio && this.filtroFechaFin) return `${this.filtroFechaInicio}_a_${this.filtroFechaFin}`;
+    if (this.filtroFechaInicio) return `desde_${this.filtroFechaInicio}`;
+    if (this.filtroFechaFin)    return `hasta_${this.filtroFechaFin}`;
+    return hoy;
   }
 }

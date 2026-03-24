@@ -171,6 +171,8 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
   odsSameDatesAsContract: boolean = false;
   
   selectedContract: any = '';
+  
+  contratoModoLectura: boolean = false;
 
 
   projectResourceMode: number = 0;
@@ -212,7 +214,13 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
         
         this.loadProjectForResourceEdit(+projectId, +planId, +odsIndex);
         
-      } else {
+      } else if (mode === 'add-ods') {
+        
+        this.checkForDraftToLoad();
+        
+      }
+      
+      else {
         
         this.checkForDraftToLoad();
         
@@ -605,7 +613,6 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
       planName: plan.planName || '',
       startDate: null,
       endDate: null,
-      // ✅ Guardar las matrices únicas del plan
       matrixIds: [...new Set((plan.sites || []).map((s: any) => s.matrixId).filter(Boolean))],
       matrixNames: [...new Set((plan.sites || []).map((s: any) => s.matrixName).filter(Boolean))].join(', '),
       coordinatorId: null,
