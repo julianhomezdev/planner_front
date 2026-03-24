@@ -1,497 +1,400 @@
-<!-- HEADER DEL DASHBOARD -->
-<div class="mb-6">
-  <div class="flex items-center justify-between">
-    <div>
-      <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Proyectos</h1>
-      <p class="text-sm text-gray-500 mt-1">
-        {{ filteredProjects.length }} de {{ projects.length }} proyectos activos
-      </p>
-    </div>
-    <button (click)="exportToExcel()" [disabled]="loading"
-      class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm">
-      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-          d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-      </svg>
-      Exportar Excel
-    </button>
+<!-- ========================================================
+     HEADER
+     ======================================================== -->
+<div class="mb-5 flex items-center justify-between">
+  <div>
+    <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Contratos</h1>
+    <p class="text-sm text-gray-500 mt-1">
+      {{ totalProyectosVisibles() }} de {{ totalProyectos() }} contratos activos
+    </p>
   </div>
+
+  <button
+    (click)="exportarAExcel()"
+    [disabled]="cargando"
+    class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+    <svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+    </svg>
+    Exportar Excel
+  </button>
 </div>
 
-<!-- BARRA DE FILTROS -->
-<div class="bg-white border border-gray-200 rounded-xl p-4 mb-6 shadow-sm">
-  <div class="flex items-center gap-4 flex-wrap">
-    <div class="flex items-center gap-2">
-      <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-      </svg>
-      <span class="text-sm font-medium text-gray-600">Filtrar por fechas:</span>
-    </div>
-    <div class="flex items-center gap-3 flex-wrap flex-1">
-      <input type="date" [(ngModel)]="filterStartDate" (change)="applyDateFilters()"
-        class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white" />
-      <span class="text-gray-400 text-sm">→</span>
-      <input type="date" [(ngModel)]="filterEndDate" (change)="applyDateFilters()"
-        class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-1 focus:ring-gray-900 focus:border-gray-900 bg-white" />
-      <button *ngIf="filterStartDate || filterEndDate" (click)="clearFilters()"
-        class="inline-flex items-center gap-1 px-3 py-1.5 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+
+<!-- ========================================================
+     BARRA DE BUSQUEDA + INDICADORES
+     ======================================================== -->
+<div class="mb-5 space-y-3">
+  <div class="flex items-center gap-2 px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm">
+    <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M21 21l-4.35-4.35M17 11A6 6 0 1 0 5 11a6 6 0 0 0 12 0z" />
+    </svg>
+    <input
+      type="text"
+      [(ngModel)]="filtroBusqueda"
+      (input)="aplicarFiltros()"
+      placeholder="Buscar por codigo o nombre de plan de muestreo..."
+      class="flex-1 bg-transparent text-sm text-gray-900 placeholder-gray-400 focus:outline-none" />
+    @if (filtroBusqueda) {
+      <button (click)="limpiarFiltros()" class="text-gray-400 hover:text-gray-600 transition-colors">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
         </svg>
-        Limpiar
       </button>
-    </div>
+    }
+  </div>
 
-    <!-- Indicadores rápidos -->
-    <div class="flex items-center gap-3 ml-auto">
-      <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 border border-amber-200 text-amber-800 text-xs font-semibold rounded-lg">
-        <span class="w-2 h-2 bg-amber-400 rounded-full"></span>
-        {{ getPendingCount() }} pendientes
-      </span>
-      <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold rounded-lg">
-        <span class="w-2 h-2 bg-emerald-500 rounded-full"></span>
-        {{ getAssignedCount() }} asignados
-      </span>
-    </div>
+  <div class="flex items-center gap-2">
+    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-amber-50 border border-amber-200 text-amber-800 text-xs font-semibold rounded-lg">
+      <span class="w-1.5 h-1.5 bg-amber-400 rounded-full"></span>
+      {{ contarPendientes() }} pendientes
+    </span>
+    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold rounded-lg">
+      <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
+      {{ contarAsignados() }} asignados
+    </span>
   </div>
 </div>
 
-<!-- GRID DE PROYECTOS -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-6">
-  
-  <div *ngFor="let project of filteredProjects"
-  
-    class="bg-white rounded-xl border transition-all duration-200 overflow-hidden flex flex-col hover:shadow-md"
-    [class.border-amber-300]="projectHasPendingResources(project)"
-    [class.border-gray-200]="!projectHasPendingResources(project)">
 
-    <!-- Franja de alerta (solo si tiene pendientes) -->
-    <div *ngIf="projectHasPendingResources(project)"
-      class="bg-amber-400 text-amber-900 px-4 py-2 text-xs font-bold text-center tracking-wide">
-      ⚠ RECURSOS PENDIENTES DE ASIGNAR
-    </div>
-
-    <div class="p-5 flex-1 flex flex-col">
-
-      <!-- Top: nombre + badge -->
-      <div class="flex items-start justify-between gap-3 mb-4">
-        <div class="flex-1 min-w-0">
-          <h3 class="text-sm font-bold text-gray-900 truncate leading-tight">
-            {{ project.projectName || 'Sin nombre' }}
-          </h3>
-          <p class="text-xs text-gray-400 mt-0.5 font-mono">{{ project.contract?.contractCode }}</p>
-        </div>
-        <span class="shrink-0 px-2.5 py-1 bg-emerald-100 text-emerald-700 text-xs font-semibold rounded-md">
-          Activo
-        </span>
-      </div>
-
-      <!-- Info del proyecto -->
-      <div class="space-y-2 flex-1">
-
-        <!-- Cliente -->
-        <div class="flex items-center gap-2 text-xs text-gray-600">
-          <svg class="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-          </svg>
-          <span class="truncate font-medium text-gray-700">{{ project.client?.name || 'Sin cliente' }}</span>
-        </div>
-
-        <!-- Fechas -->
-        <div *ngIf="project.initialDate || project.finalDate" class="flex items-center gap-2 text-xs text-gray-500">
-          <svg class="w-3.5 h-3.5 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-          </svg>
-          <span>{{ project.initialDate || 'N/A' }} → {{ project.finalDate || 'N/A' }}</span>
-        </div>
-
-        <!-- Planes de muestreo-->
-         <div *ngIf="project.initialDate || project.finalDate" class="flex items-center gap-2 text-xs text-gray-500">
-          
-          <svg class="w-3.5 h-3.5 text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-          </svg>
-          
-
-          
-          
-          <div>
-            
-            @for(samplingPlan of project.samplingPlans; track samplingPlan.PlanCode) {
-              
-              
-              
-              <span>{{ samplingPlan.planCode }} - {{ samplingPlan.planName }}</span> 
-              
-            }
-            
-            
-          </div>
-        
-        </div>
-        
-        
-        
-        <!--Coordinadores de proyecto-->
-        
-   
-        
-        <!--<div class="flex items-center gap-2 pt-1">
-          
-          @for (coordinatorName of getUniqueCoordinators(project); track coordinatorName) {
-            
-            <span class="px-2.5 py-1 bg-gray-100 text-gray-600 text-xs font-semibold rounded-md">
-              
-            <p style="color:red">{{ getUniqueCoordinators(project) | json }}</p>
-{{ coordinatorName }}  hello
-            </span>
-            
-            
-            
-          }
-          
-          
-    
-        </div>->
-            
-                        
-          
-        
-        
-        <div class="flex items-center gap-2 pt-1">
-          <span class="px-2.5 py-1 bg-gray-100 text-gray-600 text-xs font-semibold rounded-md">
-            {{ project.totalServiceOrders }} ODS
-          </span>
-          <span class="px-2.5 py-1 bg-gray-100 text-gray-600 text-xs font-semibold rounded-md">
-            {{ project.totalSamplingPlans }} Planes
-          </span>
-        </div>
-
-        <!-- Estado asignación -->
-        <div class="pt-2 mt-auto">
-          @if (project.projectResourceAssignementMode == 0) {
-            <div class="flex items-center justify-between gap-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
-              <span class="text-xs text-amber-800 font-medium">Asignación de recursos pendiente</span>
-              <button (click)="navigateToAssignFromCard(project, $event)"
-                class="shrink-0 px-3 py-1 bg-gray-900 text-white text-xs font-semibold rounded-md hover:bg-gray-700 transition-colors cursor-pointer">
-                Asignar
-              </button>
-            </div>
-          } @else {
-            <div class="flex items-center gap-2 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2">
-              <svg class="w-3.5 h-3.5 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-              </svg>
-              <span class="text-xs text-emerald-700 font-medium">Recursos asignados</span>
-            </div>
-          }
-        </div>
-      </div>
-    </div>
-
-    <!-- Footer de la card -->
-    <div class="px-5 py-3 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
-      <button (click)="viewProject(project.id)"
-        class="inline-flex items-center gap-1 text-xs font-semibold text-gray-700 hover:text-gray-900 transition-colors cursor-pointer">
-        Ver detalles
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-        </svg>
-      </button>
-      <div class="flex items-center gap-1">
-        
-        <!--Boton de editar comentado, se debe crear la funcionalidad para esto-->
-        
-        <!--<button (click)="editProject(project.id)"
-          class="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-200 rounded-md transition-colors" title="Editar">
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-          </svg>
-        </button>-->
-        
-        
-        <button (click)="deleteProject(project.id); $event.stopPropagation()"
-          class="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors" title="Eliminar">
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-          </svg>
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Estado vacío -->
-  <div *ngIf="filteredProjects.length === 0"
-    class="col-span-3 flex flex-col items-center justify-center py-16 text-center">
-    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-      <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<!-- ========================================================
+     ESTADO VACIO
+     ======================================================== -->
+@if (gruposFiltrados.length === 0) {
+  <div class="flex flex-col items-center justify-center py-16 text-center bg-white rounded-xl border border-gray-200">
+    <div class="w-14 h-14 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+      <svg class="w-7 h-7 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
           d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
       </svg>
     </div>
-    <p class="text-gray-500 font-medium">No hay proyectos que mostrar</p>
-    <p class="text-gray-400 text-sm mt-1">Ajusta los filtros o crea un nuevo proyecto</p>
+    <p class="text-sm font-medium text-gray-500">No hay proyectos que mostrar</p>
+    <p class="text-xs text-gray-400 mt-1">Ajusta el filtro de busqueda</p>
   </div>
-</div>
+}
 
-<div *ngIf="selectedProject"
-  class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-  (click)="closeModal()">
 
-  <div class="bg-white rounded-xl max-w-5xl w-full max-h-[92vh] overflow-hidden shadow-2xl border border-gray-200"
-    (click)="$event.stopPropagation()">
+<!-- ========================================================
+     LISTA DE CONTRATOS
+     Jerarquía visual: Contrato (negro) > Proyecto (blanco)
+                     > ODS (franja azul-gris) > Plan (filas indentadas)
+     ======================================================== -->
+<div class="space-y-5 mb-6">
 
-    <!-- HEADER -->
-    <div class="px-8 py-5 border-b border-gray-200 flex items-center justify-between bg-gray-900">
-      <div>
-        <h2 class="text-xl font-bold text-white tracking-tight">{{ selectedProject.projectName }}</h2>
-        <p class="text-gray-400 text-sm mt-0.5">
-          Contrato {{ selectedProject.contract?.contractCode }}
-          <span class="mx-2 text-gray-600">·</span>
-          {{ selectedProject.client?.name }}
-        </p>
-      </div>
-      <div class="flex items-center gap-4">
-        <!-- Fechas contrato -->
-        <div class="text-right hidden sm:block">
-          <p class="text-xs text-gray-500">Vigencia</p>
-          <p class="text-sm text-gray-300 font-medium">
-            {{ selectedProject.initialDate || 'N/A' }} → {{ selectedProject.finalDate || 'N/A' }}
-          </p>
-        </div>
-        <button (click)="closeModal()"
-          class="text-gray-400 hover:text-white transition-colors p-2 hover:bg-white/10 rounded-lg">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-      </div>
-    </div>
+  @for (grupo of gruposFiltrados; track grupo.contrato.id) {
 
-    <!-- BODY -->
-    <div class="overflow-y-auto max-h-[calc(92vh-130px)] bg-gray-50">
-      <div class="p-6 space-y-5">
+    <!-- ╔══════════════════════════════════════════════════╗
+         ║  NIVEL 1 — CONTRATO                             ║
+         ╚══════════════════════════════════════════════════╝ -->
+    <div class="rounded-xl overflow-hidden shadow-md border border-gray-900/20">
 
-        <!-- ÓRDENES DE SERVICIO -->
-        <div *ngFor="let order of selectedProject.serviceOrders; let oIdx = index">
+      <!-- Cabecera del contrato -->
+      <button
+        type="button"
+        (click)="toggleContrato(grupo)"
+        class="w-full bg-gray-900 px-5 py-4 flex items-center justify-between gap-3 hover:bg-gray-800 transition-colors">
 
-          <!-- ODS Header -->
-          <div class="rounded-xl border border-gray-200 overflow-hidden shadow-sm bg-white">
-            <div class="flex items-center justify-between px-5 py-4 bg-gray-800">
-              <div class="flex items-center gap-3">
-                <span class="px-2.5 py-1 bg-white/20 text-white text-xs font-bold rounded tracking-wide">
-                  ODS
-                </span>
-                <div>
-                  <h3 class="text-white font-bold text-base leading-tight">{{ order.odsCode }}</h3>
-                  <p class="text-gray-400 text-xs mt-0.5">{{ order.odsName }}</p>
-                </div>
-              </div>
-              <div class="text-right text-xs text-gray-400">
-                <p>{{ order.startDate || '—' }}</p>
-                <p>{{ order.endDate || '—' }}</p>
-              </div>
+        <div class="flex items-center gap-3 min-w-0">
+          <!-- Icono contrato -->
+          <div class="w-9 h-9 bg-white/10 rounded-lg flex items-center justify-center shrink-0 border border-white/10">
+            <svg class="w-4.5 h-4.5 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </div>
+          <div class="text-left min-w-0">
+            <!-- Etiqueta nivel -->
+            <span class="text-[10px] font-bold tracking-widest text-gray-500 uppercase">Contrato</span>
+            <div class="flex items-center gap-2 flex-wrap mt-0.5">
+              <span class="font-mono text-xs text-gray-400 bg-white/10 px-1.5 py-0.5 rounded">
+                {{ grupo.contrato.contractCode }}
+              </span>
+              <span class="text-white font-semibold text-sm">{{ grupo.contrato.contractName }}</span>
             </div>
-
-            <!-- PLANES DE MUESTREO -->
-            <div class="divide-y divide-gray-100">
-              <div *ngFor="let plan of order.samplingPlans; let pIdx = index" class="p-5">
-
-                <!-- Plan header -->
-                <div class="flex items-start justify-between mb-4">
-                  <div class="flex items-start gap-3">
-                    <!-- Indicador modo -->
-                    <div [class]="'w-1 self-stretch rounded-full shrink-0 ' + 
-                        (isQuantityMode(plan) ? 'bg-amber-400' : 'bg-emerald-500')">
-                    </div>
-                    <div>
-                      <div class="flex items-center gap-2 flex-wrap">
-                        <span class="text-base font-bold text-gray-900">{{ plan.planCode }}</span>
-                        <span class="text-sm text-gray-500">— {{ plan.planName }}</span>
-                      </div>
-                      <div class="flex items-center gap-3 mt-1 text-xs text-gray-500 flex-wrap">
-                        <span *ngIf="plan.startDate">
-                          <span class="icon-[la--calendar]"></span> {{ plan.startDate }} → {{ plan.endDate }}
-                        </span>
-                        <!-- COORDINADOR DEL PLAN -->
-                        <span *ngIf="plan.projectCoordinatorName || plan.coordinatorName"
-                          class="flex items-center gap-1 text-gray-700 font-medium">
-                          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                          </svg>
-                          {{ plan.projectCoordinatorName || plan.coordinatorName }}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Badge estado -->
-                  <span [class]="'px-3 py-1 rounded-full text-xs font-bold shrink-0 ' + 
-                      (isQuantityMode(plan) 
-                        ? 'bg-amber-100 text-amber-800 border border-amber-300' 
-                        : 'bg-emerald-100 text-emerald-800 border border-emerald-300')">
-                    {{ isQuantityMode(plan) ? '⏳ Pendiente asignar recursos' : '✓ Asignado' }}
-                  </span>
-                </div>
-
-                <!-- Contenido del plan: 3 columnas -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-
-                  <!-- SITIOS -->
-                  <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
-                      Sitios ({{ plan.sites?.length || 0 }})
-                    </p>
-                    <div *ngIf="plan.sites?.length > 0" class="space-y-1.5 max-h-36 overflow-y-auto pr-1">
-                      <div *ngFor="let site of plan.sites"
-                        class="text-xs bg-white border border-gray-200 rounded px-2.5 py-1.5">
-                        <p class="font-medium text-gray-800 truncate">{{ site.name }}</p>
-                        <p class="text-gray-500">{{ site.matrixName }}</p>
-                        <div class="flex gap-2 mt-1">
-                          <span *ngIf="site.hasReport"
-                            class="px-1.5 py-0.5 bg-blue-50 text-blue-700 rounded text-xs">Informe</span>
-                          <span *ngIf="site.hasGDB"
-                            class="px-1.5 py-0.5 bg-purple-50 text-purple-700 rounded text-xs">GDB</span>
-                          <span *ngIf="site.executionDate" class="text-gray-400">{{ site.executionDate }}</span>
-                        </div>
-                      </div>
-                    </div>
-                    <p *ngIf="!plan.sites?.length" class="text-xs text-gray-400 italic">Sin sitios</p>
-                  </div>
-
-                  <!-- RECURSOS -->
-                  <div [class]="'rounded-lg p-4 border ' + 
-                      (isQuantityMode(plan) 
-                        ? 'bg-amber-50 border-amber-200' 
-                        : 'bg-emerald-50 border-emerald-200')">
-                    <p [class]="'text-xs font-semibold uppercase tracking-wide mb-3 ' + 
-                        (isQuantityMode(plan) ? 'text-amber-700' : 'text-emerald-700')">
-                      Recursos
-                    </p>
-
-                    <!-- MODO CANTIDAD -->
-                    <ng-container *ngIf="isQuantityMode(plan)">
-                      <div class="space-y-2">
-                        <div *ngFor="let eq of plan.employeeQuantities"
-                          class="flex justify-between items-center text-xs bg-amber-100 px-2.5 py-1.5 rounded">
-                          <span class="text-amber-900"><span class="icon-[pepicons-pop--people]"></span> {{ eq.categoryName }}</span>
-                          <span class="font-bold text-amber-900 bg-amber-200 px-1.5 rounded">{{ eq.quantity }}</span>
-                        </div>
-                        <div *ngFor="let eq of plan.equipmentQuantities"
-                          class="flex justify-between items-center text-xs bg-amber-100 px-2.5 py-1.5 rounded">
-                          <span class="text-amber-900"><span class="icon-[bi--tools]"></span> {{ eq.categoryName }}</span>
-                          <span class="font-bold text-amber-900 bg-amber-200 px-1.5 rounded">{{ eq.quantity }}</span>
-                        </div>
-                        <div *ngIf="plan.vehicleQuantity > 0"
-                          class="flex justify-between items-center text-xs bg-amber-100 px-2.5 py-1.5 rounded">
-                          <span class="text-amber-900"><span class="icon-[fluent--vehicle-car-20-filled]"></span> Vehículos</span>
-                          <span class="font-bold text-amber-900 bg-amber-200 px-1.5 rounded"> {{ plan.vehicleQuantity }}</span>
-                        </div>
-                        <p *ngIf="!plan.employeeQuantities?.length && !plan.equipmentQuantities?.length && !plan.vehicleQuantity"
-                          class="text-xs text-amber-700 italic">Sin recursos definidos</p>
-                      </div>
-
-                      <!-- Botón asignar -->
-                      <button (click)="navigateToAssignResources(plan.id, selectedProject.id)"
-                        class="mt-3 w-full px-3 py-2 bg-gray-900 hover:bg-gray-700 text-white rounded-lg text-xs font-bold transition-colors flex items-center justify-center gap-2 cursor-pointer">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                        Asignar recursos
-                      </button>
-                    </ng-container>
-
-                    <!-- MODO DETALLADO -->
-                    <ng-container *ngIf="!isQuantityMode(plan) && plan.resources">
-                      <div class="space-y-2">
-                        <div *ngIf="plan.resources.employees?.length > 0">
-                          <p class="text-xs text-emerald-700 font-semibold mb-1">Personal</p>
-                          <p class="text-xs text-gray-700 bg-white border border-emerald-200 rounded px-2.5 py-1.5">
-                            {{ getEmployeeNames(plan.resources.employees) }}
-                          </p>
-                        </div>
-                        <div *ngIf="plan.resources.equipment?.length > 0">
-                          <p class="text-xs text-emerald-700 font-semibold mb-1">Equipos</p>
-                          <p class="text-xs text-gray-700 bg-white border border-emerald-200 rounded px-2.5 py-1.5">
-                            {{ getEquipmentNames(plan.resources.equipment) }}
-                          </p>
-                        </div>
-                        <div *ngIf="plan.resources.vehicles?.length > 0">
-                          <p class="text-xs text-emerald-700 font-semibold mb-1">Vehículos</p>
-                          <p class="text-xs text-gray-700 bg-white border border-emerald-200 rounded px-2.5 py-1.5">
-                            {{ getVehiclePlates(plan.resources.vehicles) }}
-                          </p>
-                        </div>
-                        <p *ngIf="plan.resourceStartDate" class="text-xs text-gray-500 mt-2">
-                          🗓 {{ plan.resourceStartDate }} → {{ plan.resourceEndDate }}
-                        </p>
-                      </div>
-                    </ng-container>
-                  </div>
-
-                  <!-- PRESUPUESTO -->
-                  <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Presupuesto</p>
-                    <div *ngIf="plan.budget" class="space-y-2.5">
-                      <div class="flex justify-between items-center text-sm">
-                        <span class="text-gray-500 text-xs">Costo</span>
-                        <span class="font-semibold text-gray-900">${{ plan.budget.totalCost | number:'1.0-0' }}</span>
-                      </div>
-                      <div class="flex justify-between items-center text-sm border-t border-gray-200 pt-2">
-                        <span class="text-gray-500 text-xs">Facturado</span>
-                        <span class="font-semibold text-gray-900">${{ plan.budget.totalBilled | number:'1.0-0' }}</span>
-                      </div>
-                      <div class="flex justify-between items-center text-sm border-t border-gray-200 pt-2">
-                        <span class="text-gray-600 text-xs font-semibold">Utilidad</span>
-                        <span [class]="'font-bold text-base ' + (plan.budget.totalProfit >= 0 ? 'text-emerald-600' : 'text-red-600')">
-                          ${{ plan.budget.totalProfit | number:'1.0-0' }}
-                        </span>
-                      </div>
-                      <div class="flex justify-between items-center border-t border-gray-200 pt-2">
-                        <span class="text-gray-600 text-xs font-semibold">Margen</span>
-                        <span [class]="'font-bold text-sm px-2 py-0.5 rounded ' + 
-                            (calculateMargin(plan.budget) >= 0 
-                              ? 'bg-emerald-100 text-emerald-700' 
-                              : 'bg-red-100 text-red-700')">
-                          {{ calculateMargin(plan.budget).toFixed(1) }}%
-                        </span>
-                      </div>
-                    </div>
-                    <p *ngIf="!plan.budget" class="text-xs text-gray-400 italic">Sin presupuesto</p>
-                  </div>
-
-                </div>
-              </div>
-
-              <p *ngIf="!order.samplingPlans?.length" class="px-5 py-4 text-sm text-gray-400 italic">
-                Sin planes de muestreo
-              </p>
-            </div>
+            <p class="text-gray-500 text-xs mt-0.5">
+              {{ grupo.contrato.initialDate || 'N/A' }} — {{ grupo.contrato.finalDate || 'N/A' }}
+            </p>
           </div>
         </div>
 
-        <p *ngIf="!selectedProject.serviceOrders?.length" class="text-sm text-gray-400 italic text-center py-8">
-          Este proyecto no tiene órdenes de servicio
-        </p>
-
-      </div>
-    </div>
-
-    <!-- FOOTER -->
-    <div class="bg-white border-t border-gray-200 px-6 py-4 flex justify-end">
-      <button (click)="closeModal()"
-        class="px-5 py-2 bg-gray-900 hover:bg-gray-700 text-white rounded-lg font-medium transition-colors text-sm cursor-pointer">
-        Cerrar
+        <div class="flex items-center gap-2 shrink-0">
+          <span class="px-2.5 py-1 bg-white/10 text-gray-300 text-xs font-medium rounded-lg border border-white/10">
+            {{ grupo.proyectos.length }} {{ grupo.proyectos.length === 1 ? 'Orden de servicio' : 'Ordenes de servicio' }}
+          </span>
+          <svg
+            class="w-4 h-4 text-gray-400 transition-transform duration-200"
+            [class.rotate-180]="grupo.abierto"
+            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
       </button>
-    </div>
 
-  </div>
+
+      <!-- ── Proyectos del contrato ──────────────────────── -->
+      @if (grupo.abierto) {
+        <div class="bg-gray-50 divide-y divide-gray-200">
+
+          @for (proyecto of grupo.proyectos; track proyecto.id) {
+
+           
+            <div class="pl-4 pr-4 py-4 bg-white ml-4 my-3 mr-3 rounded-lg border border-gray-200 shadow-sm">
+
+              <!-- Alerta recursos pendientes -->
+              @if (proyecto.projectResourceAssignementMode === 0) {
+                <div class="mb-3 flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                  <svg class="w-3.5 h-3.5 text-amber-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+                  </svg>
+                  <span class="text-xs text-amber-800 font-medium flex-1">Recursos pendientes de asignar</span>
+                  <button
+                    (click)="navegarAAsignarDesdeCard(proyecto, $event)"
+                    class="shrink-0 px-2.5 py-1 bg-gray-900 text-white text-xs font-semibold rounded-md hover:bg-gray-700 transition-colors">
+                    Asignar
+                  </button>
+                </div>
+              }
+
+              <!-- Encabezado del proyecto -->
+              <div class="flex items-start justify-between gap-3 mb-3">
+                <div class="min-w-0">
+                  <!-- Etiqueta nivel -->
+                  <span class="text-[10px] font-bold tracking-widest text-gray-400 uppercase">Proyecto</span>
+                  <h3 class="text-sm font-bold text-gray-900 leading-tight mt-0.5">
+                    {{ proyecto.projectName || 'Sin nombre' }}
+                  </h3>
+                  <p class="text-xs text-gray-500 mt-0.5">{{ proyecto.client?.name || 'Sin cliente' }}</p>
+                  <p class="text-xs text-gray-400 mt-0.5">
+                    {{ proyecto.initialDate || 'N/A' }} — {{ proyecto.finalDate || 'N/A' }}
+                  </p>
+                </div>
+                <div class="flex items-center gap-1.5 shrink-0 flex-wrap justify-end">
+                  <span class="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs font-medium rounded">
+                    {{ proyecto.totalServiceOrders }} ODS
+                  </span>
+                  <span class="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs font-medium rounded">
+                    {{ proyecto.totalSamplingPlans }} Planes
+                  </span>
+                  @if (proyecto.projectResourceAssignementMode !== 0) {
+                    <span class="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-xs font-semibold rounded">
+                      Asignado
+                    </span>
+                  } @else {
+                    <span class="px-2 py-0.5 bg-amber-100 text-amber-700 text-xs font-semibold rounded">
+                      Pendiente
+                    </span>
+                  }
+                </div>
+              </div>
+
+
+              <!-- ── Órdenes de servicio ─────────────────── -->
+              @if ((proyecto.serviceOrders ?? []).length > 0) {
+
+                <!-- Separador con etiqueta ODS -->
+                <div class="flex items-center gap-2 mb-2 mt-3">
+                  <span class="text-[10px] font-bold tracking-widest text-gray-400 uppercase">
+                    Órdenes de servicio
+                  </span>
+                  <div class="flex-1 h-px bg-gray-200"></div>
+                  <span class="text-[10px] text-gray-400">
+                    {{ (proyecto.serviceOrders ?? []).length }} ODS
+                  </span>
+                </div>
+
+                <!-- Árbol de ODS con conector vertical izquierdo -->
+                <div class="relative pl-4 space-y-2">
+
+                  <!-- Línea vertical conectora -->
+                  <div class="absolute left-1.5 top-2 bottom-2 w-px bg-slate-300"></div>
+
+                  @for (orden of (proyecto.serviceOrders ?? []); track orden.id; let last = $last) {
+
+                    <!-- ╔══════════════════════════════════╗
+                         ║  NIVEL 3 — ODS                  ║
+                         ╚══════════════════════════════════╝ -->
+                    <div class="relative">
+
+                      <!-- Conector horizontal hacia la ODS -->
+                      <div class="absolute -left-4 top-[18px] w-3.5 h-px bg-slate-300"></div>
+                      <!-- Nodo en la línea vertical -->
+                      <div class="absolute -left-[18px] top-[14px] w-2 h-2 rounded-full bg-slate-400 border-2 border-white"></div>
+
+                      <div class="border border-slate-200 rounded-lg overflow-hidden bg-slate-50">
+
+                        <!-- Cabecera ODS (colapsable) -->
+                        <button
+                          type="button"
+                          (click)="toggleODS(orden.id)"
+                          class="w-full flex items-center justify-between gap-2 px-3 py-2.5 hover:bg-slate-100 transition-colors text-left">
+
+                          <div class="flex items-center gap-2 min-w-0">
+                            <!-- Badge ODS destacado -->
+                            <span class="px-2 py-0.5 bg-slate-700 text-white text-[10px] font-bold rounded tracking-widest shrink-0 uppercase">
+                              ODS
+                            </span>
+                            <div class="min-w-0">
+                              <span class="text-xs font-bold text-slate-800">{{ orden.odsCode }}</span>
+                              @if (orden.odsName) {
+                                <span class="text-xs text-slate-500 ml-1.5">{{ orden.odsName }}</span>
+                              }
+                            </div>
+                          </div>
+
+                          <div class="flex items-center gap-2 shrink-0">
+                            <!-- Contador de planes -->
+                            @if ((orden.samplingPlans ?? []).length > 0) {
+                              <span class="px-2 py-0.5 bg-slate-200 text-slate-600 text-[10px] font-semibold rounded-full">
+                                {{ (orden.samplingPlans ?? []).length }} planes
+                              </span>
+                            }
+                            @if (orden.startDate) {
+                              <span class="text-xs text-slate-400 hidden sm:inline">
+                                {{ orden.startDate }} — {{ orden.endDate }}
+                              </span>
+                            }
+                            <svg
+                              class="w-3.5 h-3.5 text-slate-400 transition-transform duration-200"
+                              [class.rotate-180]="odsAbiertos[orden.id]"
+                              fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                          </div>
+                        </button>
+
+
+                        <!-- ── Planes de muestreo ──────── -->
+                        @if (odsAbiertos[orden.id]) {
+                          <div class="border-t border-slate-200 bg-white">
+
+                            @if (!(orden.samplingPlans ?? []).length) {
+                              <p class="text-xs text-gray-400 italic px-4 py-3">Sin planes de muestreo</p>
+                            }
+
+                            <!-- Sub-árbol de planes con conector propio -->
+                            <div class="relative pl-8 pr-3 py-2.5 space-y-1.5">
+
+                              <!-- Línea vertical de planes -->
+                              <div class="absolute left-5 top-2 bottom-2 w-px bg-slate-200"></div>
+
+                              @for (plan of (orden.samplingPlans ?? []); track plan.id) {
+
+                                <!-- ╔════════════════════════════╗
+                                     ║  NIVEL 4 — PLAN MUESTREO  ║
+                                     ╚════════════════════════════╝ -->
+                                <div class="relative">
+
+                                  <!-- Conector horizontal hacia el plan -->
+                                  <div class="absolute -left-3 top-[14px] w-2.5 h-px"
+                                    [class]="esModoNominal(plan) ? 'bg-amber-300' : 'bg-emerald-300'">
+                                  </div>
+                                  <!-- Nodo en la línea vertical -->
+                                  <div class="absolute -left-[14px] top-[10px] w-2 h-2 rounded-full border-2 border-white"
+                                    [class]="esModoNominal(plan) ? 'bg-amber-400' : 'bg-emerald-500'">
+                                  </div>
+
+                                  <div class="flex items-center gap-2 px-2.5 py-2 rounded-lg border"
+                                    [class]="esModoNominal(plan)
+                                      ? 'bg-amber-50 border-amber-200'
+                                      : 'bg-emerald-50 border-emerald-200'">
+
+                                    <!-- Info del plan -->
+                                    <div class="flex-1 min-w-0">
+                                      <div class="flex items-center gap-1.5 flex-wrap">
+                                        <span class="font-mono text-xs font-bold text-gray-900">{{ plan.planCode }}</span>
+                                        <span class="text-gray-400 text-xs">—</span>
+                                        <span class="text-xs text-gray-700 truncate">{{ plan.planName }}</span>
+                                      </div>
+                                      @if (plan.startDate) {
+                                        <p class="text-xs text-gray-400 mt-0.5">
+                                          {{ plan.startDate }} — {{ plan.endDate }}
+                                        </p>
+                                      }
+                                    </div>
+
+                                    <!-- Sitios -->
+                                    @if ((plan.sites ?? []).length > 0) {
+                                      <span class="text-xs text-gray-500 shrink-0">
+                                        {{ (plan.sites ?? []).length }} sitios
+                                      </span>
+                                    }
+
+                                    <!-- Badge estado -->
+                                    <span class="text-xs font-semibold px-2 py-0.5 rounded shrink-0"
+                                      [class]="esModoNominal(plan)
+                                        ? 'bg-amber-100 text-amber-800'
+                                        : 'bg-emerald-100 text-emerald-800'">
+                                      {{ esModoNominal(plan) ? 'Pendiente' : 'Asignado' }}
+                                    </span>
+
+                                    <!-- Botón asignar -->
+                                    @if (esModoNominal(plan)) {
+                                      <button
+                                        (click)="navegarAAsignarRecursos(plan.id, proyecto.id)"
+                                        class="shrink-0 px-2 py-1 bg-gray-900 text-white text-xs font-semibold rounded-md hover:bg-gray-700 transition-colors">
+                                        Asignar
+                                      </button>
+                                    }
+
+                                  </div>
+                                </div>
+                                <!-- fin plan -->
+
+                              }
+                            </div>
+                          </div>
+                        }
+
+                      </div>
+                    </div>
+                    <!-- fin ODS -->
+
+                  }
+                </div>
+                <!-- fin árbol ODS -->
+
+              } @else {
+                <p class="text-xs text-gray-400 italic mt-2">Sin órdenes de servicio registradas</p>
+              }
+
+
+              <!-- Pie del proyecto -->
+              <div class="flex items-center justify-between pt-3 mt-3 border-t border-gray-100">
+                <button
+                  (click)="verProyecto(proyecto.id)"
+                  class="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-500 hover:text-gray-900 transition-colors">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0zM2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                  Ver detalle completo
+                </button>
+                <button
+                  (click)="eliminarProyecto(proyecto.id); $event.stopPropagation()"
+                  class="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                  title="Eliminar proyecto">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </div>
+
+            </div>
+            <!-- fin proyecto -->
+
+          }
+
+        </div>
+      }
+      <!-- fin @if grupo.abierto -->
+
+    </div>
+    <!-- fin card contrato -->
+
+  }
+
 </div>
