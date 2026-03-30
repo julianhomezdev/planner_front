@@ -117,7 +117,7 @@
             <!-- ── LISTA DE PLANES ── -->
             @if (getPlanesDelContrato(grupo).length > 0) {
               <div class="flex flex-wrap gap-1.5 mt-2">
-                @for (plan of getPlanesDelContrato(grupo); track plan.planCode) {
+                @for (plan of getPlanesDelContrato(grupo); track $index) {
                   <span class="inline-flex items-center gap-1 px-1.5 py-0.5 bg-white/5 border border-white/10 rounded text-[10px] text-gray-400">
                     <span class="font-mono text-white/60">{{ plan.planCode }}</span>
                     <span class="text-gray-500">·</span>
