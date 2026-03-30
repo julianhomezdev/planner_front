@@ -188,6 +188,7 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   private autoSaveSubscription?: Subscription;
   private formChanges$ = new Subject<void>();
+  showSuccessModal = false;
 
   ngOnInit(): void {
     
@@ -1549,6 +1550,12 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
     this.successMessage = 'Plan agregado exitosamente';
     setTimeout(() => this.successMessage = '', 3000);
     this.formChanges$.next();
+    this.showSuccessModal = true;
+  }
+
+  closeSuccessModal(): void {
+    this.showSuccessModal = false;
+    this.backToOdsList();
   }
 
   expandedPlanIndex: number = -1;
