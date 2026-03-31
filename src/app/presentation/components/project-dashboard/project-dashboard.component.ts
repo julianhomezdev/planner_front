@@ -77,6 +77,8 @@ export class ProjectDashboardComponent implements OnInit {
 
   // Controla qué ODS están abiertas/cerradas
   odsAbiertos: Record<string, boolean> = {};
+  showResourceEditModal = false;
+
 
   // ─── Ciclo de vida ────────────────────────────────────────────────────────
 
@@ -108,6 +110,7 @@ export class ProjectDashboardComponent implements OnInit {
     this.projectService.getProjectById(proyectoId).subscribe({
       next: (datos: any) => {
         this.proyectoSeleccionado = datos;
+        this.showResourceEditModal = true;
       },
       error: (error: any) => {
         console.error('Error al cargar el detalle del proyecto:', error);
@@ -295,6 +298,7 @@ export class ProjectDashboardComponent implements OnInit {
   // ─── Modal de detalle ─────────────────────────────────────────────────────
 
   cerrarModal(): void {
+    this.showResourceEditModal = false;
     this.proyectoSeleccionado = null;
   }
 

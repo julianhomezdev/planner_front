@@ -188,6 +188,7 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   private autoSaveSubscription?: Subscription;
   private formChanges$ = new Subject<void>();
+  showSuccessModal = false;
 
   ngOnInit(): void {
     
@@ -1063,29 +1064,41 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
   
   
   private distributeDatesAcrossSites(
-  startDateStr: string,
-  endDateStr: string,
-  siteCount: number
-): string[] {
-  if (!startDateStr || !endDateStr || siteCount <= 0) {
-    return Array(siteCount).fill('');
+    startDateStr: string,
+    endDateStr: string,
+    siteCount: number
+  ): string[] {
+
+    if (!startDateStr || !endDateStr || siteCount <= 0) {
+      return Array(siteCount).fill('');
+    }
+
+    const start = new Date(startDateStr);
+    const end = new Date(endDateStr);
+
+    const totalDays =
+      Math.floor((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+
+    const sitesPerDay = Math.floor(siteCount / totalDays);
+    const remainder = siteCount % totalDays;
+
+    const dates: string[] = [];
+
+    for (let dayIndex = 0; dayIndex < totalDays; dayIndex++) {
+
+      const currentDate = new Date(start);
+      currentDate.setDate(start.getDate() + dayIndex);
+
+      const countForThisDay =
+        sitesPerDay + (dayIndex < remainder ? 1 : 0);
+
+      for (let i = 0; i < countForThisDay; i++) {
+        dates.push(currentDate.toISOString().split('T')[0]);
+      }
+    }
+
+    return dates;
   }
-
-  const start     = new Date(startDateStr);
-  const end       = new Date(endDateStr);
-  const totalDays = Math.floor(
-    (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)
-  );
-
-  const interval  = Math.max(1, Math.floor(totalDays / siteCount));
-
-  return Array.from({ length: siteCount }, (_, i) => {
-    const date = new Date(start);
-    date.setDate(date.getDate() + i * interval);
-    const capped = date > end ? end : date;
-    return capped.toISOString().split('T')[0];
-  });
-}
 
   get sitesArray(): FormArray {
     return this.planForm.get('sites') as FormArray;
@@ -1537,6 +1550,12 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
     this.successMessage = 'Plan agregado exitosamente';
     setTimeout(() => this.successMessage = '', 3000);
     this.formChanges$.next();
+    this.showSuccessModal = true;
+  }
+
+  closeSuccessModal(): void {
+    this.showSuccessModal = false;
+    this.backToOdsList();
   }
 
   expandedPlanIndex: number = -1;
