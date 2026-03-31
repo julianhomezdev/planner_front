@@ -83,11 +83,16 @@
             <div class="flex gap-3 items-start">
               <div class="flex-1">
                 <label class="block text-xs text-gray-600 mb-1">Categoría</label>
-                <select [(ngModel)]="item.categoryName" 
-                        class="w-full px-2 py-1.5 border border-gray-300 rounded-md text-sm focus:ring-1 focus:ring-blue-500">
-                  <option value="">Seleccione categoría</option>
-                  <option *ngFor="let cat of employeeCategories" [value]="cat">{{ cat }}</option>
-                </select>
+                  <input
+                    list="categories"
+                    [(ngModel)]="item.categoryName"
+                    placeholder="Seleccione categoría"
+                    class="w-full px-2 py-1.5 border border-gray-300 rounded-md text-sm focus:ring-1 focus:ring-blue-500"
+                  />
+
+                  <datalist id="categories">
+                    <option *ngFor="let cat of employeeCategories" [value]="cat"></option>
+                  </datalist>
               </div>
 
               <div class="w-28">
@@ -128,11 +133,17 @@
             <div class="flex gap-3 items-start">
               <div class="flex-1">
                 <label class="block text-xs text-gray-600 mb-1">Categoría</label>
-                <select [(ngModel)]="item.categoryName" 
-                        class="w-full px-2 py-1.5 border border-gray-300 rounded-md text-sm focus:ring-1 focus:ring-blue-500">
-                  <option value="">Seleccione categoría</option>
-                  <option *ngFor="let cat of equipmentCategories" [value]="cat">{{ cat }}</option>
-                </select>
+                  <input
+                    list="equipmentCategoriesList"
+                    [(ngModel)]="item.categoryName"
+                    placeholder="Seleccione categoría"
+                    class="w-full px-2 py-1.5 border border-gray-300 rounded-md text-sm focus:ring-1 focus:ring-blue-500"
+                  />
+
+                  <datalist id="equipmentCategoriesList">
+                    <option value="">Seleccione categoría</option>
+                    <option *ngFor="let cat of equipmentCategories" [value]="cat"></option>
+                  </datalist>
               </div>
 
               <div class="w-28">

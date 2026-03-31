@@ -176,8 +176,9 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                       d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
                   </svg>
-                  <span class="text-xs text-amber-800 font-medium flex-1">Recursos pendientes de asignar</span>
+                  <span class="text-xs text-amber-800 font-medium flex-1">Recursos pendientes de asignar</span>                  
                   <button
+                    *ngIf="isDirector"
                     (click)="navegarAAsignarDesdeCard(proyecto, $event)"
                     class="shrink-0 px-2.5 py-1 bg-gray-900 text-white text-xs font-semibold rounded-md hover:bg-gray-700 transition-colors">
                     Asignar
@@ -360,6 +361,12 @@
                                     <!-- Botón asignar -->
                                     @if (esModoNominal(plan)) {
                                       <button
+                                        (click)="navegarAConsultarDesdeCard(proyecto, $event)"
+                                        class="shrink-0 px-2.5 py-1 bg-blue-600 text-white text-xs font-semibold rounded-md hover:bg-blue-500 transition-colors">
+                                        Consultar
+                                      </button>
+                                      <button
+                                        *ngIf="isDirector"
                                         (click)="navegarAAsignarRecursos(plan.id, proyecto.id)"
                                         class="shrink-0 px-2 py-1 bg-gray-900 text-white text-xs font-semibold rounded-md hover:bg-gray-700 transition-colors">
                                         Asignar

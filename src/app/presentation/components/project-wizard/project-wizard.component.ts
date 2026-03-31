@@ -189,48 +189,58 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
   private autoSaveSubscription?: Subscription;
   private formChanges$ = new Subject<void>();
   showSuccessModal = false;
+  isViewMode = false;
+  showPlanForm = false;
 
   ngOnInit(): void {
     
-    this.initializeForms();
+  this.initializeForms();
+  
+  this.loadCatalogs();
+  
+  this.setupAutoSave();
+  
+  this.checkForDraftToLoad();
+  
+  this.route.queryParams.subscribe(params => {
     
-    this.loadCatalogs();
+    const mode = params['mode'];
     
-    this.setupAutoSave();
+    const projectId = params['projectId'];
     
+    const planId = params['planId'];
     
-    this.checkForDraftToLoad();
-    
-    this.route.queryParams.subscribe(params => {
-      
-      const mode = params['mode'];
-      
-      const projectId = params['projectId'];
-      
-      const planId = params['planId'];
-      
-      const odsIndex = params['odsIndex'];
+    const odsIndex = params['odsIndex'];
 
-      if (mode === 'edit-resources' && projectId && planId && odsIndex !== undefined) {
-        
-        this.loadProjectForResourceEdit(+projectId, +planId, +odsIndex);
-        
-      } else if (mode === 'add-ods') {
-        
-        this.checkForDraftToLoad();
-        
-      }
-        
-      else {
-        
-        this.checkForDraftToLoad();
-        
-      }
-      
-    });
-    
+    this.isViewMode = mode === 'view-resources';
 
-  }
+    if ((mode === 'edit-resources' || mode === 'view-resources') 
+        && projectId && planId && odsIndex !== undefined) {
+      
+      this.loadProjectForResourceEdit(+projectId, +planId, +odsIndex);
+      
+    } else if (mode === 'add-ods') {
+      
+      this.checkForDraftToLoad();
+      
+    } else {
+      
+      this.checkForDraftToLoad();
+    }
+
+    if (this.isViewMode) {
+      this.contractForm.disable();
+      this.odsForm.disable();
+      this.planForm.disable();
+    } else {
+      this.contractForm.enable();
+      this.odsForm.enable();
+      this.planForm.enable();
+    }
+
+  });
+
+}
 
   get filteredEmployees() {
     return this.availableEmployees.filter(emp => {
@@ -367,14 +377,16 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
         const plan = this.serviceOrders[odsIndex]?.samplingPlans.find((p: any) => p.id === planId);
 
         if (plan) {
-          this.loadPlanForEditing(plan);
+          //this.loadPlanForEditing(plan);
           this.currentView = ViewMode.PLAN_FORM;
         }
 
         this.isDraft = false;
         this.loading = false;
 
-        this.successMessage = 'Proyecto cargado. Complete la asignación de recursos.';
+        this.successMessage = this.isViewMode
+        ? 'Proyecto cargado. Visualice la información.'
+        : 'Proyecto cargado. Complete la asignación de recursos.';
 
 
         setTimeout(() => this.successMessage = '', 4000);
@@ -462,6 +474,25 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
     if (this.autoSaveSubscription) {
       this.autoSaveSubscription.unsubscribe();
     }
+  }
+
+  openNewPlanForm(): void {
+
+    this.showPlanForm = true;
+    this.editingPlanId = null;
+    this.isViewMode = false;
+
+    this.resetPlanForm();
+
+    const ods = this.serviceOrders[this.currentOdsIndex];
+
+    this.planForm.patchValue({
+      startDate: ods?.startDate || '',
+      endDate: ods?.endDate || '',
+      resourceStartDate: ods?.startDate || '',
+      resourceEndDate: ods?.endDate || '',
+      totalSites: 1
+    });
   }
 
   initializeForms(): void {
@@ -1375,10 +1406,14 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
   }
 
   selectOdsForPlans(index: number): void {
+
+    this.resetPlanForm();
+
     this.currentOdsIndex = index;
     this.currentView = ViewMode.PLAN_FORM;
 
     const ods = this.serviceOrders[index];
+
     this.planForm.patchValue({
       startDate: ods.startDate || '',
       endDate: ods.endDate || '',
@@ -1641,7 +1676,21 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
 
   resetPlanForm(): void {
 
+    this.editingPlanId = null; 
+
     this.planRequiredResources = null;
+
+    this.employeeQuantities = [];
+    this.equipmentQuantities = [];
+    this.vehicleQuantity = 0;
+    this.budgetItems.length = 0;
+
+    this.employeeSearchTerm = '';
+    this.employeeCategoryFilter = '';
+    this.equipmentSearchTerm = '';
+    this.equipmentCategoryFilter = '';
+    this.vehicleSearchTerm = '';
+    this.vehicleLocationFilter = '';
 
     const odsStartDate = this.currentOdsIndex !== -1
       ? this.serviceOrders[this.currentOdsIndex].startDate
@@ -1651,27 +1700,35 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
       : '';
 
     this.planForm.reset({
-      startDate: odsStartDate,
-      endDate: odsEndDate,
-      resourceStartDate: odsStartDate,
-      resourceEndDate: odsEndDate,
-      resourceAssignmentMode: ResourceAssignmentMode.QUANTITY,
-      employeeQuantities: [],
-      equipmentQuantities: [],
-      vehicleQuantity: 0,
+      planCode: '',
+      planName: '',
+      totalSites: 1,
+      coordinatorId: '',
+      hasReport: false,
+      hasGDB: false,
+
+      selectedMatrixIds: [], 
       selectedEmployeeIds: [],
       selectedEquipmentIds: [],
       selectedVehicleIds: [],
-      budgetItems: []
-    });
 
-    this.currentResourceMode = ResourceAssignmentMode.QUANTITY;
-    this.employeeQuantities = [];
-    this.equipmentQuantities = [];
-    this.vehicleQuantity = 0;
+      startDate: odsStartDate,
+      endDate: odsEndDate,
+
+      resourceStartDate: odsStartDate,
+      resourceEndDate: odsEndDate,
+
+      resourceAssignmentMode: ResourceAssignmentMode.QUANTITY,
+
+      employeeQuantities: [],
+      equipmentQuantities: [],
+      vehicleQuantity: 0
+    });
 
     this.sitesArray.clear();
     this.addSite();
+
+    this.currentResourceMode = ResourceAssignmentMode.QUANTITY;
   }
 
 
@@ -2322,6 +2379,9 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
 
 
   loadReusablePlanIntoForm(plan: any): void {
+
+    this.resetPlanForm();
+    this.showPlanForm = true;
     this.sitesArray.clear();
 
     this.planForm.patchValue({
@@ -2391,4 +2451,6 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
       (this.planRequiredResources?.vehicleQuantity ?? 0) > 0
     );
   }
+
+  
 }
