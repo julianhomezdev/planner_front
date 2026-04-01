@@ -260,45 +260,30 @@ export class ProjectDashboardComponent implements OnInit {
 
   crearNuevoProyecto(): void {
     this.router.navigate(['/planner']);
-  }
+  }  
 
-  private irAlPrimerPlanConsulta(proyectoId: number, ordenesDeServicio: any[]): void {
-  for (let i = 0; i < ordenesDeServicio.length; i++) {
+  navegarAGestionarRecursos(planId: number, proyectoId: number): void {
+    let odsIndex = -1;
 
-    const ods = ordenesDeServicio[i];
-    const plan = ods.samplingPlans?.find((p: any) => p.id);
-
-    if (plan) {
-
-      const odsIndex = i;
-
-      this.router.navigate(['/planner'], {
-        queryParams: {
-          mode: 'view-resources',
-          projectId: proyectoId,
-          planId: plan.id,
-          odsIndex
+    if (this.proyectoSeleccionado?.serviceOrders) {
+      for (let i = 0; i < this.proyectoSeleccionado.serviceOrders.length; i++) {
+        const ods = this.proyectoSeleccionado.serviceOrders[i];
+        if (ods.samplingPlans?.some((p: any) => p.id === planId)) {
+          odsIndex = i;
+          break;
         }
-      });
-
-      return;
+      }
     }
-  }
-}
 
-  navegarAConsultarDesdeCard(proyecto: ProyectoResumen, evento: Event): void {
-  evento.stopPropagation();
-
-  if (proyecto.serviceOrders?.length) {
-    this.irAlPrimerPlanConsulta(proyecto.id, proyecto.serviceOrders);
-  } else {
-    this.projectService.getProjectById(proyecto.id).subscribe({
-      next: (proyectoCompleto: any) =>
-        this.irAlPrimerPlanConsulta(proyecto.id, proyectoCompleto.serviceOrders),
-      error: (err: any) => console.error('Error al cargar el proyecto:', err)
+    this.router.navigate(['/planner'], {
+      queryParams: {
+        mode: 'edit-resources',
+        projectId: proyectoId,
+        planId,
+        odsIndex
+      }
     });
   }
-}
 
   navegarAAsignarRecursos(planId: number, proyectoId: number): void {
     let odsIndex = -1;
@@ -318,7 +303,8 @@ export class ProjectDashboardComponent implements OnInit {
         mode: 'edit-resources',
         projectId: proyectoId,
         planId,
-        odsIndex
+        odsIndex,
+        from: 'assign'
       }
     });
   }

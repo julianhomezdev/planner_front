@@ -181,7 +181,7 @@
                     *ngIf="isDirector"
                     (click)="navegarAAsignarDesdeCard(proyecto, $event)"
                     class="shrink-0 px-2.5 py-1 bg-gray-900 text-white text-xs font-semibold rounded-md hover:bg-gray-700 transition-colors">
-                    Asignar
+                    Asignar recursos
                   </button>
                 </div>
               }
@@ -361,15 +361,15 @@
                                     <!-- Botón asignar -->
                                     @if (esModoNominal(plan)) {
                                       <button
-                                        (click)="navegarAConsultarDesdeCard(proyecto, $event)"
+                                        *ngIf="isDirector"
+                                        (click)="navegarAGestionarRecursos(plan.id, proyecto.id)"
                                         class="shrink-0 px-2.5 py-1 bg-blue-600 text-white text-xs font-semibold rounded-md hover:bg-blue-500 transition-colors">
-                                        Consultar
+                                        Gestionar
                                       </button>
                                       <button
-                                        *ngIf="isDirector"
                                         (click)="navegarAAsignarRecursos(plan.id, proyecto.id)"
                                         class="shrink-0 px-2 py-1 bg-gray-900 text-white text-xs font-semibold rounded-md hover:bg-gray-700 transition-colors">
-                                        Asignar
+                                        Asignar recursos
                                       </button>
                                     }
 
