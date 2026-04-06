@@ -2,6 +2,8 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { AuthService } from '../../../core/services/auth.service';
+
 import * as XLSX from 'xlsx';
 
 import { ProjectService } from '../../../core/services/project.service';
@@ -56,6 +58,8 @@ export class ProjectDashboardComponent implements OnInit {
 
   private readonly projectService = inject(ProjectService);
   private readonly router         = inject(Router);
+
+  constructor(private authService: AuthService) {}
 
   // ─── Estado del componente ────────────────────────────────────────────────
 
@@ -256,6 +260,29 @@ export class ProjectDashboardComponent implements OnInit {
 
   crearNuevoProyecto(): void {
     this.router.navigate(['/planner']);
+  }  
+
+  navegarAGestionarRecursos(planId: number, proyectoId: number): void {
+    let odsIndex = -1;
+
+    if (this.proyectoSeleccionado?.serviceOrders) {
+      for (let i = 0; i < this.proyectoSeleccionado.serviceOrders.length; i++) {
+        const ods = this.proyectoSeleccionado.serviceOrders[i];
+        if (ods.samplingPlans?.some((p: any) => p.id === planId)) {
+          odsIndex = i;
+          break;
+        }
+      }
+    }
+
+    this.router.navigate(['/planner'], {
+      queryParams: {
+        mode: 'edit-resources',
+        projectId: proyectoId,
+        planId,
+        odsIndex
+      }
+    });
   }
 
   navegarAAsignarRecursos(planId: number, proyectoId: number): void {
@@ -276,7 +303,8 @@ export class ProjectDashboardComponent implements OnInit {
         mode: 'edit-resources',
         projectId: proyectoId,
         planId,
-        odsIndex
+        odsIndex,
+        from: 'assign'
       }
     });
   }
@@ -498,5 +526,9 @@ export class ProjectDashboardComponent implements OnInit {
       .flatMap((o: any) => o.samplingPlans ?? [])
       .map((sp: any) => ({ planCode: sp.planCode, planName: sp.planName }));
   }
+
+  get isDirector(): boolean {
+  return this.authService.hasRole('DirectorProyectos');
+}
   
 }

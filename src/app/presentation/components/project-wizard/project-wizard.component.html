@@ -81,7 +81,7 @@
             <div class="text-xs text-gray-500">Completado</div>
           </div>
 
-          <div class="flex gap-2">
+          <div *ngIf="false" class="flex gap-2">
             <button (click)="saveDraft(false)" [disabled]="loading || !contractForm.valid"
               class="px-4 py-2 bg-gray-900 text-white text-sm rounded-md font-medium hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
               Guardar Borrador
@@ -118,7 +118,7 @@
     </div>
 
     <!-- ALERTAS -->
-    <div *ngIf="errorMessage" class="bg-red-50 border-l-4 border-red-600 p-4 mb-6 rounded-md shadow-sm">
+    <div *ngIf="errorMessage" id="plan-error" class="bg-red-50 border-l-4 border-red-600 p-4 mb-6 rounded-md shadow-sm">
       <div class="flex items-center justify-between">
         <div class="flex items-center">
           <svg class="h-5 w-5 text-red-600 mr-3" fill="currentColor" viewBox="0 0 20 20">
@@ -170,109 +170,135 @@
     </div>
 
     <!-- VISTA: CONTRATO -->
-    <div *ngIf="currentView === ViewMode.CONTRACT" class="bg-white rounded-lg shadow-sm p-6 mb-6">
-      <div class="border-b border-gray-200 pb-4 mb-6">
+     <div *ngIf="isAssignResourcesMode"
+            class="mb-4 p-3 bg-blue-50 text-blue-700 rounded-md text-sm border border-blue-200">
+          Modo asignación de recursos: Solo puede gestionar planes de muestreo
+        </div>
+     <div [class.pointer-events-none]="isAssignResourcesMode"
+     [class.opacity-70]="isAssignResourcesMode">
+      <div *ngIf="currentView === ViewMode.CONTRACT" class="bg-white rounded-lg shadow-sm p-6 mb-6">
+        <div class="border-b border-gray-200 pb-4 mb-6">
 
 
 
-        <h2 class="text-lg font-semibold text-gray-900">Información del Contrato</h2>
-        <p class="text-sm text-gray-600 mt-1">Complete los datos básicos del contrato</p>
+          <h2 class="text-lg font-semibold text-gray-900">Información del Contrato</h2>
+          <p class="text-sm text-gray-600 mt-1">Complete los datos básicos del contrato</p>
+        </div>
+
+        <div *ngIf="contractForm.invalid && contractForm.touched" class="mb-4 p-3 bg-red-50 text-red-700 rounded-md text-sm">
+          Por favor completa los campos obligatorios resaltados en rojo
+        </div>
+
+        <form [formGroup]="contractForm" class="space-y-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            <!-- Select contrato -->
+            <div class="md:col-span-2">
+              <label class="block text-sm font-medium text-gray-700 mb-1.5">
+                Seleccionar Contrato Existente
+              </label>
+              <select [(ngModel)]="selectedContract" [ngModelOptions]="{standalone: true}" (ngModelChange)="onContractSelected($event)"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 text-sm bg-white">
+                <option value="" disabled selected>Seleccionar contrato...</option>
+                <option *ngFor="let contract of contracts" [value]="contract.id">
+                  
+                  @if(contract.contractName) {
+                    
+                    {{ contract.contractName }}
+                    
+                    
+                  } {{ contract.contractId }}
+                  
+                  
+                </option>
+              </select>
+            </div>
+
+            <!-- Código contrato -->
+            <div class="md:col-span-2">
+              <label class="block text-sm font-medium text-gray-700 mb-1.5">
+                Código del Contrato <span class="text-red-600">*</span>
+              </label>
+              <input
+                type="text"
+                formControlName="contractCode"
+                class="w-full px-3 py-2 border rounded-md text-sm focus:ring-1"
+                [ngClass]="{
+                  'border-red-500 focus:border-red-500 focus:ring-red-500': contractForm.get('contractCode')?.invalid && contractForm.get('contractCode')?.touched,
+                  'border-gray-300': !(contractForm.get('contractCode')?.invalid && contractForm.get('contractCode')?.touched)
+                }" placeholder="Ej: CON-2026-001"
+              />
+              <p *ngIf="contractForm.get('contractCode')?.invalid && contractForm.get('contractCode')?.touched"
+                class="text-xs text-red-600 mt-1">
+                Debe ingresar un código de contrato
+              </p>
+            </div>
+
+            <!-- Nombre contrato -->
+            <div class="md:col-span-2">
+              <label class="block text-sm font-medium text-gray-700 mb-1.5">
+                Nombre del Contrato
+              </label>
+              <input type="text" formControlName="contractName"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 text-sm"
+                placeholder="Ej: Monitoreo Ambiental 2026" />
+            </div>
+
+            <!-- Cliente -->
+            <div class="md:col-span-2">
+              <label class="block text-sm font-medium text-gray-700 mb-1.5">
+                Cliente <span class="text-red-600">*</span>
+              </label>
+              <select
+                formControlName="clientId"
+                class="w-full px-3 py-2 border rounded-md text-sm bg-white focus:ring-1"
+                [ngClass]="{
+                  'border-red-500 focus:border-red-500': contractForm.get('clientId')?.invalid && contractForm.get('clientId')?.touched,
+                  'border-gray-300': !(contractForm.get('clientId')?.invalid && contractForm.get('clientId')?.touched)
+                }"
+              >
+                <option value="">Seleccione un cliente</option>
+                <option *ngFor="let client of clients" [value]="client.id">{{ client.name }}</option>
+              </select>
+              <p *ngIf="contractForm.get('clientId')?.invalid && contractForm.get('clientId')?.touched"
+                class="text-xs text-red-600 mt-1">
+                Debe seleccionar un cliente
+              </p>
+            </div>
+
+            <!-- Fecha inicio -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1.5">Fecha de Inicio</label>
+              <input type="date" formControlName="startDate"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 text-sm" />
+            </div>
+
+            <!-- Fecha fin -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1.5">Fecha de Finalización</label>
+              <input type="date" formControlName="endDate"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 text-sm" />
+            </div>
+
+          </div>
+
+          <div class="flex justify-end pt-4">
+              <button
+                (click)="onContinueContract()"
+                [disabled]="!contractForm.valid"
+                type="button"
+                class="px-6 py-2 bg-emerald-600 text-white rounded-md font-medium hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm">
+                Continuar
+              </button>
+          </div>
+        </form>
       </div>
-
-      <form [formGroup]="contractForm" class="space-y-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-          <!-- Select contrato -->
-          <div class="md:col-span-2">
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">
-              Seleccionar Contrato Existente
-            </label>
-            <select [(ngModel)]="selectedContract" [ngModelOptions]="{standalone: true}" (ngModelChange)="onContractSelected($event)"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 text-sm bg-white">
-              <option value="" disabled selected>Seleccionar contrato...</option>
-              <option *ngFor="let contract of contracts" [value]="contract.id">
-                
-                @if(contract.contractName) {
-                  
-                  {{ contract.contractName }}
-                  
-                  
-                } {{ contract.contractId }}
-                
-                
-              </option>
-            </select>
-          </div>
-
-          <!-- Código contrato -->
-          <div class="md:col-span-2">
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">
-              Código del Contrato <span class="text-red-600">*</span>
-            </label>
-            <input type="text" formControlName="contractCode"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 text-sm"
-              placeholder="Ej: CON-2026-001" />
-            <p *ngIf="contractForm.get('contractCode')?.invalid && contractForm.get('contractCode')?.touched"
-              class="text-xs text-red-600 mt-1">
-              Este campo es requerido
-            </p>
-          </div>
-
-          <!-- Nombre contrato -->
-          <div class="md:col-span-2">
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">
-              Nombre del Contrato
-            </label>
-            <input type="text" formControlName="contractName"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 text-sm"
-              placeholder="Ej: Monitoreo Ambiental 2026" />
-          </div>
-
-          <!-- Cliente -->
-          <div class="md:col-span-2">
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">
-              Cliente <span class="text-red-600">*</span>
-            </label>
-            <select formControlName="clientId"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 text-sm bg-white">
-              <option value="">Seleccione un cliente</option>
-              <option *ngFor="let client of clients" [value]="client.id">{{ client.name }}</option>
-            </select>
-            <p *ngIf="contractForm.get('clientId')?.invalid && contractForm.get('clientId')?.touched"
-              class="text-xs text-red-600 mt-1">
-              Debe seleccionar un cliente
-            </p>
-          </div>
-
-          <!-- Fecha inicio -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">Fecha de Inicio</label>
-            <input type="date" formControlName="startDate"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 text-sm" />
-          </div>
-
-          <!-- Fecha fin -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">Fecha de Finalización</label>
-            <input type="date" formControlName="endDate"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 text-sm" />
-          </div>
-
-        </div>
-
-        <div class="flex justify-end pt-4">
-          <button (click)="currentView = ViewMode.ODS_LIST" [disabled]="!contractForm.valid" type="button"
-            class="px-6 py-2 bg-gray-900 text-white rounded-md font-medium hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm">
-            Continuar
-          </button>
-        </div>
-      </form>
     </div>
 
     <!-- VISTA: LISTA DE ODS -->
     <div *ngIf="currentView === ViewMode.ODS_LIST">
 
-      <!-- ODS existentes -->
+      <!-- ODS existentes -->       
       <div *ngIf="serviceOrders.length > 0" class="bg-white rounded-lg shadow-sm p-6 mb-6 border border-gray-200">
         <h3 class="text-base font-semibold text-gray-900 mb-4">
           Órdenes de Servicio ({{ serviceOrders.length }})
@@ -302,7 +328,7 @@
                 </div>
               </div>
 
-              <button type="button" (click)="removeServiceOrder(i)"
+              <button *ngIf="!isAssignResourcesMode" type="button" (click)="removeServiceOrder(i)"
                 class="text-gray-400 hover:text-red-600 p-1 rounded transition-colors">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -311,7 +337,7 @@
             </div>
 
             <button (click)="selectOdsForPlans(i)" type="button"
-              class="w-full mt-3 px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-md text-sm font-medium hover:bg-gray-50 transition-colors">
+              class="w-full mt-3 px-4 py-2 bg-emerald-600 border border-emerald-700 text-white rounded-md text-sm font-medium hover:bg-green-600 transition-colors">
               Gestionar Planes de Muestreo
             </button>
           </div>
@@ -319,7 +345,8 @@
       </div>
 
       <!-- Nueva ODS -->
-      <div class="bg-white rounded-lg shadow-sm p-6 mb-6 border border-gray-200">
+      <div [class.pointer-events-none]="isAssignResourcesMode"
+          [class.opacity-70]="isAssignResourcesMode" class="bg-white rounded-lg shadow-sm p-6 mb-6 border border-gray-200">
         <h3 class="text-base font-semibold text-gray-900 mb-4">
           Agregar Orden de Servicio
         </h3>
@@ -345,6 +372,11 @@
           </button>
         </div>
 
+        <div *ngIf="odsForm.invalid && odsForm.touched" 
+            class="mb-4 p-3 bg-red-50 text-red-700 rounded-md text-sm">
+          Por favor completa los campos obligatorios
+        </div>
+
         <form [formGroup]="odsForm" class="space-y-4">
 
           <!-- Selector de ODS reutilizable (solo cuando mode = 'reuse') -->
@@ -352,13 +384,23 @@
             <label class="block text-sm font-medium text-gray-700 mb-2">
               Seleccionar ODS a Reutilizar <span class="text-red-600">*</span>
             </label>
-            <select [(ngModel)]="selectedReusableOdsCode" [ngModelOptions]="{standalone: true}"
-              class="w-full px-3 py-2 border border-blue-300 rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm">
+            <select [(ngModel)]="selectedReusableOdsCode"
+              [ngModelOptions]="{standalone: true}"
+              class="w-full px-3 py-2 border rounded-md text-sm"
+              [ngClass]="{
+                'border-red-500': odsCreationMode === 'reuse' && !selectedReusableOdsCode,
+                'border-blue-300': !(odsCreationMode === 'reuse' && !selectedReusableOdsCode)
+              }">
               <option [value]="null">Seleccione una ODS existente</option>
               <option *ngFor="let ods of reusableOdsList" [value]="ods.odsCode">
                 {{ ods.odsCode }} - {{ods.odsName}} - ({{ ods.quantitySamplingPlans }} planes)
               </option>
             </select>
+
+            <p *ngIf="odsCreationMode === 'reuse' && !selectedReusableOdsCode && odsForm.touched"
+              class="text-xs text-red-600 mt-2">
+              Debe seleccionar una ODS a reutilizar
+            </p>
             <p class="text-xs text-blue-700 mt-2">
               Se copiarán todos los planes de muestreo con sus sitios y presupuestos. Deberá asignar recursos
               posteriormente.
@@ -370,9 +412,19 @@
               <label class="block text-sm font-medium text-gray-700 mb-1.5">
                 Código ODS <span class="text-red-600">*</span>
               </label>
-              <input type="text" formControlName="odsCode"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 text-sm"
-                placeholder="Ej: ODS-118631" />
+              <input type="text"
+                formControlName="odsCode"
+                class="w-full px-3 py-2 border rounded-md text-sm"
+                [ngClass]="{
+                  'border-red-500': odsForm.get('odsCode')?.invalid && odsForm.get('odsCode')?.touched,
+                  'border-gray-300': !(odsForm.get('odsCode')?.invalid && odsForm.get('odsCode')?.touched)
+                }" placeholder="Ej: ODS-118631"
+              />
+
+              <p *ngIf="odsForm.get('odsCode')?.invalid && odsForm.get('odsCode')?.touched"
+                class="text-xs text-red-600 mt-1">
+                Debe ingresar un código de ODS
+              </p>
             </div>
 
             <div>
@@ -389,9 +441,19 @@
               </label>
               <div class="relative">
                 <span class="absolute left-3 top-2 text-gray-500 text-sm">$</span>
-                <input type="number" formControlName="odsValue" min="0"
-                  class="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 text-sm"
-                  placeholder="0" />
+                <input type="number"
+                  formControlName="odsValue"
+                  class="w-full pl-7 pr-3 py-2 border rounded-md text-sm"
+                  [ngClass]="{
+                    'border-red-500': odsForm.get('odsValue')?.invalid && odsForm.get('odsValue')?.touched,
+                    'border-gray-300': !(odsForm.get('odsValue')?.invalid && odsForm.get('odsValue')?.touched)
+                  }" placeholder="0"
+                />
+
+                <p *ngIf="odsForm.get('odsValue')?.invalid && odsForm.get('odsValue')?.touched"
+                  class="text-xs text-red-600 mt-1">
+                  Debe ingresar un valor para la ODS
+                </p>
               </div>
               <p class="text-xs text-gray-500 mt-1">Presupuesto total disponible para esta ODS</p>
             </div>
@@ -400,7 +462,7 @@
               <label class="inline-flex items-center gap-2 cursor-pointer select-none">
                 <input type="checkbox" [(ngModel)]="odsSameDatesAsContract" [ngModelOptions]="{standalone: true}"
                   (change)="onOdsSameDatesChange()"
-                  [disabled]="!contractForm.value.startDate && !contractForm.value.endDate"
+                  [disabled]="isViewMode || (!contractForm.value.startDate && !contractForm.value.endDate)"
                   class="w-4 h-4 rounded text-gray-900 border-gray-300" />
                 <span class="text-sm text-gray-700 font-medium">Igual que contrato</span>
                 <span *ngIf="contractForm.value.startDate || contractForm.value.endDate" class="text-xs text-gray-500">
@@ -430,9 +492,10 @@
 
           <div class="flex justify-end">
             <button type="button"
-              (click)="odsCreationMode === 'new' ? addServiceOrder() : addServiceOrderFromReusable()"
-              [disabled]="!odsForm.valid || (odsCreationMode === 'reuse' && !selectedReusableOdsCode) || loadingReusableOds"
+              (click)="onAddOds()"
+              [disabled]="loadingReusableOds"
               class="px-6 py-2 bg-gray-900 text-white rounded-md font-medium hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm">
+
               <span *ngIf="loadingReusableOds" class="flex items-center">
                 <svg class="animate-spin w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -442,7 +505,9 @@
                 </svg>
                 Cargando...
               </span>
+
               <span *ngIf="!loadingReusableOds">Agregar ODS</span>
+
             </button>
           </div>
         </form>
@@ -450,7 +515,8 @@
 
 
 
-      <div class="bg-white rounded-lg shadow-sm p-6 mb-6 border border-gray-200">
+      <div [class.pointer-events-none]="isAssignResourcesMode"
+          [class.opacity-70]="isAssignResourcesMode" class="bg-white rounded-lg shadow-sm p-6 mb-6 border border-gray-200">
         <h3 class="text-base font-semibold text-gray-900 mb-4">Centro de Costos del Proyecto</h3>
 
         <div>
@@ -465,7 +531,8 @@
       </div>
 
       <!-- Finalizar -->
-      <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+      <div [class.pointer-events-none]="isAssignResourcesMode"
+          [class.opacity-70]="isAssignResourcesMode" class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
         <div class="flex items-center justify-between">
           <div>
             <h3 class="text-base font-semibold text-gray-900 mb-1">Finalizar Proyecto</h3>
@@ -532,7 +599,7 @@
         </p>
         <div *ngIf="editingPlanId" class="mt-3 bg-gray-100 border border-gray-300 rounded p-2">
           <p class="text-xs text-gray-700"><strong>Modo edición:</strong> Los cambios no afectan el cálculo hasta
-            guardar.</p>
+            guardar</p>
         </div>
         <div *ngIf="!editingPlanId && getCurrentBudgetBilledTotal() > 0"
           class="mt-3 bg-blue-100 border border-blue-300 rounded p-2">
@@ -610,132 +677,266 @@
         </div>
       </div><!-- ✅ cierre planes existentes -->
 
-      <!-- FORMULARIO NUEVO PLAN -->
-      <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+      <div class="flex justify-end mb-4">
+  
+        <div class="relative group">
+          
+          <button 
+            type="button"
+            (click)="openNewPlanForm()"
+            [disabled]="isAssignResourcesMode"
+            class="px-4 py-2 rounded-md text-sm font-medium transition-colors
+                  bg-gray-900 text-white
+                  hover:bg-gray-800
+                  disabled:bg-gray-400 disabled:text-white
+                  disabled:cursor-not-allowed disabled:opacity-70">
+            
+            + Nuevo Plan
+          </button>
+
+          <!-- Tooltip -->
+          <div *ngIf="isAssignResourcesMode"
+              class="absolute right-0 mt-2 w-56 text-xs text-white bg-gray-800 
+                      rounded-md px-3 py-2 opacity-0 group-hover:opacity-100 
+                      transition-opacity pointer-events-none z-10">
+            No se pueden crear planes mientras asignas recursos
+          </div>
+
+        </div>
+
+      </div>
+
+      <div *ngIf="showPlanForm" class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
         <h3 class="text-base font-semibold text-gray-900 mb-6">Nuevo Plan de Muestreo</h3>
 
         <form [formGroup]="planForm" class="space-y-8">
 
-          <!-- Información básica -->
+          <div *ngIf="planForm.invalid && planForm.touched"
+              class="mb-4 p-3 bg-red-50 text-red-700 rounded-md text-sm">
+            Por favor completa los campos obligatorios del plan
+          </div>
+
+  
           <div>
-            <h4 class="text-sm font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">Información Básica</h4>
+            <h4 class="text-sm font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">
+              Información Básica
+            </h4>
+
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1.5">Código del Plan <span
-                    class="text-red-600">*</span></label>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">
+                  Código del Plan <span class="text-red-600">*</span>
+                </label>
+
                 <input type="text" formControlName="planCode"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 text-sm"
+                  class="w-full px-3 py-2 border rounded-md text-sm"
+                  [ngClass]="{
+                    'border-red-500': planForm.get('planCode')?.invalid && planForm.get('planCode')?.touched,
+                    'border-gray-300': !(planForm.get('planCode')?.invalid && planForm.get('planCode')?.touched)
+                  }"
                   placeholder="Ej: PM2345" />
+
+                <p *ngIf="planForm.get('planCode')?.invalid && planForm.get('planCode')?.touched"
+                  class="text-xs text-red-600 mt-1">
+                  Debe ingresar un código de plan
+                </p>
               </div>
+
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1.5">Nombre del Plan <span
-                    class="text-red-600">*</span></label>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">
+                  Nombre del Plan <span class="text-red-600">*</span>
+                </label>
+
                 <input type="text" formControlName="planName"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 text-sm"
+                  class="w-full px-3 py-2 border rounded-md text-sm"
+                  [ngClass]="{
+                    'border-red-500': planForm.get('planName')?.invalid && planForm.get('planName')?.touched,
+                    'border-gray-300': !(planForm.get('planName')?.invalid && planForm.get('planName')?.touched)
+                  }"
                   placeholder="Ej: Tocancipá" />
+
+                <p *ngIf="planForm.get('planName')?.invalid && planForm.get('planName')?.touched"
+                  class="text-xs text-red-600 mt-1">
+                  Debe ingresar un nombre para el plan
+                </p>
               </div>
+
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1.5">Cantidad de Sitios <span
-                    class="text-red-600">*</span></label>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">
+                  Cantidad de Sitios <span class="text-red-600">*</span>
+                </label>
+
                 <input type="number" formControlName="totalSites" min="1"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 text-sm" />
+                  class="w-full px-3 py-2 border rounded-md text-sm"
+                  [ngClass]="{
+                    'border-red-500': planForm.get('totalSites')?.invalid && planForm.get('totalSites')?.touched,
+                    'border-gray-300': !(planForm.get('totalSites')?.invalid && planForm.get('totalSites')?.touched)
+                  }" />
+
+                <p *ngIf="planForm.get('totalSites')?.invalid && planForm.get('totalSites')?.touched"
+                  class="text-xs text-red-600 mt-1">
+                  Debe ingresar la cantidad de sitios
+                </p>
               </div>
+
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1.5">Matrices <span
-                    class="text-red-600">*</span></label>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">
+                  Matrices <span class="text-red-600">*</span>
+                </label>
+
                 <div class="max-h-32 overflow-y-auto border border-gray-300 rounded-md p-2 bg-white">
                   <div *ngFor="let matrix of matrices" class="flex items-center py-1">
-                    <input type="checkbox" [checked]="isMatrixSelected(matrix.id)"
+                    <input type="checkbox"
+                      [checked]="isMatrixSelected(matrix.id)"
                       (change)="toggleMatrixSelection(matrix.id)"
                       class="w-4 h-4 rounded text-gray-900 border-gray-300" />
                     <span class="ml-2 text-sm text-gray-700">{{ matrix.matrixName }}</span>
                   </div>
                 </div>
-                <p class="text-xs text-gray-500 mt-1">{{ planForm.value.selectedMatrixIds?.length || 0 }} seleccionadas
+
+                <p class="text-xs text-gray-500 mt-1">
+                  {{ planForm.value.selectedMatrixIds?.length || 0 }} seleccionadas
+                </p>
+
+                <p *ngIf="(!planForm.value.selectedMatrixIds || planForm.value.selectedMatrixIds.length === 0) && planForm.touched"
+                  class="text-xs text-red-600 mt-1">
+                  Debe seleccionar al menos una matriz
                 </p>
               </div>
+
+       
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1.5">Coordinador <span
-                    class="text-red-600">*</span></label>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">
+                  Coordinador <span class="text-red-600">*</span>
+                </label>
+
                 <select formControlName="coordinatorId"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 text-sm">
+                  class="w-full px-3 py-2 border rounded-md text-sm"
+                  [ngClass]="{
+                    'border-red-500': planForm.get('coordinatorId')?.invalid && planForm.get('coordinatorId')?.touched,
+                    'border-gray-300': !(planForm.get('coordinatorId')?.invalid && planForm.get('coordinatorId')?.touched)
+                  }">
+
                   <option value="">Seleccione</option>
-                  <option *ngFor="let coord of coordinators" [value]="coord.id">{{ coord.name }}</option>
+                  <option *ngFor="let coord of coordinators" [value]="coord.id">
+                    {{ coord.name }}
+                  </option>
                 </select>
+
+                <p *ngIf="planForm.get('coordinatorId')?.invalid && planForm.get('coordinatorId')?.touched"
+                  class="text-xs text-red-600 mt-1">
+                  Debe seleccionar un coordinador
+                </p>
               </div>
+
               <div class="flex items-center gap-4 pt-6">
                 <label class="flex items-center cursor-pointer">
                   <input type="checkbox" formControlName="hasReport"
                     class="w-4 h-4 rounded text-gray-900 border-gray-300" />
                   <span class="ml-2 text-sm text-gray-700">Informe</span>
                 </label>
+
                 <label class="flex items-center cursor-pointer">
                   <input type="checkbox" formControlName="hasGDB"
                     class="w-4 h-4 rounded text-gray-900 border-gray-300" />
                   <span class="ml-2 text-sm text-gray-700">GDB</span>
                 </label>
               </div>
+
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1.5">Fecha Inicio</label>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">
+                  Fecha Inicio
+                </label>
+
                 <input type="date" formControlName="startDate"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 text-sm" />
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm" />
               </div>
+
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1.5">Fecha Fin</label>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">
+                  Fecha Fin
+                </label>
+
                 <input type="date" formControlName="endDate"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 text-sm" />
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm" />
               </div>
+
             </div>
+
             <div class="flex justify-end mt-4">
-              <button type="button" (click)="generateMultipleSites()"
+              <button type="button"
+                (click)="onGenerateSites()"
                 class="px-6 py-2 bg-gray-900 text-white rounded-md text-sm font-medium hover:bg-gray-800 transition-colors">
-                Generar {{ planForm.value.totalSites || 0 }} Sitios
+
+                Generar {{ planForm.get('totalSites')?.value || 0 }} Sitios
               </button>
             </div>
-          </div>
 
+        </div>
           <!-- Sitios -->
-          <div>
-            <h4 class="text-sm font-semibold text-gray-900 pb-2 border-b border-gray-200 mb-4">
-              Sitios de Monitoreo <span class="text-red-600">*</span>
-              <span class="text-xs font-normal text-gray-600 ml-2">({{ sitesArray.length }} sitios)</span>
-            </h4>
-            <div class="max-h-96 overflow-y-auto border border-gray-200 rounded-md p-2 bg-gray-50">
-              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-                <div *ngFor="let siteControl of sitesArray.controls; let idx = index" [formGroup]="$any(siteControl)"
-                  class="bg-white p-2 rounded border border-gray-200 hover:border-gray-300 transition-colors">
-                  <div class="flex justify-between items-start mb-2">
-                    <span class="text-xs font-medium text-gray-900">{{ siteControl.value.name || 'Sitio ' + (idx + 1)
-                      }}</span>
-                    <button type="button" (click)="removeSite(idx)" *ngIf="sitesArray.length > 1"
-                      class="text-gray-400 hover:text-red-600 transition-colors">
-                      <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
-                        </path>
-                      </svg>
-                    </button>
-                  </div>
-                  <div class="space-y-2">
-                    <div>
-                      <label class="block text-xs text-gray-600 mb-1">Fecha Ejecución</label>
-                      <input type="date" formControlName="executionDate"
-                        class="w-full px-2 py-1 border border-gray-300 rounded text-xs focus:ring-1 focus:ring-gray-900 focus:border-gray-900" />
+          
+          <div 
+              [class.opacity-60]="isViewMode"
+              [class.pointer-events-none]="isViewMode"
+            >
+
+              <h4 class="text-sm font-semibold text-gray-900 pb-2 border-b border-gray-200 mb-4">
+                Sitios de Monitoreo <span class="text-red-600">*</span>
+                <span class="text-xs font-normal text-gray-600 ml-2">({{ sitesArray.length }} sitios)</span>
+              </h4>
+
+              <div class="max-h-96 overflow-y-auto border border-gray-200 rounded-md p-2 bg-gray-50">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                  <div *ngFor="let siteControl of sitesArray.controls; let idx = index" [formGroup]="$any(siteControl)"
+                    class="bg-white p-2 rounded border border-gray-200 hover:border-gray-300 transition-colors">
+
+                    <div class="flex justify-between items-start mb-2">
+                      <span class="text-xs font-medium text-gray-900">
+                        {{ siteControl.value.name || 'Sitio ' + (idx + 1) }}
+                      </span>
+
+                      <button 
+                        type="button" 
+                        (click)="!isViewMode && removeSite(idx)" 
+                        *ngIf="sitesArray.length > 1"
+                        class="text-gray-400 hover:text-red-600 transition-colors">
+                        ...
+                      </button>
                     </div>
-                    <label class="flex items-center cursor-pointer">
-                      <input type="checkbox" formControlName="isSubcontracted"
-                        class="w-3 h-3 rounded text-gray-900 border-gray-300" />
-                      <span class="ml-1.5 text-xs text-gray-700">Subcontratado</span>
-                    </label>
-                    <div *ngIf="siteControl.get('isSubcontracted')?.value"
-                      class="p-2 bg-amber-50 border border-amber-200 rounded">
-                      <input type="text" formControlName="subcontractorName"
-                        class="w-full px-2 py-1 border border-amber-300 rounded text-xs" placeholder="Proveedor" />
+
+                    <div class="space-y-2">
+                      <div>
+                        <label class="block text-xs text-gray-600 mb-1">Fecha Ejecución</label>
+                        <input 
+                          type="date" 
+                          formControlName="executionDate"
+                          class="w-full px-2 py-1 border border-gray-300 rounded text-xs"/>
+                      </div>
+
+                      <label class="flex items-center cursor-pointer">
+                        <input 
+                          type="checkbox" 
+                          formControlName="isSubcontracted"
+                          class="w-3 h-3 rounded text-gray-900 border-gray-300"/>
+                        <span class="ml-1.5 text-xs text-gray-700">Subcontratado</span>
+                      </label>
+
+                      <div *ngIf="siteControl.get('isSubcontracted')?.value"
+                        class="p-2 bg-amber-50 border border-amber-200 rounded">
+                        <input 
+                          type="text" 
+                          formControlName="subcontractorName"
+                          class="w-full px-2 py-1 border border-amber-300 rounded text-xs" 
+                          placeholder="Proveedor" />
+                      </div>
                     </div>
+
                   </div>
                 </div>
               </div>
+
             </div>
-          </div>
 
           <!-- Recursos -->
           <div>
@@ -913,6 +1114,10 @@
                 <p class="text-sm text-amber-800">Configure las fechas de recursos para ver disponibilidad</p>
               </div>
 
+              <div 
+                [class.opacity-60]="isViewMode"
+                [class.pointer-events-none]="isViewMode"
+              >
               <!-- Personal -->
               <div class="mb-6">
                 <div class="flex justify-between items-center mb-3">
@@ -1086,6 +1291,7 @@
               </div>
             </div>
           </div>
+          </div>
 
           <!-- Presupuesto -->
           <div>
@@ -1167,8 +1373,8 @@
               Agregar Plan a ODS
             </button>
             <button *ngIf="editingPlanId" type="button" (click)="saveDetailedResourcesAndExit()"
-              [disabled]="loading || planForm.value.selectedEmployeeIds?.length === 0"
-              class="px-6 py-2.5 bg-blue-600 text-white rounded-md font-medium hover:bg-blue-700 disabled:opacity-50 flex items-center">
+              [disabled]="isViewMode || loading || planForm.value.selectedEmployeeIds?.length === 0"
+              class="px-6 py-2.5 bg-emerald-600 text-white rounded-md font-medium hover:bg-emerald-700 disabled:opacity-50 flex items-center">
               <svg *ngIf="loading" class="animate-spin w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor"
@@ -1199,21 +1405,47 @@
             </svg>
           </button>
         </div>
+
+        <div *ngIf="budgetItemForm.invalid && budgetItemForm.touched"
+          class="mb-4 p-3 bg-red-50 text-red-700 rounded-md text-sm">
+          Por favor completa los campos obligatorios del ítem de presupuesto
+        </div>
+
         <form [formGroup]="budgetItemForm" class="p-6 space-y-4">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="md:col-span-2">
               <label class="block text-sm font-medium text-gray-700 mb-1.5">Categoría <span
                   class="text-red-600">*</span></label>
-              <select formControlName="category" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm">
+             <select formControlName="category"
+                class="w-full px-3 py-2 border rounded-md text-sm"
+                [ngClass]="{
+                  'border-red-500': budgetItemForm.get('category')?.invalid && budgetItemForm.get('category')?.touched,
+                  'border-gray-300': !(budgetItemForm.get('category')?.invalid && budgetItemForm.get('category')?.touched)
+                }">
+
                 <option *ngFor="let cat of budgetCategories" [value]="cat">{{ cat }}</option>
               </select>
+
+              <p *ngIf="budgetItemForm.get('category')?.invalid && budgetItemForm.get('category')?.touched"
+                class="text-xs text-red-600 mt-1">
+                Debe seleccionar una categoría
+              </p>
             </div>
             <div class="md:col-span-2">
               <label class="block text-sm font-medium text-gray-700 mb-1.5">Concepto <span
                   class="text-red-600">*</span></label>
               <input type="text" formControlName="concept"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                class="w-full px-3 py-2 border rounded-md text-sm"
+                [ngClass]="{
+                  'border-red-500': budgetItemForm.get('concept')?.invalid && budgetItemForm.get('concept')?.touched,
+                  'border-gray-300': !(budgetItemForm.get('concept')?.invalid && budgetItemForm.get('concept')?.touched)
+                }"
                 placeholder="Ej: Camioneta alquilada" />
+
+              <p *ngIf="budgetItemForm.get('concept')?.invalid && budgetItemForm.get('concept')?.touched"
+                class="text-xs text-red-600 mt-1">
+                Debe ingresar un concepto
+              </p>
             </div>
             <div class="md:col-span-2">
               <label class="block text-sm font-medium text-gray-700 mb-1.5">Proveedor</label>
@@ -1224,13 +1456,32 @@
               <label class="block text-sm font-medium text-gray-700 mb-1.5">Cantidad <span
                   class="text-red-600">*</span></label>
               <input type="number" formControlName="quantity" min="1"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm" />
+                class="w-full px-3 py-2 border rounded-md text-sm"
+                [ngClass]="{
+                  'border-red-500': budgetItemForm.get('quantity')?.invalid && budgetItemForm.get('quantity')?.touched,
+                  'border-gray-300': !(budgetItemForm.get('quantity')?.invalid && budgetItemForm.get('quantity')?.touched)
+                }" />
+
+              <p *ngIf="budgetItemForm.get('quantity')?.invalid && budgetItemForm.get('quantity')?.touched"
+                class="text-xs text-red-600 mt-1">
+                Debe ingresar una cantidad válida
+              </p>
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1.5">Unidad <span
                   class="text-red-600">*</span></label>
               <input type="text" formControlName="unit"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm" placeholder="días" />
+                class="w-full px-3 py-2 border rounded-md text-sm"
+                [ngClass]="{
+                  'border-red-500': budgetItemForm.get('unit')?.invalid && budgetItemForm.get('unit')?.touched,
+                  'border-gray-300': !(budgetItemForm.get('unit')?.invalid && budgetItemForm.get('unit')?.touched)
+                }"
+                placeholder="días" />
+
+              <p *ngIf="budgetItemForm.get('unit')?.invalid && budgetItemForm.get('unit')?.touched"
+                class="text-xs text-red-600 mt-1">
+                Debe ingresar una unidad
+              </p>
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1.5">Costo Unitario <span
@@ -1238,7 +1489,16 @@
               <div class="relative">
                 <span class="absolute left-3 top-2 text-gray-500 text-sm">$</span>
                 <input type="number" formControlName="costPerUnit" min="0"
-                  class="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-md text-sm" />
+                  class="w-full pl-7 pr-3 py-2 border rounded-md text-sm"
+                  [ngClass]="{
+                    'border-red-500': budgetItemForm.get('costPerUnit')?.invalid && budgetItemForm.get('costPerUnit')?.touched,
+                    'border-gray-300': !(budgetItemForm.get('costPerUnit')?.invalid && budgetItemForm.get('costPerUnit')?.touched)
+                  }" />
+
+                <p *ngIf="budgetItemForm.get('costPerUnit')?.invalid && budgetItemForm.get('costPerUnit')?.touched"
+                  class="text-xs text-red-600 mt-1">
+                  Debe ingresar un costo válido
+                </p>
               </div>
             </div>
             <div>
@@ -1247,7 +1507,16 @@
               <div class="relative">
                 <span class="absolute left-3 top-2 text-gray-500 text-sm">$</span>
                 <input type="number" formControlName="billedPerUnit" min="0"
-                  class="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-md text-sm" />
+                  class="w-full pl-7 pr-3 py-2 border rounded-md text-sm"
+                  [ngClass]="{
+                    'border-red-500': budgetItemForm.get('billedPerUnit')?.invalid && budgetItemForm.get('billedPerUnit')?.touched,
+                    'border-gray-300': !(budgetItemForm.get('billedPerUnit')?.invalid && budgetItemForm.get('billedPerUnit')?.touched)
+                  }" />
+
+                <p *ngIf="budgetItemForm.get('billedPerUnit')?.invalid && budgetItemForm.get('billedPerUnit')?.touched"
+                  class="text-xs text-red-600 mt-1">
+                  Debe ingresar una tarifa válida
+                </p>
               </div>
             </div>
             <div class="md:col-span-2">
@@ -1283,7 +1552,7 @@
               class="px-5 py-2 bg-white border border-gray-300 text-gray-700 rounded-md font-medium hover:bg-gray-50 text-sm">
               Cancelar
             </button>
-            <button type="button" (click)="saveBudgetItem()" [disabled]="!budgetItemForm.valid"
+            <button type="button" (click)="onSaveBudgetItem()" [disabled]="!budgetItemForm.valid"
               class="px-5 py-2 bg-gray-900 text-white rounded-md font-medium hover:bg-gray-800 disabled:opacity-50 text-sm">
               {{ editingBudgetItemIndex === -1 ? 'Agregar' : 'Guardar' }}
             </button>

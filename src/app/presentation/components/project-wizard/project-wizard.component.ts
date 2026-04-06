@@ -189,48 +189,65 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
   private autoSaveSubscription?: Subscription;
   private formChanges$ = new Subject<void>();
   showSuccessModal = false;
+  isViewMode = false;
+  showPlanForm = false;
+  isAssignResourcesMode = false;
+
+  blockAllForms(): void {
+    this.contractForm.disable();
+    this.odsForm.disable();
+    this.planForm.enable();
+
+    this.sitesArray.controls.forEach(ctrl => ctrl.disable());
+
+    this.budgetItemForm.disable();
+  }
 
   ngOnInit(): void {
     
-    this.initializeForms();
+  this.initializeForms();
+  
+  this.loadCatalogs();
+  
+  this.setupAutoSave();
+  
+  this.checkForDraftToLoad();
+  
+  this.route.queryParams.subscribe(params => {
     
-    this.loadCatalogs();
+    const mode = params['mode'];
     
-    this.setupAutoSave();
+    const projectId = params['projectId'];
     
+    const planId = params['planId'];
     
-    this.checkForDraftToLoad();
-    
-    this.route.queryParams.subscribe(params => {
-      
-      const mode = params['mode'];
-      
-      const projectId = params['projectId'];
-      
-      const planId = params['planId'];
-      
-      const odsIndex = params['odsIndex'];
+    const odsIndex = params['odsIndex'];
 
-      if (mode === 'edit-resources' && projectId && planId && odsIndex !== undefined) {
-        
-        this.loadProjectForResourceEdit(+projectId, +planId, +odsIndex);
-        
-      } else if (mode === 'add-ods') {
-        
-        this.checkForDraftToLoad();
-        
-      }
-        
-      else {
-        
-        this.checkForDraftToLoad();
-        
+    const from = params['from'];
+
+    this.isAssignResourcesMode = from === 'assign';
+
+    if ((mode === 'edit-resources') 
+        && projectId && planId && odsIndex !== undefined) {      
+      
+      this.loadProjectForResourceEdit(+projectId, +planId, +odsIndex); 
+
+      if (this.isAssignResourcesMode) {
+        this.blockAllForms(); 
       }
       
-    });
-    
+    } else if (mode === 'add-ods') {
+      
+      this.checkForDraftToLoad();
+      
+    } else {
+      
+      this.checkForDraftToLoad();
+    }
 
-  }
+  });
+
+}
 
   get filteredEmployees() {
     return this.availableEmployees.filter(emp => {
@@ -367,14 +384,21 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
         const plan = this.serviceOrders[odsIndex]?.samplingPlans.find((p: any) => p.id === planId);
 
         if (plan) {
+          this.currentOdsIndex = odsIndex;
+
           this.loadPlanForEditing(plan);
+
+          this.showPlanForm = true;
+
           this.currentView = ViewMode.PLAN_FORM;
         }
 
         this.isDraft = false;
         this.loading = false;
 
-        this.successMessage = 'Proyecto cargado. Complete la asignación de recursos.';
+        this.successMessage = this.isViewMode
+        ? 'Proyecto cargado. Visualice la información.'
+        : 'Proyecto cargado. Complete la asignación de recursos.';
 
 
         setTimeout(() => this.successMessage = '', 4000);
@@ -462,6 +486,25 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
     if (this.autoSaveSubscription) {
       this.autoSaveSubscription.unsubscribe();
     }
+  }
+
+  openNewPlanForm(): void {
+
+    this.showPlanForm = true;
+    this.editingPlanId = null;
+    this.isViewMode = false;
+
+    this.resetPlanForm();
+
+    const ods = this.serviceOrders[this.currentOdsIndex];
+
+    this.planForm.patchValue({
+      startDate: ods?.startDate || '',
+      endDate: ods?.endDate || '',
+      resourceStartDate: ods?.startDate || '',
+      resourceEndDate: ods?.endDate || '',
+      totalSites: 1
+    });
   }
 
   initializeForms(): void {
@@ -1375,10 +1418,14 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
   }
 
   selectOdsForPlans(index: number): void {
+
+    this.resetPlanForm();
+
     this.currentOdsIndex = index;
     this.currentView = ViewMode.PLAN_FORM;
 
     const ods = this.serviceOrders[index];
+
     this.planForm.patchValue({
       startDate: ods.startDate || '',
       endDate: ods.endDate || '',
@@ -1402,16 +1449,19 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
 
     if (!this.planForm.valid) {
       this.errorMessage = 'Complete los campos requeridos del plan';
+      this.scrollToError();
       return;
     }
 
     if (this.sitesArray.length === 0) {
       this.errorMessage = 'Agregue al menos un sitio de monitoreo';
+      this.scrollToError();
       return;
     }
 
     if (!this.planForm.value.selectedMatrixIds || this.planForm.value.selectedMatrixIds.length === 0) {
       this.errorMessage = 'Seleccione al menos una matriz';
+      this.scrollToError();
       return;
     }
 
@@ -1424,11 +1474,13 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
 
       if (!hasEmployees && !hasEquipment && !hasVehicles) {
         this.errorMessage = 'Agregue al menos un recurso (personal, equipo o vehículo)';
+        this.scrollToError();
         return;
       }
     } else {
       if (!this.planForm.value.selectedEmployeeIds || this.planForm.value.selectedEmployeeIds.length === 0) {
         this.errorMessage = 'Seleccione al menos un empleado';
+        this.scrollToError();
         return;
       }
     }
@@ -1439,6 +1491,7 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
 
       if (planBilledTotal > odsBudget.available) {
         this.errorMessage = `El presupuesto del plan ($${planBilledTotal.toLocaleString()}) excede el disponible de la ODS ($${odsBudget.available.toLocaleString()})`;
+        this.scrollToError();
         return;
       }
     }
@@ -1641,7 +1694,21 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
 
   resetPlanForm(): void {
 
+    this.editingPlanId = null; 
+
     this.planRequiredResources = null;
+
+    this.employeeQuantities = [];
+    this.equipmentQuantities = [];
+    this.vehicleQuantity = 0;
+    this.budgetItems.length = 0;
+
+    this.employeeSearchTerm = '';
+    this.employeeCategoryFilter = '';
+    this.equipmentSearchTerm = '';
+    this.equipmentCategoryFilter = '';
+    this.vehicleSearchTerm = '';
+    this.vehicleLocationFilter = '';
 
     const odsStartDate = this.currentOdsIndex !== -1
       ? this.serviceOrders[this.currentOdsIndex].startDate
@@ -1651,27 +1718,35 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
       : '';
 
     this.planForm.reset({
-      startDate: odsStartDate,
-      endDate: odsEndDate,
-      resourceStartDate: odsStartDate,
-      resourceEndDate: odsEndDate,
-      resourceAssignmentMode: ResourceAssignmentMode.QUANTITY,
-      employeeQuantities: [],
-      equipmentQuantities: [],
-      vehicleQuantity: 0,
+      planCode: '',
+      planName: '',
+      totalSites: 1,
+      coordinatorId: '',
+      hasReport: false,
+      hasGDB: false,
+
+      selectedMatrixIds: [], 
       selectedEmployeeIds: [],
       selectedEquipmentIds: [],
       selectedVehicleIds: [],
-      budgetItems: []
-    });
 
-    this.currentResourceMode = ResourceAssignmentMode.QUANTITY;
-    this.employeeQuantities = [];
-    this.equipmentQuantities = [];
-    this.vehicleQuantity = 0;
+      startDate: odsStartDate,
+      endDate: odsEndDate,
+
+      resourceStartDate: odsStartDate,
+      resourceEndDate: odsEndDate,
+
+      resourceAssignmentMode: ResourceAssignmentMode.QUANTITY,
+
+      employeeQuantities: [],
+      equipmentQuantities: [],
+      vehicleQuantity: 0
+    });
 
     this.sitesArray.clear();
     this.addSite();
+
+    this.currentResourceMode = ResourceAssignmentMode.QUANTITY;
   }
 
 
@@ -2241,13 +2316,19 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
     }
   }
 
+  scrollToTop(): void {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  });
+}
 
   saveDetailedResourcesAndExit(): void {
 
     if (!this.editingPlanId) {
 
       this.errorMessage = 'Error: No hay un plan en edición';
-
+      this.scrollToTop(); 
       return;
 
     }
@@ -2257,40 +2338,25 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
     if (selectedEmployees.length === 0) {
 
       this.errorMessage = 'Debe seleccionar al menos un empleado';
-
+      this.scrollToTop(); 
       return;
 
     }
 
     const dto = {
-
       mode: 'DETAILED',
-
       startDate: this.planForm.value.resourceStartDate || null,
-
       endDate: this.planForm.value.resourceEndDate || null,
-
       employeeIds: selectedEmployees,
-
       equipmentIds: this.planForm.value.selectedEquipmentIds || [],
-
       vehicleIds: this.planForm.value.selectedVehicleIds || [],
-
       employeeQuantities: null,
-
       equipmentQuantities: null,
-
       vehicleQuantity: null,
-
       budget: this.budgetItems.length > 0
-
         ? this.calculatePlanBudgetTotals(this.budgetItems)
-
         : null
-
     };
-
-    console.log('DTO enviado:', JSON.stringify(dto, null, 2));
 
     this.loading = true;
 
@@ -2301,27 +2367,20 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
         setTimeout(() => this.router.navigate(['/projects-dashboard']), 1500);
       },
       error: (error) => {
-        console.error('Error completo:', error);
-        console.error('Error.error:', error.error);
-        console.error('Errores de validación:', error.error?.errors);
-        console.error('Status:', error.status);
-
-        // Mostrar errores de validación
-        if (error.error?.errors) {
-          console.error('DETALLES DE VALIDACIÓN:');
-          Object.keys(error.error.errors).forEach(key => {
-            console.error(`  - ${key}:`, error.error.errors[key]);
-          });
-        }
 
         this.errorMessage = error.error?.message || 'Error al actualizar recursos';
         this.loading = false;
+
+        this.scrollToTop(); 
       }
     });
   }
 
 
   loadReusablePlanIntoForm(plan: any): void {
+
+    this.resetPlanForm();
+    this.showPlanForm = true;
     this.sitesArray.clear();
 
     this.planForm.patchValue({
@@ -2391,4 +2450,74 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
       (this.planRequiredResources?.vehicleQuantity ?? 0) > 0
     );
   }
+
+  onContinueContract() {
+    if (this.contractForm.invalid) {
+      this.contractForm.markAllAsTouched();
+
+      this.scrollToFirstInvalidControl();
+      return;
+    }
+
+    this.currentView = ViewMode.ODS_LIST;
+  }
+
+  scrollToFirstInvalidControl() {
+    const firstInvalid = document.querySelector('.border-red-500');
+    firstInvalid?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  onAddOds() {
+    this.odsForm.markAllAsTouched();
+
+    if (this.odsCreationMode === 'reuse' && !this.selectedReusableOdsCode) {
+      return;
+    }
+
+    if (this.odsForm.invalid) {
+      return;
+    }
+
+    if (this.odsCreationMode === 'new') {
+      this.addServiceOrder();
+    } else {
+      this.addServiceOrderFromReusable();
+    }
+  }
+
+  scrollToFirstInvalidOdsControl() {
+    let selector = '.ods-invalid';
+
+    const element = document.querySelector(selector);
+    element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  onGenerateSites() {
+    this.planForm.markAllAsTouched(); 
+
+    if (this.planForm.invalid) {
+      return;
+    }
+
+    this.generateMultipleSites();
+  }
+
+  scrollToError() {
+    setTimeout(() => {
+      const element = document.getElementById('plan-error');
+      element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 100);
+  }
+
+  onSaveBudgetItem() {
+    this.budgetItemForm.markAllAsTouched();
+
+    if (this.budgetItemForm.invalid) {
+      return;
+    }
+
+    this.saveBudgetItem();
+  }
+
+  
 }

@@ -61,6 +61,40 @@ export class AuthService {
     return this.currentUserSubject.value;
     
   }
+
+  private decodeToken(token: string): any {
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split('')
+          .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      );
+
+      return JSON.parse(jsonPayload);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  getRole(): string | null {
+    const token = this.getToken();
+    if (!token) return null;
+
+    const decoded = this.decodeToken(token);
+    if (!decoded) return null;
+
+    return decoded?.role ||
+      decoded?.Role ||
+      decoded?.['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] ||
+      null;
+  }
+
+  hasRole(role: string): boolean {
+    return this.getRole() === role;
+  }
   
   login(userName: string, password: string): Observable<LoginResponse> {
     
