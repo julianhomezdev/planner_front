@@ -1,60 +1,29 @@
-<!-- ╔══════════════════════════════════════════════════════╗
-     ║  ADD ODS WIZARD — /projects/:projectId/add-ods     ║
-     ╚══════════════════════════════════════════════════════╝ -->
-
 <div class="min-h-screen bg-gray-50 py-6 px-4">
   <div class="max-w-4xl mx-auto">
 
     <!-- ── HEADER ──────────────────────────────────────────── -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 mb-6">
+    <div class="bg-slate-900 rounded-xl shadow-sm border border-gray-200 p-5 mb-6">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-3">
           <button (click)="cancelar()"
-            class="p-2 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
+            class="p-2 text-white hover:text-gray-700 cursor-pointerhover:bg-gray-100 rounded-lg transition-colors">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
             </svg>
           </button>
           <div>
-            <p class="text-xs font-bold tracking-widest text-gray-400 uppercase">Nueva Orden de Servicio</p>
-            <h1 class="text-lg font-bold text-gray-900 mt-0.5">
+            <p class="text-xs font-bold tracking-widest text-white uppercase">Nueva Orden de Servicio</p>
+            <h1 class="text-lg font-bold text-white mt-0.5">
               {{ projectInfo?.contract?.contractName || projectInfo?.projectName || 'Cargando...' }}
             </h1>
-            <p class="text-xs text-gray-500 mt-0.5">
+            <p class="text-xs text-white mt-0.5">
               {{ projectInfo?.contract?.contractCode || '' }}
               @if (projectInfo?.client?.name) { · {{ projectInfo.client.name }} }
             </p>
           </div>
         </div>
 
-        <!-- Stepper visual -->
-        <div class="hidden sm:flex items-center gap-2">
-          <div class="flex items-center gap-1.5">
-            <span class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold"
-              [class]="currentView === ViewMode.ODS_FORM
-                ? 'bg-gray-900 text-white'
-                : 'bg-emerald-500 text-white'">
-              @if (currentView === ViewMode.ODS_FORM) { 1 } @else {
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
-                </svg>
-              }
-            </span>
-            <span class="text-xs font-medium" [class]="currentView === ViewMode.ODS_FORM ? 'text-gray-900' : 'text-emerald-600'">
-              Datos ODS
-            </span>
-          </div>
-          <div class="w-8 h-px bg-gray-300"></div>
-          <div class="flex items-center gap-1.5">
-            <span class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold"
-              [class]="currentView === ViewMode.PLAN_FORM ? 'bg-gray-900 text-white' : 'bg-gray-200 text-gray-500'">
-              2
-            </span>
-            <span class="text-xs font-medium" [class]="currentView === ViewMode.PLAN_FORM ? 'text-gray-900' : 'text-gray-400'">
-              Planes
-            </span>
-          </div>
-        </div>
+    
       </div>
     </div>
 

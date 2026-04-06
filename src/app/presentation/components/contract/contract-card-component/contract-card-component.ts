@@ -40,53 +40,5 @@ export class ContractCardComponent {
       .map((sp: any) => ({ planCode: sp.planCode, planName: sp.planName }));
   }
 
-  /**navigateAddOds(contractId: number, event: Event): void {
-
-        event.stopPropagation();
-
-        
-
-        const proyectoId = grupo?.proyectos[0]?.id;
-
-        if (proyectoId) {
-
-            this.router.navigate(['/projects', proyectoId, 'add-ods']);
-        
-        }
-    }**/
-
-  /**navegarAAsignarRecursos(planId: number, proyectoId: number): void {
-        let odsIndex = -1;
-    
-        if (this.proyectoSeleccionado?.serviceOrders) {
-          for (let i = 0; i < this.proyectoSeleccionado.serviceOrders.length; i++) {
-            const ods = this.proyectoSeleccionado.serviceOrders[i];
-            if (ods.samplingPlans?.some((p: any) => p.id === planId)) {
-              odsIndex = i;
-              break;
-            }
-          }
-        }
-    
-        this.router.navigate(['/planner'], {
-          queryParams: {
-            mode: 'edit-resources',
-            projectId: proyectoId,
-            planId,
-            odsIndex,
-          },
-        });
-    }**/
-
-  /**verProyecto(proyectoId: number): void {
-        this.projectService.getProjectById(proyectoId).subscribe({
-        next: (datos: any) => {
-            this.proyectoSeleccionado = datos;
-            this.showResourceEditModal = true;
-        },
-        error: (error: any) => {
-            console.error('Error al cargar el detalle del proyecto:', error);
-        },
-        });
-    }**/
+  
 }
