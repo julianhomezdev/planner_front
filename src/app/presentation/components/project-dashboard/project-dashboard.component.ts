@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import * as XLSX from 'xlsx';
 
 import { ProjectService } from '../../../core/services/project.service';
-import { ContractCardComponent } from './contract-card-component/contract-card-component';
+import { ContractCardComponent } from '../contract/contract-card-component/contract-card-component';
 
 // ─── Interfaces locales ───────────────────────────────────────────────────────
 

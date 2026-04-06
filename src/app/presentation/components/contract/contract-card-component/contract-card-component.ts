@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
-import { GrupoContrato } from '../project-dashboard.component';
+import { Component, inject, Input } from '@angular/core';
+import { GrupoContrato } from '../../project-dashboard/project-dashboard.component';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'contract-card-component',
@@ -16,6 +17,17 @@ import { GrupoContrato } from '../project-dashboard.component';
 export class ContractCardComponent {
   // contract-card-component.ts
   @Input() grupo!: GrupoContrato;
+
+  private readonly router = inject(Router);
+
+  // Metodo para ir al detaller de un contrato
+  goContractDetail(): void {
+    const projectId = this.grupo.proyectos[0]?.id;
+
+    if (projectId) {
+      this.router.navigate(['/contracts', projectId]);
+    }
+  }
 
   // Metodo para obtener planes del contrato ( información para mostar en el card)
   getContractsSamplinPlans(grupo: GrupoContrato): { planCode: string; planName: string }[] {
@@ -66,8 +78,7 @@ export class ContractCardComponent {
         });
     }**/
 
-
-    /**verProyecto(proyectoId: number): void {
+  /**verProyecto(proyectoId: number): void {
         this.projectService.getProjectById(proyectoId).subscribe({
         next: (datos: any) => {
             this.proyectoSeleccionado = datos;
@@ -78,5 +89,4 @@ export class ContractCardComponent {
         },
         });
     }**/
-        
 }

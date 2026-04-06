@@ -8,6 +8,7 @@ import { environment } from '../../environments/development.environment';
   providedIn: 'root'
   
 })
+
 export class ProjectService {
   
   private apiUrl = `${environment.apiUrl}/Project`;
@@ -15,18 +16,26 @@ export class ProjectService {
   constructor(private http: HttpClient) {}
 
   getAllProjects(): Observable<any[]> {
+
     return this.http.get<any[]>(`${this.apiUrl}`);
+  
   }
 
   getProjectById(id: number): Observable<any> {
+  
     return this.http.get<any>(`${this.apiUrl}/${id}`);
+  
   }
 
   deleteProject(id: number): Observable<void> {
+  
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  
   }
 
   getProjectWithResourceDetails(id: number): Observable<any> {
+  
     return this.http.get<any>(`${this.apiUrl}/${id}/details`);
+  
   }
 }
