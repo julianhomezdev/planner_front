@@ -5,10 +5,12 @@ import { FormsModule } from '@angular/forms';
 import * as XLSX from 'xlsx';
 
 import { ProjectService } from '../../../core/services/project.service';
+import { ContractCardComponent } from './contract-card-component/contract-card-component';
 
 // ─── Interfaces locales ───────────────────────────────────────────────────────
 
-interface ContratoInfo {
+// Estas interfaces deben ser movidad a archivos individuales
+export interface ContratoInfo {
   id: number;
   contractCode: string;
   contractName: string;
@@ -21,7 +23,7 @@ interface PlanResumen {
   planName: string;
 }
 
-interface ProyectoResumen {
+export interface ProyectoResumen {
   id: number;
   projectName: string;
   contract: ContratoInfo;
@@ -35,7 +37,7 @@ interface ProyectoResumen {
   serviceOrders?: any[];
 }
 
-interface GrupoContrato {
+export interface GrupoContrato {
   contrato: ContratoInfo;
   proyectos: ProyectoResumen[];
   abierto: boolean;
@@ -46,41 +48,32 @@ interface GrupoContrato {
 @Component({
   selector: 'project-dashboard-component',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, ContractCardComponent],
   templateUrl: './project-dashboard.component.html',
-  styleUrls: ['./project-dashboard.component.css']
+  styleUrls: ['./project-dashboard.component.css'],
 })
 export class ProjectDashboardComponent implements OnInit {
-
   // ─── Dependencias ─────────────────────────────────────────────────────────
 
   private readonly projectService = inject(ProjectService);
-  private readonly router         = inject(Router);
+  private readonly router = inject(Router);
 
   // ─── Estado del componente ────────────────────────────────────────────────
 
   proyectos: ProyectoResumen[] = [];
-  proyectoSeleccionado: any = null;
 
   cargando = true;
 
   // Filtros
   filtroFechaInicio: string = '';
-  filtroFechaFin:    string = '';
-  filtroBusqueda:    string = '';
+  filtroFechaFin: string = '';
+  filtroBusqueda: string = '';
 
   // Grupos principales (fuente de verdad tras cargar datos)
   grupos: GrupoContrato[] = [];
 
   // Grupos filtrados (los que se muestran en el template)
   gruposFiltrados: GrupoContrato[] = [];
-
-  // Controla qué ODS están abiertas/cerradas
-  odsAbiertos: Record<string, boolean> = {};
-  showResourceEditModal = false;
-
-
-  // ─── Ciclo de vida ────────────────────────────────────────────────────────
 
   ngOnInit(): void {
     this.cargarProyectos();
@@ -95,26 +88,13 @@ export class ProjectDashboardComponent implements OnInit {
       next: (datos: ProyectoResumen[]) => {
         this.proyectos = datos;
         this.grupos = this.construirGrupos(datos);
-        this.inicializarEstados();
-        this.gruposFiltrados = this.grupos.map(g => ({ ...g }));
+        this.gruposFiltrados = this.grupos.map((g) => ({ ...g }));
         this.cargando = false;
       },
       error: (error: any) => {
         console.error('Error al cargar proyectos:', error);
         this.cargando = false;
-      }
-    });
-  }
-
-  verProyecto(proyectoId: number): void {
-    this.projectService.getProjectById(proyectoId).subscribe({
-      next: (datos: any) => {
-        this.proyectoSeleccionado = datos;
-        this.showResourceEditModal = true;
       },
-      error: (error: any) => {
-        console.error('Error al cargar el detalle del proyecto:', error);
-      }
     });
   }
 
@@ -130,7 +110,7 @@ export class ProjectDashboardComponent implements OnInit {
         mapa.set(contratoId, {
           contrato: proyecto.contract,
           proyectos: [],
-          abierto: true
+          abierto: true,
         });
       }
 
@@ -138,40 +118,6 @@ export class ProjectDashboardComponent implements OnInit {
     }
 
     return Array.from(mapa.values());
-  }
-
-  // ─── Inicializar estado abierto/cerrado ───────────────────────────────────
-
-  inicializarEstados(): void {
-    this.grupos.forEach(grupo => {
-      grupo.abierto = true;
-
-      grupo.proyectos.forEach(proyecto => {
-        proyecto.serviceOrders?.forEach((orden: any) => {
-          this.odsAbiertos[orden.id] = false;
-        });
-      });
-    });
-  }
-
-  // ─── Colapsar / expandir contrato ────────────────────────────────────────
-
-  toggleContrato(grupo: GrupoContrato): void {
-    grupo.abierto = !grupo.abierto;
-
-    // Sincronizar en gruposFiltrados
-    const grupoFiltrado = this.gruposFiltrados.find(
-      g => g.contrato.id === grupo.contrato.id
-    );
-    if (grupoFiltrado) {
-      grupoFiltrado.abierto = grupo.abierto;
-    }
-  }
-
-  // ─── Colapsar / expandir ODS ─────────────────────────────────────────────
-
-  toggleODS(odsId: string): void {
-    this.odsAbiertos[odsId] = !this.odsAbiertos[odsId];
   }
 
   // ─── Filtros ──────────────────────────────────────────────────────────────
@@ -184,42 +130,48 @@ export class ProjectDashboardComponent implements OnInit {
     // Filtro por rango de fechas sobre los proyectos
     if (this.filtroFechaInicio || this.filtroFechaFin) {
       const inicio = this.filtroFechaInicio ? new Date(this.filtroFechaInicio) : null;
-      const fin    = this.filtroFechaFin    ? new Date(this.filtroFechaFin)    : null;
+      const fin = this.filtroFechaFin ? new Date(this.filtroFechaFin) : null;
 
-      base = base.map(grupo => ({
-        ...grupo,
-        proyectos: grupo.proyectos.filter(proyecto => {
-          const fechaInicioProyecto = proyecto.initialDate ? new Date(proyecto.initialDate) : null;
-          const fechaFinProyecto    = proyecto.finalDate   ? new Date(proyecto.finalDate)   : null;
+      base = base
+        .map((grupo) => ({
+          ...grupo,
+          proyectos: grupo.proyectos.filter((proyecto) => {
+            const fechaInicioProyecto = proyecto.initialDate
+              ? new Date(proyecto.initialDate)
+              : null;
+            const fechaFinProyecto = proyecto.finalDate ? new Date(proyecto.finalDate) : null;
 
-          if (inicio && fechaFinProyecto    && fechaFinProyecto    < inicio) return false;
-          if (fin    && fechaInicioProyecto && fechaInicioProyecto > fin)    return false;
+            if (inicio && fechaFinProyecto && fechaFinProyecto < inicio) return false;
+            if (fin && fechaInicioProyecto && fechaInicioProyecto > fin) return false;
 
-          return true;
-        })
-      })).filter(g => g.proyectos.length > 0);
+            return true;
+          }),
+        }))
+        .filter((g) => g.proyectos.length > 0);
     }
 
     // Filtro por texto
     if (q) {
-      base = base.map(grupo => ({
-        ...grupo,
-        proyectos: grupo.proyectos.filter(p => {
-          const matchNombre = p.projectName?.toLowerCase().includes(q);
-          const matchPlan   = (p.samplingPlans ?? []).some(plan =>
-            plan.planCode?.toLowerCase().includes(q) ||
-            plan.planName?.toLowerCase().includes(q)
-          );
-          const matchODS = p.serviceOrders?.some((o: any) =>
-            o.samplingPlans?.some(
-              (pl: any) =>
-                pl.planCode?.toLowerCase().includes(q) ||
-                pl.planName?.toLowerCase().includes(q)
-            )
-          );
-          return matchNombre || matchPlan || matchODS;
-        })
-      })).filter(g => g.proyectos.length > 0);
+      base = base
+        .map((grupo) => ({
+          ...grupo,
+          proyectos: grupo.proyectos.filter((p) => {
+            const matchNombre = p.projectName?.toLowerCase().includes(q);
+            const matchPlan = (p.samplingPlans ?? []).some(
+              (plan) =>
+                plan.planCode?.toLowerCase().includes(q) ||
+                plan.planName?.toLowerCase().includes(q),
+            );
+            const matchODS = p.serviceOrders?.some((o: any) =>
+              o.samplingPlans?.some(
+                (pl: any) =>
+                  pl.planCode?.toLowerCase().includes(q) || pl.planName?.toLowerCase().includes(q),
+              ),
+            );
+            return matchNombre || matchPlan || matchODS;
+          }),
+        }))
+        .filter((g) => g.proyectos.length > 0);
     }
 
     this.gruposFiltrados = base;
@@ -227,9 +179,9 @@ export class ProjectDashboardComponent implements OnInit {
 
   limpiarFiltros(): void {
     this.filtroFechaInicio = '';
-    this.filtroFechaFin    = '';
-    this.filtroBusqueda    = '';
-    this.gruposFiltrados   = this.grupos.map(g => ({ ...g }));
+    this.filtroFechaFin = '';
+    this.filtroBusqueda = '';
+    this.gruposFiltrados = this.grupos.map((g) => ({ ...g }));
   }
 
   // ─── Contadores ───────────────────────────────────────────────────────────
@@ -243,42 +195,23 @@ export class ProjectDashboardComponent implements OnInit {
   }
 
   contarPendientes(): number {
-    return this.grupos.reduce((sum, g) =>
-      sum + g.proyectos.filter(p => p.projectResourceAssignementMode === 0).length, 0);
+    return this.grupos.reduce(
+      (sum, g) => sum + g.proyectos.filter((p) => p.projectResourceAssignementMode === 0).length,
+      0,
+    );
   }
 
   contarAsignados(): number {
-    return this.grupos.reduce((sum, g) =>
-      sum + g.proyectos.filter(p => p.projectResourceAssignementMode !== 0).length, 0);
+    return this.grupos.reduce(
+      (sum, g) => sum + g.proyectos.filter((p) => p.projectResourceAssignementMode !== 0).length,
+      0,
+    );
   }
 
   // ─── Navegación ───────────────────────────────────────────────────────────
 
   crearNuevoProyecto(): void {
     this.router.navigate(['/planner']);
-  }
-
-  navegarAAsignarRecursos(planId: number, proyectoId: number): void {
-    let odsIndex = -1;
-
-    if (this.proyectoSeleccionado?.serviceOrders) {
-      for (let i = 0; i < this.proyectoSeleccionado.serviceOrders.length; i++) {
-        const ods = this.proyectoSeleccionado.serviceOrders[i];
-        if (ods.samplingPlans?.some((p: any) => p.id === planId)) {
-          odsIndex = i;
-          break;
-        }
-      }
-    }
-
-    this.router.navigate(['/planner'], {
-      queryParams: {
-        mode: 'edit-resources',
-        projectId: proyectoId,
-        planId,
-        odsIndex
-      }
-    });
   }
 
   navegarAAsignarDesdeCard(proyecto: ProyectoResumen, evento: Event): void {
@@ -290,16 +223,9 @@ export class ProjectDashboardComponent implements OnInit {
       this.projectService.getProjectById(proyecto.id).subscribe({
         next: (proyectoCompleto: any) =>
           this.irAlPrimerPlanPendiente(proyecto.id, proyectoCompleto.serviceOrders),
-        error: (err: any) => console.error('Error al cargar el proyecto:', err)
+        error: (err: any) => console.error('Error al cargar el proyecto:', err),
       });
     }
-  }
-
-  // ─── Modal de detalle ─────────────────────────────────────────────────────
-
-  cerrarModal(): void {
-    this.showResourceEditModal = false;
-    this.proyectoSeleccionado = null;
   }
 
   // ─── Eliminación ──────────────────────────────────────────────────────────
@@ -309,13 +235,13 @@ export class ProjectDashboardComponent implements OnInit {
 
     this.projectService.deleteProject(proyectoId).subscribe({
       next: () => {
-        this.proyectos = this.proyectos.filter(p => p.id !== proyectoId);
+        this.proyectos = this.proyectos.filter((p) => p.id !== proyectoId);
         this.grupos = this.construirGrupos(this.proyectos);
         this.aplicarFiltros();
       },
       error: (error: any) => {
         console.error('Error al eliminar el proyecto:', error);
-      }
+      },
     });
   }
 
@@ -331,23 +257,21 @@ export class ProjectDashboardComponent implements OnInit {
   }
 
   obtenerNombresEmpleados(empleados: any[]): string {
-    return empleados
-      .map(e => `${e.firstName} ${e.lastName ?? ''}`.trim())
-      .join(', ');
+    return empleados.map((e) => `${e.firstName} ${e.lastName ?? ''}`.trim()).join(', ');
   }
 
   obtenerNombresEquipos(equipos: any[]): string {
-    return equipos.map(e => `${e.name} (${e.code})`).join(', ');
+    return equipos.map((e) => `${e.name} (${e.code})`).join(', ');
   }
 
   obtenerPlacasVehiculos(vehiculos: any[]): string {
-    return vehiculos.map(v => v.plateNumber).join(', ');
+    return vehiculos.map((v) => v.plateNumber).join(', ');
   }
 
   // ─── Exportación a Excel ──────────────────────────────────────────────────
 
   exportarAExcel(): void {
-    const todosLosProyectos = this.gruposFiltrados.flatMap(g => g.proyectos);
+    const todosLosProyectos = this.gruposFiltrados.flatMap((g) => g.proyectos);
 
     if (todosLosProyectos.length === 0) {
       alert('No hay proyectos para exportar');
@@ -356,14 +280,14 @@ export class ProjectDashboardComponent implements OnInit {
 
     this.cargando = true;
 
-    const peticiones = todosLosProyectos.map(p =>
-      this.projectService.getProjectById(p.id).toPromise()
+    const peticiones = todosLosProyectos.map((p) =>
+      this.projectService.getProjectById(p.id).toPromise(),
     );
 
     Promise.all(peticiones)
-      .then(proyectosDetallados => {
+      .then((proyectosDetallados) => {
         const datos = this.prepararDatosExcel(proyectosDetallados);
-        const hoja  = XLSX.utils.json_to_sheet(datos);
+        const hoja = XLSX.utils.json_to_sheet(datos);
 
         hoja['!cols'] = Array(31).fill({ wch: 15 });
 
@@ -373,7 +297,7 @@ export class ProjectDashboardComponent implements OnInit {
 
         this.cargando = false;
       })
-      .catch(error => {
+      .catch((error) => {
         console.error('Error al cargar detalles para exportar:', error);
         alert('Error al cargar los detalles de los proyectos');
         this.cargando = false;
@@ -384,8 +308,8 @@ export class ProjectDashboardComponent implements OnInit {
 
   private irAlPrimerPlanPendiente(proyectoId: number, ordenesDeServicio: any[]): void {
     for (let odsIndex = 0; odsIndex < ordenesDeServicio.length; odsIndex++) {
-      const planPendiente = ordenesDeServicio[odsIndex].samplingPlans?.find(
-        (p: any) => this.esModoNominal(p)
+      const planPendiente = ordenesDeServicio[odsIndex].samplingPlans?.find((p: any) =>
+        this.esModoNominal(p),
       );
 
       if (planPendiente) {
@@ -394,8 +318,8 @@ export class ProjectDashboardComponent implements OnInit {
             mode: 'edit-resources',
             projectId: proyectoId,
             planId: planPendiente.id,
-            odsIndex
-          }
+            odsIndex,
+          },
         });
         return;
       }
@@ -405,7 +329,7 @@ export class ProjectDashboardComponent implements OnInit {
   private prepararDatosExcel(proyectos: any[]): any[] {
     const filas: any[] = [];
 
-    proyectos.forEach(proyecto => {
+    proyectos.forEach((proyecto) => {
       if (!proyecto.serviceOrders?.length) {
         filas.push(this.crearFilaExcel(proyecto, null, null));
         return;
@@ -427,76 +351,57 @@ export class ProjectDashboardComponent implements OnInit {
 
   private crearFilaExcel(proyecto: any, ods: any | null, plan: any | null): any {
     const fila: any = {
-      'Proyecto':              proyecto.projectName        ?? 'Sin nombre',
-      'Codigo Contrato':       proyecto.contract?.contractCode ?? '',
-      'Cliente':               proyecto.client?.name       ?? '',
-      'Coordinador':           proyecto.coordinator?.name  ?? '',
-      'Fecha Inicio Proyecto': proyecto.initialDate        ?? '',
-      'Fecha Fin Proyecto':    proyecto.finalDate          ?? '',
-      'Codigo ODS':            ods?.odsCode   ?? '',
-      'Nombre ODS':            ods?.odsName   ?? '',
-      'Fecha Inicio ODS':      ods?.startDate ?? '',
-      'Fecha Fin ODS':         ods?.endDate   ?? '',
-      'Codigo Plan':           plan?.planCode  ?? '',
-      'Fecha Inicio Plan':     plan?.startDate ?? '',
-      'Fecha Fin Plan':        plan?.endDate   ?? '',
-      'Sitios':   plan?.sites?.map((s: any) => `${s.name} (${s.matrixName})`).join('; ') ?? '',
-      'Personal': plan?.resources?.employees ? this.obtenerNombresEmpleados(plan.resources.employees) : '',
-      'Equipos':  plan?.resources?.equipment ? this.obtenerNombresEquipos(plan.resources.equipment)  : '',
-      'Vehiculos': plan?.resources?.vehicles ? this.obtenerPlacasVehiculos(plan.resources.vehicles)  : '',
+      Proyecto: proyecto.projectName ?? 'Sin nombre',
+      'Codigo Contrato': proyecto.contract?.contractCode ?? '',
+      Cliente: proyecto.client?.name ?? '',
+      Coordinador: proyecto.coordinator?.name ?? '',
+      'Fecha Inicio Proyecto': proyecto.initialDate ?? '',
+      'Fecha Fin Proyecto': proyecto.finalDate ?? '',
+      'Codigo ODS': ods?.odsCode ?? '',
+      'Nombre ODS': ods?.odsName ?? '',
+      'Fecha Inicio ODS': ods?.startDate ?? '',
+      'Fecha Fin ODS': ods?.endDate ?? '',
+      'Codigo Plan': plan?.planCode ?? '',
+      'Fecha Inicio Plan': plan?.startDate ?? '',
+      'Fecha Fin Plan': plan?.endDate ?? '',
+      Sitios: plan?.sites?.map((s: any) => `${s.name} (${s.matrixName})`).join('; ') ?? '',
+      Personal: plan?.resources?.employees
+        ? this.obtenerNombresEmpleados(plan.resources.employees)
+        : '',
+      Equipos: plan?.resources?.equipment
+        ? this.obtenerNombresEquipos(plan.resources.equipment)
+        : '',
+      Vehiculos: plan?.resources?.vehicles
+        ? this.obtenerPlacasVehiculos(plan.resources.vehicles)
+        : '',
     };
 
     const p = plan?.budget ?? {};
-    fila['Costo Transporte']             = p.transportCostChemilab          ?? 0;
-    fila['Facturado Transporte']         = p.transportBilledToClient        ?? 0;
-    fila['Costo Logistica']              = p.logisticsCostChemilab          ?? 0;
-    fila['Facturado Logistica']          = p.logisticsBilledToClient        ?? 0;
-    fila['Costo Subcontratacion']        = p.subcontractingCostChemilab     ?? 0;
-    fila['Facturado Subcontratacion']    = p.subcontractingBilledToClient   ?? 0;
-    fila['Costo Transporte Fluvial']     = p.fluvialTransportCostChemilab   ?? 0;
+    fila['Costo Transporte'] = p.transportCostChemilab ?? 0;
+    fila['Facturado Transporte'] = p.transportBilledToClient ?? 0;
+    fila['Costo Logistica'] = p.logisticsCostChemilab ?? 0;
+    fila['Facturado Logistica'] = p.logisticsBilledToClient ?? 0;
+    fila['Costo Subcontratacion'] = p.subcontractingCostChemilab ?? 0;
+    fila['Facturado Subcontratacion'] = p.subcontractingBilledToClient ?? 0;
+    fila['Costo Transporte Fluvial'] = p.fluvialTransportCostChemilab ?? 0;
     fila['Facturado Transporte Fluvial'] = p.fluvialTransportBilledToClient ?? 0;
-    fila['Costo Informes']               = p.reportsCostChemilab            ?? 0;
-    fila['Facturado Informes']           = p.reportsBilledToClient          ?? 0;
-    fila['Costo Total']                  = p.totalCost                      ?? 0;
-    fila['Total Facturado']              = p.totalBilled                    ?? 0;
-    fila['Utilidad']                     = p.totalProfit                    ?? 0;
-    fila['Margen %']                     = this.calcularMargen(p);
-    fila['Notas Presupuesto']            = p.notes                          ?? '';
+    fila['Costo Informes'] = p.reportsCostChemilab ?? 0;
+    fila['Facturado Informes'] = p.reportsBilledToClient ?? 0;
+    fila['Costo Total'] = p.totalCost ?? 0;
+    fila['Total Facturado'] = p.totalBilled ?? 0;
+    fila['Utilidad'] = p.totalProfit ?? 0;
+    fila['Margen %'] = this.calcularMargen(p);
+    fila['Notas Presupuesto'] = p.notes ?? '';
 
     return fila;
   }
 
   private obtenerNombreArchivoExport(): string {
     const hoy = new Date().toISOString().split('T')[0];
-    if (this.filtroFechaInicio && this.filtroFechaFin) return `${this.filtroFechaInicio}_a_${this.filtroFechaFin}`;
+    if (this.filtroFechaInicio && this.filtroFechaFin)
+      return `${this.filtroFechaInicio}_a_${this.filtroFechaFin}`;
     if (this.filtroFechaInicio) return `desde_${this.filtroFechaInicio}`;
-    if (this.filtroFechaFin)    return `hasta_${this.filtroFechaFin}`;
+    if (this.filtroFechaFin) return `hasta_${this.filtroFechaFin}`;
     return hoy;
   }
-  
-  navegarAgregarOds(contratoId: number, evento: Event): void {
-    
-    
-    evento.stopPropagation();
-    
-    const grupo = this.grupos.find( g => g.contrato.id === contratoId);
-    
-    const proyectoId = grupo?.proyectos[0]?.id;
-    
-    if(proyectoId) {     
-      
-      this.router.navigate(['/projects', proyectoId, 'add-ods']);
-      
-    }   
-  }
-  
-  
-  
-  getPlanesDelContrato(grupo: GrupoContrato): { planCode: string; planName: string }[] {
-    return grupo.proyectos
-      .flatMap(p => p.serviceOrders ?? [])
-      .flatMap((o: any) => o.samplingPlans ?? [])
-      .map((sp: any) => ({ planCode: sp.planCode, planName: sp.planName }));
-  }
-  
 }

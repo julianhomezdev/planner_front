@@ -1,4 +1,3 @@
-
 <div class="mb-5 flex items-center justify-between">
   <div>
     <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Contratos</h1>
@@ -10,62 +9,95 @@
   <button
     (click)="exportarAExcel()"
     [disabled]="cargando"
-    class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+    class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+  >
     <svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-        d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+      />
     </svg>
     Exportar Excel
   </button>
 </div>
 
-
 <!-- ========================================================
      BARRA DE BUSQUEDA + INDICADORES
      ======================================================== -->
 <div class="mb-5 space-y-3">
-  <div class="flex items-center gap-2 px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm">
-    <svg class="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-        d="M21 21l-4.35-4.35M17 11A6 6 0 1 0 5 11a6 6 0 0 0 12 0z" />
+  <div
+    class="flex items-center gap-2 px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm"
+  >
+    <svg
+      class="w-4 h-4 text-gray-400 shrink-0"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M21 21l-4.35-4.35M17 11A6 6 0 1 0 5 11a6 6 0 0 0 12 0z"
+      />
     </svg>
     <input
       type="text"
       [(ngModel)]="filtroBusqueda"
       (input)="aplicarFiltros()"
       placeholder="Buscar por codigo o nombre de plan de muestreo..."
-      class="flex-1 bg-transparent text-sm text-gray-900 placeholder-gray-400 focus:outline-none" />
+      class="flex-1 bg-transparent text-sm text-gray-900 placeholder-gray-400 focus:outline-none"
+    />
     @if (filtroBusqueda) {
-      <button (click)="limpiarFiltros()" class="text-gray-400 hover:text-gray-600 transition-colors">
+      <button
+        (click)="limpiarFiltros()"
+        class="text-gray-400 hover:text-gray-600 transition-colors"
+      >
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M6 18L18 6M6 6l12 12"
+          />
         </svg>
       </button>
     }
   </div>
 
   <div class="flex items-center gap-2">
-    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-amber-50 border border-amber-200 text-amber-800 text-xs font-semibold rounded-lg">
+    <span
+      class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-amber-50 border border-amber-200 text-amber-800 text-xs font-semibold rounded-lg"
+    >
       <span class="w-1.5 h-1.5 bg-amber-400 rounded-full"></span>
       {{ contarPendientes() }} pendientes
     </span>
-    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold rounded-lg">
+    <span
+      class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold rounded-lg"
+    >
       <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
       {{ contarAsignados() }} asignados
     </span>
   </div>
 </div>
 
-
 <!-- ========================================================
      ESTADO VACIO
      ======================================================== -->
 @if (gruposFiltrados.length === 0) {
-  <div class="flex flex-col items-center justify-center py-16 text-center bg-white rounded-xl border border-gray-200">
+  <div
+    class="flex flex-col items-center justify-center py-16 text-center bg-white rounded-xl border border-gray-200"
+  >
     <div class="w-14 h-14 bg-gray-100 rounded-full flex items-center justify-center mb-4">
       <svg class="w-7 h-7 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="1.5"
+          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+        />
       </svg>
     </div>
     <p class="text-sm font-medium text-gray-500">No hay proyectos que mostrar</p>
@@ -73,355 +105,13 @@
   </div>
 }
 
-
 <!-- ========================================================
      LISTA DE CONTRATOS
      ======================================================== -->
 <div class="space-y-5 mb-6">
-
   @for (grupo of gruposFiltrados; track grupo.contrato.id) {
+    <!--Component de card contrato-->
 
-    <!-- 
-        NIVEL 1 — CONTRATO                             
-         -->
-    <div class="rounded-xl overflow-hidden shadow-md border border-gray-900/20">
-
-      <!-- Cabecera del contrato -->
-      <button
-        type="button"
-        (click)="toggleContrato(grupo)"
-        class="w-full bg-gray-900 px-5 py-4 flex items-center justify-between gap-3 hover:bg-gray-800 transition-colors">
-
-        <div class="flex items-center gap-3 min-w-0">
-          <!-- Icono contrato -->
-          <div class="w-9 h-9 bg-white/10 rounded-lg flex items-center justify-center shrink-0 border border-white/10">
-            <svg class="w-4.5 h-4.5 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-          </div>
-          <div class="text-left min-w-0">
-            <!-- Etiqueta nivel -->
-            <span class="text-[10px] font-bold tracking-widest text-gray-500 uppercase">Contrato</span>
-            <div class="flex items-center gap-2 flex-wrap mt-0.5">
-              <span class="font-mono text-xs text-gray-400 bg-white/10 px-1.5 py-0.5 rounded">
-                {{ grupo.contrato.contractCode }}
-              </span>
-              <span class="text-white font-semibold text-sm">{{ grupo.contrato.contractName }}</span>
-            </div>
-            <p class="text-gray-500 text-xs mt-0.5">
-              {{ grupo.contrato.initialDate || 'N/A' }} — {{ grupo.contrato.finalDate || 'N/A' }}
-            </p>
-            
-            
-            <!-- ── LISTA DE PLANES ── -->
-            @if (getPlanesDelContrato(grupo).length > 0) {
-              <div class="flex flex-wrap gap-1.5 mt-2">
-                @for (plan of getPlanesDelContrato(grupo); track $index) {
-                  <span class="inline-flex items-center gap-1 px-1.5 py-0.5 bg-white/5 border border-white/10 rounded text-[10px] text-gray-400">
-                    <span class="font-mono text-white/60">{{ plan.planCode }}</span>
-                    <span class="text-gray-500">·</span>
-                    <span class="truncate max-w-30">{{ plan.planName }}</span>
-                  </span>
-                }
-              </div>
-            }
-            
-            
-            
-            
-          </div>
-        </div>
-
-        <div class="flex items-center gap-2 shrink-0">
-          
-          
-          <button 
-          
-          (click)="navegarAgregarOds(grupo.contrato.id, $event)"
-          
-            class="px-2.5 py-1 bg-white/10 text-gray-300 text-xs font-medium rounded-lg border border-white/10 cursor-pointer">
-            
-            Agregar nueva Ods
-            
-          </button>
-          
-          
-          <span class="px-2.5 py-1 bg-white/10 text-gray-300 text-xs font-medium rounded-lg border border-white/10">
-            {{ grupo.proyectos.length }} {{ grupo.proyectos.length === 1 ? 'Orden de servicio' : 'Ordenes de servicio' }}
-          </span>
-          <svg
-            class="w-4 h-4 text-gray-400 transition-transform duration-200"
-            [class.rotate-180]="grupo.abierto"
-            fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-          </svg>
-        </div>
-      </button>
-
-
-      <!-- ── Proyectos del contrato ──────────────────────── -->
-      @if (grupo.abierto) {
-        <div class="bg-gray-50 divide-y divide-gray-200">
-
-          @for (proyecto of grupo.proyectos; track proyecto.id) {
-
-           
-            <div class="pl-4 pr-4 py-4 bg-white ml-4 my-3 mr-3 rounded-lg border border-gray-200 shadow-sm">
-
-              <!-- Alerta recursos pendientes -->
-              @if (proyecto.projectResourceAssignementMode === 0) {
-                <div class="mb-3 flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
-                  <svg class="w-3.5 h-3.5 text-amber-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
-                  </svg>
-                  <span class="text-xs text-amber-800 font-medium flex-1">Recursos pendientes de asignar</span>
-                  <button
-                    (click)="navegarAAsignarDesdeCard(proyecto, $event)"
-                    class="shrink-0 px-2.5 py-1 bg-gray-900 text-white text-xs font-semibold rounded-md hover:bg-gray-700 transition-colors">
-                    Asignar
-                  </button>
-                </div>
-              }
-
-              <!-- Encabezado del proyecto -->
-              <div class="flex items-start justify-between gap-3 mb-3">
-                <div class="min-w-0">
-                  <!-- Etiqueta nivel -->
-                  <span class="text-[10px] font-bold tracking-widest text-gray-400 uppercase"></span>
-                  <h3 class="text-sm font-bold text-gray-900 leading-tight mt-0.5">
-                    {{ proyecto.projectName || 'Sin nombre' }}
-                  </h3>
-                  <p class="text-xs text-gray-500 mt-0.5">{{ proyecto.client?.name || 'Sin cliente' }}</p>
-                  <p class="text-xs text-gray-400 mt-0.5">
-                    {{ proyecto.initialDate || 'N/A' }} — {{ proyecto.finalDate || 'N/A' }}
-                  </p>
-                </div>
-                <div class="flex items-center gap-1.5 shrink-0 flex-wrap justify-end">
-                  <span class="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs font-medium rounded">
-                    {{ proyecto.totalServiceOrders }} ODS
-                  </span>
-                  <span class="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs font-medium rounded">
-                    {{ proyecto.totalSamplingPlans }} Planes
-                  </span>
-                  @if (proyecto.projectResourceAssignementMode !== 0) {
-                    <span class="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-xs font-semibold rounded">
-                      Asignado
-                    </span>
-                  } @else {
-                    <span class="px-2 py-0.5 bg-amber-100 text-amber-700 text-xs font-semibold rounded">
-                      Pendiente
-                    </span>
-                  }
-                </div>
-              </div>
-
-
-              <!-- ── Órdenes de servicio ─────────────────── -->
-              @if ((proyecto.serviceOrders ?? []).length > 0) {
-
-                <!-- Separador con etiqueta ODS -->
-                <div class="flex items-center gap-2 mb-2 mt-3">
-                  <span class="text-[10px] font-bold tracking-widest text-gray-400 uppercase">
-                    Órdenes de servicio
-                  </span>
-                  <div class="flex-1 h-px bg-gray-200"></div>
-                  <span class="text-[10px] text-gray-400">
-                    {{ (proyecto.serviceOrders ?? []).length }} ODS
-                  </span>
-                </div>
-
-                <!-- Árbol de ODS con conector vertical izquierdo -->
-                <div class="relative pl-4 space-y-2">
-
-                  <!-- Línea vertical conectora -->
-                  <div class="absolute left-1.5 top-2 bottom-2 w-px bg-slate-300"></div>
-
-                  @for (orden of (proyecto.serviceOrders ?? []); track orden.id; let last = $last) {
-
-                    <!-- ╔══════════════════════════════════╗
-                         ║  NIVEL 3 — ODS                  ║
-                         ╚══════════════════════════════════╝ -->
-                    <div class="relative">
-
-                      <!-- Conector horizontal hacia la ODS -->
-                      <div class="absolute -left-4 top-[18px] w-3.5 h-px bg-slate-300"></div>
-                      <!-- Nodo en la línea vertical -->
-                      <div class="absolute -left-[18px] top-[14px] w-2 h-2 rounded-full bg-slate-400 border-2 border-white"></div>
-
-                      <div class="border border-slate-200 rounded-lg overflow-hidden bg-slate-50">
-
-                        <!-- Cabecera ODS (colapsable) -->
-                        <button
-                          type="button"
-                          (click)="toggleODS(orden.id)"
-                          class="w-full flex items-center justify-between gap-2 px-3 py-2.5 hover:bg-slate-100 transition-colors text-left">
-
-                          <div class="flex items-center gap-2 min-w-0">
-                            <!-- Badge ODS destacado -->
-                            <span class="px-2 py-0.5 bg-slate-700 text-white text-[10px] font-bold rounded tracking-widest shrink-0 uppercase">
-                              ODS
-                            </span>
-                            <div class="min-w-0">
-                              <span class="text-xs font-bold text-slate-800">{{ orden.odsCode }}</span>
-                              @if (orden.odsName) {
-                                <span class="text-xs text-slate-500 ml-1.5">{{ orden.odsName }}</span>
-                              }
-                            </div>
-                          </div>
-
-                          <div class="flex items-center gap-2 shrink-0">
-                            <!-- Contador de planes -->
-                            @if ((orden.samplingPlans ?? []).length > 0) {
-                              <span class="px-2 py-0.5 bg-slate-200 text-slate-600 text-[10px] font-semibold rounded-full">
-                                {{ (orden.samplingPlans ?? []).length }} planes
-                              </span>
-                            }
-                            @if (orden.startDate) {
-                              <span class="text-xs text-slate-400 hidden sm:inline">
-                                {{ orden.startDate }} — {{ orden.endDate }}
-                              </span>
-                            }
-                            <svg
-                              class="w-3.5 h-3.5 text-slate-400 transition-transform duration-200"
-                              [class.rotate-180]="odsAbiertos[orden.id]"
-                              fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                            </svg>
-                          </div>
-                        </button>
-
-
-                        <!-- ── Planes de muestreo ──────── -->
-                        @if (odsAbiertos[orden.id]) {
-                          <div class="border-t border-slate-200 bg-white">
-
-                            @if (!(orden.samplingPlans ?? []).length) {
-                              <p class="text-xs text-gray-400 italic px-4 py-3">Sin planes de muestreo</p>
-                            }
-
-                            <!-- Sub-árbol de planes con conector propio -->
-                            <div class="relative pl-8 pr-3 py-2.5 space-y-1.5">
-
-                              <!-- Línea vertical de planes -->
-                              <div class="absolute left-5 top-2 bottom-2 w-px bg-slate-200"></div>
-
-                              @for (plan of (orden.samplingPlans ?? []); track plan.id) {
-
-                                <!-- ╔════════════════════════════╗
-                                     ║  NIVEL 4 — PLAN MUESTREO  ║
-                                     ╚════════════════════════════╝ -->
-                                <div class="relative">
-
-                                  <!-- Conector horizontal hacia el plan -->
-                                  <div class="absolute -left-3 top-[14px] w-2.5 h-px"
-                                    [class]="esModoNominal(plan) ? 'bg-amber-300' : 'bg-emerald-300'">
-                                  </div>
-                                  <!-- Nodo en la línea vertical -->
-                                  <div class="absolute -left-[14px] top-[10px] w-2 h-2 rounded-full border-2 border-white"
-                                    [class]="esModoNominal(plan) ? 'bg-amber-400' : 'bg-emerald-500'">
-                                  </div>
-
-                                  <div class="flex items-center gap-2 px-2.5 py-2 rounded-lg border"
-                                    [class]="esModoNominal(plan)
-                                      ? 'bg-amber-50 border-amber-200'
-                                      : 'bg-emerald-50 border-emerald-200'">
-
-                                    <!-- Info del plan -->
-                                    <div class="flex-1 min-w-0">
-                                      <div class="flex items-center gap-1.5 flex-wrap">
-                                        <span class="font-mono text-xs font-bold text-gray-900">{{ plan.planCode }}</span>
-                                        <span class="text-gray-400 text-xs">—</span>
-                                        <span class="text-xs text-gray-700 truncate">{{ plan.planName }}</span>
-                                      </div>
-                                      @if (plan.startDate) {
-                                        <p class="text-xs text-gray-400 mt-0.5">
-                                          {{ plan.startDate }} — {{ plan.endDate }}
-                                        </p>
-                                      }
-                                    </div>
-
-                                    <!-- Sitios -->
-                                    @if ((plan.sites ?? []).length > 0) {
-                                      <span class="text-xs text-gray-500 shrink-0">
-                                        {{ (plan.sites ?? []).length }} sitios
-                                      </span>
-                                    }
-
-                                    <!-- Badge estado -->
-                                    <span class="text-xs font-semibold px-2 py-0.5 rounded shrink-0"
-                                      [class]="esModoNominal(plan)
-                                        ? 'bg-amber-100 text-amber-800'
-                                        : 'bg-emerald-100 text-emerald-800'">
-                                      {{ esModoNominal(plan) ? 'Pendiente' : 'Asignado' }}
-                                    </span>
-
-                                    <!-- Botón asignar -->
-                                    @if (esModoNominal(plan)) {
-                                      <button
-                                        (click)="navegarAAsignarRecursos(plan.id, proyecto.id)"
-                                        class="shrink-0 px-2 py-1 bg-gray-900 text-white text-xs font-semibold rounded-md hover:bg-gray-700 transition-colors">
-                                        Asignar
-                                      </button>
-                                    }
-
-                                  </div>
-                                </div>
-                                <!-- fin plan -->
-
-                              }
-                            </div>
-                          </div>
-                        }
-
-                      </div>
-                    </div>
-                    <!-- fin ODS -->
-
-                  }
-                </div>
-                <!-- fin árbol ODS -->
-
-              } @else {
-                <p class="text-xs text-gray-400 italic mt-2">Sin órdenes de servicio registradas</p>
-              }
-
-
-              <!-- Pie del proyecto -->
-              <div class="flex items-center justify-between pt-3 mt-3 border-t border-gray-100">
-                <button
-                  (click)="verProyecto(proyecto.id)"
-                  class="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-500 hover:text-gray-900 transition-colors">
-                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0zM2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                  </svg>
-                  Ver detalle completo
-                </button>
-                <button
-                  (click)="eliminarProyecto(proyecto.id); $event.stopPropagation()"
-                  class="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
-                  title="Eliminar proyecto">
-                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                  </svg>
-                </button>
-              </div>
-
-            </div>
-            <!-- fin proyecto -->
-
-          }
-
-        </div>
-      }
-      <!-- fin @if grupo.abierto -->
-
-    </div>
-    <!-- fin card contrato -->
-
+    <contract-card-component [grupo]="grupo" />
   }
-
 </div>
