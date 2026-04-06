@@ -1,35 +1,39 @@
 <div class="w-full h-screen flex flex-col">
-      
   <div class="w-full h-1/6 flex justify-center items-center mt-5">
-    <img src="logos/logo-main.png" alt="Logo" class="w-40"/>
+    <img src="logos/logo-main.png" alt="Logo" class="w-40" />
   </div>
-  
+
   <div class="w-full h-5/6 flex flex-col pt-10 overflow-y-auto">
     <ul class="w-full flex flex-col gap-1">
-      
       <!-- Home -->
       <li class="w-full">
-        
-        <div routerLink="/" 
-        
-             routerLinkActive="bg-blue-400"
-             [routerLinkActiveOptions]="{exact: true}"
-             (click)="toggleSubmenu('home')"
-             class="w-full h-10 flex cursor-pointer justify-between items-center px-4 transition-all duration-200 hover:bg-blue-300 hover:shadow-md">
+        <div
+          routerLink="/"
+          routerLinkActive="bg-blue-400"
+          [routerLinkActiveOptions]="{ exact: true }"
+          (click)="toggleSubmenu('home')"
+          class="w-full h-10 flex cursor-pointer justify-between items-center px-4 transition-all duration-200 hover:bg-blue-300 hover:shadow-md"
+        >
           <span>Home</span>
-          <svg class="w-4 h-4 transition-transform duration-200" 
-               [class.rotate-180]="openMenus['home']"
-               fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+          <svg
+            class="w-4 h-4 transition-transform duration-200"
+            [class.rotate-180]="openMenus['home']"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M19 9l-7 7-7-7"
+            ></path>
           </svg>
         </div>
-        
+
         @if (openMenus['home']) {
-          
-          
-          <ul 
-            class="w-full bg-blue-50 border-l-2 border-blue-400 animate-slideDown">
-          <!--<li routerLink="/dashboard" 
+          <ul class="w-full bg-blue-50 border-l-2 border-blue-400 animate-slideDown">
+            <!--<li routerLink="/dashboard" 
               class="w-full h-9 flex cursor-pointer items-center pl-8 pr-4 transition-all duration-200 hover:bg-blue-200 text-sm">
             Dashboard
           </li>
@@ -41,137 +45,170 @@
               class="w-full h-9 flex cursor-pointer items-center pl-8 pr-4 transition-all duration-200 hover:bg-blue-200 text-sm">
             Reportes
           </li>-->
-        </ul>
-          
+          </ul>
         }
-        
       </li>
-      
+
       <!-- Proyectos -->
       <li class="w-full">
-        <div  
-             routerLinkActive="bg-blue-400"
-             [routerLinkActiveOptions]="{exact: true}"
-             (click)="toggleSubmenu('proyectos')"
-             class="w-full h-10 flex cursor-pointer justify-between items-center px-4 transition-all duration-200 hover:bg-blue-300 hover:shadow-md">
+        <div
+          routerLinkActive="bg-blue-400"
+          [routerLinkActiveOptions]="{ exact: true }"
+          (click)="toggleSubmenu('proyectos')"
+          class="w-full h-10 flex cursor-pointer justify-between items-center px-4 transition-all duration-200 hover:bg-blue-300 hover:shadow-md"
+        >
           <span>Proyectos</span>
-          <svg class="w-4 h-4 transition-transform duration-200" 
-               [class.rotate-180]="openMenus['proyectos']"
-               fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+          <svg
+            class="w-4 h-4 transition-transform duration-200"
+            [class.rotate-180]="openMenus['proyectos']"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M19 9l-7 7-7-7"
+            ></path>
           </svg>
         </div>
-        <ul *ngIf="openMenus['proyectos']" 
-            class="w-full bg-blue-50 border-l-2 border-blue-400 animate-slideDown">
-            
-            
-          <li routerLink="/projects-dashboard" 
-              class="w-full h-9 flex cursor-pointer items-center pl-8 pr-4 transition-all duration-200 hover:bg-blue-200 text-sm">
-            Tablero proyectos
+        <ul
+          *ngIf="openMenus['proyectos']"
+          class="w-full bg-blue-50 border-l-2 border-blue-400 animate-slideDown"
+        >
+          <li
+            routerLink="/projects-dashboard"
+            class="w-full h-9 flex cursor-pointer items-center pl-8 pr-4 transition-all duration-200 hover:bg-blue-200 text-sm"
+          >
+            Tablero Contratos
           </li>
-          <li routerLink="/project-drafts" 
-              class="w-full h-9 flex cursor-pointer items-center pl-8 pr-4 transition-all duration-200 hover:bg-blue-200 text-sm">
+          <li
+            routerLink="/project-drafts"
+            class="w-full h-9 flex cursor-pointer items-center pl-8 pr-4 transition-all duration-200 hover:bg-blue-200 text-sm"
+          >
             Borradores
           </li>
-          
-          <li routerLink="/planner"
-              class="w-full h-9 flex cursor-pointer items-center pl-8 pr-4 transition-all duration-200 hover:bg-blue-200 text-sm">
+
+          <li
+            routerLink="/planner"
+            class="w-full h-9 flex cursor-pointer items-center pl-8 pr-4 transition-all duration-200 hover:bg-blue-200 text-sm"
+          >
             Nuevo Proyecto
           </li>
-          
-         
-          
-          
 
           <!--<li routerLink="/planner/budget" 
               class="w-full h-9 flex cursor-pointer items-center pl-8 pr-4 transition-all duration-200 hover:bg-blue-200 text-sm">
             Presupuestos
           </li>-->
-          
+
           <!--<li routerLink="/contracts-dashboard" 
               class="w-full h-9 flex cursor-pointer items-center pl-8 pr-4 transition-all duration-200 hover:bg-blue-200 text-sm">
             Contratos
           </li>-->
         </ul>
       </li>
-      
+
       <!-- Recursos Humanos -->
       <li class="w-full">
-        <div  
-             routerLinkActive="bg-blue-400"
-             [routerLinkActiveOptions]="{exact: true}"
-             (click)="toggleSubmenu('rh')"
-             class="w-full h-10 flex cursor-pointer justify-between items-center px-4 transition-all duration-200 hover:bg-blue-300 hover:shadow-md">
+        <div
+          routerLinkActive="bg-blue-400"
+          [routerLinkActiveOptions]="{ exact: true }"
+          (click)="toggleSubmenu('rh')"
+          class="w-full h-10 flex cursor-pointer justify-between items-center px-4 transition-all duration-200 hover:bg-blue-300 hover:shadow-md"
+        >
           <span>Recursos Humanos</span>
-          <svg class="w-4 h-4 transition-transform duration-200" 
-               [class.rotate-180]="openMenus['rh']"
-               fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+          <svg
+            class="w-4 h-4 transition-transform duration-200"
+            [class.rotate-180]="openMenus['rh']"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M19 9l-7 7-7-7"
+            ></path>
           </svg>
         </div>
-        <ul *ngIf="openMenus['rh']" 
-            class="w-full bg-blue-50 border-l-2 border-blue-400 animate-slideDown">
-          <li routerLink="/rh/Employees" 
-              class="w-full h-9 flex cursor-pointer items-center pl-8 pr-4 transition-all duration-200 hover:bg-blue-200 text-sm">
+        <ul
+          *ngIf="openMenus['rh']"
+          class="w-full bg-blue-50 border-l-2 border-blue-400 animate-slideDown"
+        >
+          <li
+            routerLink="/rh/Employees"
+            class="w-full h-9 flex cursor-pointer items-center pl-8 pr-4 transition-all duration-200 hover:bg-blue-200 text-sm"
+          >
             Personal
           </li>
-        
         </ul>
       </li>
-      
+
       <!-- Logística -->
       <li class="w-full">
-        <div 
-             routerLinkActive="bg-blue-400"
-             [routerLinkActiveOptions]="{exact: true}"
-             (click)="toggleSubmenu('logistics')"
-             class="w-full h-10 flex cursor-pointer justify-between items-center px-4 transition-all duration-200 hover:bg-blue-300 hover:shadow-md">
+        <div
+          routerLinkActive="bg-blue-400"
+          [routerLinkActiveOptions]="{ exact: true }"
+          (click)="toggleSubmenu('logistics')"
+          class="w-full h-10 flex cursor-pointer justify-between items-center px-4 transition-all duration-200 hover:bg-blue-300 hover:shadow-md"
+        >
           <span>Logística</span>
-          <svg class="w-4 h-4 transition-transform duration-200" 
-               [class.rotate-180]="openMenus['logistics']"
-               fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+          <svg
+            class="w-4 h-4 transition-transform duration-200"
+            [class.rotate-180]="openMenus['logistics']"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M19 9l-7 7-7-7"
+            ></path>
           </svg>
         </div>
-        <ul *ngIf="openMenus['logistics']" 
-            class="w-full bg-blue-50 border-l-2 border-blue-400 animate-slideDown">
-          
-          <li routerLink="/logistics/vehicles" 
-              class="w-full h-9 flex cursor-pointer items-center pl-8 pr-4 transition-all duration-200 hover:bg-blue-200 text-sm">
+        <ul
+          *ngIf="openMenus['logistics']"
+          class="w-full bg-blue-50 border-l-2 border-blue-400 animate-slideDown"
+        >
+          <li
+            routerLink="/logistics/vehicles"
+            class="w-full h-9 flex cursor-pointer items-center pl-8 pr-4 transition-all duration-200 hover:bg-blue-200 text-sm"
+          >
             Camionetas
           </li>
-         
-          <li routerLink="/logistic/equipments" 
-              class="w-full h-9 flex cursor-pointer items-center pl-8 pr-4 transition-all duration-200 hover:bg-blue-200 text-sm">
+
+          <li
+            routerLink="/logistic/equipments"
+            class="w-full h-9 flex cursor-pointer items-center pl-8 pr-4 transition-all duration-200 hover:bg-blue-200 text-sm"
+          >
             Equipos
           </li>
         </ul>
       </li>
-      
     </ul>
   </div>
-  
-  <div class="w-full h-20 flex items-center px-4 bg-gray-400 backdrop-blur-sm 
-            rounded-lg shadow-sm border border-gray-200">
 
-  <!-- Avatar -->
-  <div class="w-2/6 h-full flex items-center justify-center">
-    <div class="w-11 h-11 flex items-center justify-center 
-                rounded-full bg-gray-100 border border-gray-300">
-      <span class="icon-[bxs--user] text-xl text-gray-600"></span>
+  <div
+    class="w-full h-20 flex items-center px-4 bg-gray-400 backdrop-blur-sm rounded-lg shadow-sm border border-gray-200"
+  >
+    <!-- Avatar -->
+    <div class="w-2/6 h-full flex items-center justify-center">
+      <div
+        class="w-11 h-11 flex items-center justify-center rounded-full bg-gray-100 border border-gray-300"
+      >
+        <span class="icon-[bxs--user] text-xl text-gray-600"></span>
+      </div>
+    </div>
+
+    <!-- Usuario -->
+    <div class="w-4/6 h-full flex items-center">
+      <p class="text-base font-medium text-gray-800 truncate">
+        {{ loggedUser }}
+      </p>
     </div>
   </div>
-
-  <!-- Usuario -->
-  <div class="w-4/6 h-full flex items-center">
-    <p class="text-base font-medium text-gray-800 truncate">
-      {{ loggedUser }}
-    </p>
-  </div>
-
-</div>
-
-
-  
-  
 </div>
