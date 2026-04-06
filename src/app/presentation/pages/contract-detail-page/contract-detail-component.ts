@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ProjectService } from '../../../core/services/project.service';
 
 @Component({
@@ -8,32 +8,32 @@ import { ProjectService } from '../../../core/services/project.service';
 
   standalone: true,
 
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
 
   templateUrl: './contract-detail-component.html',
 })
 
 // Pagina para ver el detalle de cada contrato
 export class ContractDetailPage implements OnInit {
-    
   private readonly route = inject(ActivatedRoute);
 
   private readonly projectService = inject(ProjectService);
 
+  private readonly router = inject(Router);
+
   contract: any = null;
+
   charging = true;
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
 
     this.projectService.getProjectById(id).subscribe({
-
       next: (data) => {
-        
         console.log(data);
-        
+
         this.contract = data;
-        
+
         this.charging = false;
       },
 
@@ -41,5 +41,9 @@ export class ContractDetailPage implements OnInit {
         this.charging = false;
       },
     });
+  }
+
+  goBack(): void {
+    this.router.navigate(['/projects-dashboard']);
   }
 }
