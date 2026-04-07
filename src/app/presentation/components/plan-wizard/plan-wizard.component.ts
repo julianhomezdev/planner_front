@@ -272,6 +272,11 @@ export class PlanWizardComponent implements OnInit, OnDestroy {
     if (this.sitesArray.length > 1) this.sitesArray.removeAt(i);
   }
 
+  clearSites(): void {
+    this.sitesArray.clear();
+    this.addSite(); // deja al menos uno vacío
+  }
+
   generateSites(): void {
     const count = this.planForm.value.totalSites || 1;
     const planCode = this.planForm.value.planCode;
@@ -293,19 +298,22 @@ export class PlanWizardComponent implements OnInit, OnDestroy {
     }
   }
 
+  // Reemplaza el distributeDates viejo por este
   private distributeDates(start: string, end: string, count: number): string[] {
     if (!start || !end || count <= 0) return Array(count).fill('');
-    const s = new Date(start),
-      e = new Date(end);
-    const totalDays = Math.floor((e.getTime() - s.getTime()) / 86400000);
-    const interval = Math.max(1, Math.floor(totalDays / count));
+
+    const s = new Date(start);
+    const e = new Date(end);
+    const totalDays = Math.floor((e.getTime() - s.getTime()) / 86400000) + 1;
+    const sitesPerDay = Math.ceil(count / totalDays);
+
     return Array.from({ length: count }, (_, i) => {
+      const dayIndex = Math.floor(i / sitesPerDay);
       const d = new Date(s);
-      d.setDate(d.getDate() + i * interval);
+      d.setDate(d.getDate() + dayIndex);
       return (d > e ? e : d).toISOString().split('T')[0];
     });
   }
-
   // ═══════════════════════════════════════════════════════════════════════════
   // MATRICES
   // ═══════════════════════════════════════════════════════════════════════════

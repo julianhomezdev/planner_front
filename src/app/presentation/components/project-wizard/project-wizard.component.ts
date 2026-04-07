@@ -6,7 +6,7 @@ import {
   ReactiveFormsModule,
   Validators,
   FormsModule,
-  FormArray
+  FormArray,
 } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, interval, Subscription } from 'rxjs';
@@ -21,7 +21,6 @@ import { MatrixService } from '../../../core/services/matrix.service';
 import { ProjectCreationService } from '../../../core/services/project-creation.service';
 import { ProjectDraftService } from '../../../core/services/project-draft.service';
 
-
 import { Employee } from '../../../domain/Entities/employee/employee.model';
 import { Vehicle } from '../../../domain/Entities/vehicle/vehicle.model';
 import { Equipment } from '../../../domain/Entities/Equipment/equipment.model';
@@ -30,7 +29,10 @@ import { Coordinator } from '../../../domain/Entities/coordinator/coordinator.mo
 import { Matrix } from '../../../domain/Entities/matrix/matrix.model';
 import { CreateProject } from '../../../domain/Entities/project/project-creation.model';
 import { OrderServiceService } from '../../../core/services/order-service..service';
-import { ReusableOds, ReusableOdsSummary } from '../../../domain/Entities/orderService/reusable-ods-summary.model';
+import {
+  ReusableOds,
+  ReusableOdsSummary,
+} from '../../../domain/Entities/orderService/reusable-ods-summary.model';
 import { ResourceAssignmentMode } from '../../../domain/enums/resource-assignment-mode.enum';
 import { ProjectService } from '../../../core/services/project.service';
 import { EmployeeMonthlyAvailability } from '../../../domain/Entities/employee/employee-monthly-availabilty.model';
@@ -39,7 +41,7 @@ import { ContractService } from '../../../core/services/contract.service';
 enum ViewMode {
   CONTRACT = 'contract',
   ODS_LIST = 'ods_list',
-  PLAN_FORM = 'plan_form'
+  PLAN_FORM = 'plan_form',
 }
 
 enum BudgetCategory {
@@ -47,7 +49,7 @@ enum BudgetCategory {
   LOGISTICS = 'LOGÍSTICA',
   SUBCONTRACTING = 'SUBCONTRATACIÓN',
   RIVER_TRANSPORT = 'TRANSPORTE FLUVIAL',
-  REPORTS = 'INFORMES'
+  REPORTS = 'INFORMES',
 }
 
 interface ResourceQuantity {
@@ -72,10 +74,9 @@ interface BudgetItem {
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, FormsModule],
   templateUrl: './project-wizard.component.html',
-  styleUrls: ['./project-wizard.component.css']
+  styleUrls: ['./project-wizard.component.css'],
 })
 export class ProjectWizardComponent implements OnInit, OnDestroy {
-
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private employeeService = inject(EmployeeService);
@@ -92,7 +93,6 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
   private contractService = inject(ContractService);
 
   employeeMonthlyAvailability: Map<number, EmployeeMonthlyAvailability> = new Map();
-
 
   ViewMode = ViewMode;
   BudgetCategory = BudgetCategory;
@@ -155,9 +155,9 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
   availableEmployees: any[] = [];
   availableEquipment: any[] = [];
   availableVehicles: any[] = [];
-  
+
   contracts: any[] = [];
-  
+
   resourceDatesSet: boolean = false;
 
   employeeSearchTerm: string = '';
@@ -167,22 +167,19 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
   employeeCategoryFilter: string = '';
   equipmentCategoryFilter: string = '';
   vehicleLocationFilter: string = '';
-  
-  odsSameDatesAsContract: boolean = false;
-  
-  selectedContract: any = '';
-  
-  contratoModoLectura: boolean = false;
 
+  odsSameDatesAsContract: boolean = false;
+
+  selectedContract: any = '';
+
+  contratoModoLectura: boolean = false;
 
   projectResourceMode: number = 0;
 
   planRequiredResources: {
-
     employeeQuantities: { categoryName: string; quantity: number }[];
     equipmentQuantities: { categoryName: string; quantity: number }[];
     vehicleQuantity: number;
-
   } | null = null;
 
   private destroy$ = new Subject<void>();
@@ -191,59 +188,45 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
   showSuccessModal = false;
 
   ngOnInit(): void {
-    
     this.initializeForms();
-    
+
     this.loadCatalogs();
-    
+
     this.setupAutoSave();
-    
-    
+
     this.checkForDraftToLoad();
-    
-    this.route.queryParams.subscribe(params => {
-      
+
+    this.route.queryParams.subscribe((params) => {
       const mode = params['mode'];
-      
+
       const projectId = params['projectId'];
-      
+
       const planId = params['planId'];
-      
+
       const odsIndex = params['odsIndex'];
 
       if (mode === 'edit-resources' && projectId && planId && odsIndex !== undefined) {
-        
         this.loadProjectForResourceEdit(+projectId, +planId, +odsIndex);
-        
       } else if (mode === 'add-ods') {
-        
         this.checkForDraftToLoad();
-        
-      }
-        
-      else {
-        
+      } else {
         this.checkForDraftToLoad();
-        
       }
-      
     });
-    
-
   }
 
   get filteredEmployees() {
-    return this.availableEmployees.filter(emp => {
+    return this.availableEmployees.filter((emp) => {
       let matches = true;
 
       // Filtro por búsqueda (nombre, cédula)
       if (this.employeeSearchTerm) {
         const term = this.employeeSearchTerm.toLowerCase();
-        matches = matches && (
-          emp.name?.toLowerCase().includes(term) ||
-          emp.idCard?.toLowerCase().includes(term) ||
-          emp.position?.toLowerCase().includes(term)
-        );
+        matches =
+          matches &&
+          (emp.name?.toLowerCase().includes(term) ||
+            emp.idCard?.toLowerCase().includes(term) ||
+            emp.position?.toLowerCase().includes(term));
       }
 
       // Filtro por categoría (posición)
@@ -255,20 +238,17 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
     });
   }
 
-
-
-
   get filteredEquipment() {
-    return this.availableEquipment.filter(eq => {
+    return this.availableEquipment.filter((eq) => {
       let matches = true;
 
       if (this.equipmentSearchTerm) {
         const term = this.equipmentSearchTerm.toLowerCase();
-        matches = matches && (
-          eq.name?.toLowerCase().includes(term) ||
-          eq.code?.toLowerCase().includes(term) ||
-          eq.serialNumber?.toLowerCase().includes(term)
-        );
+        matches =
+          matches &&
+          (eq.name?.toLowerCase().includes(term) ||
+            eq.code?.toLowerCase().includes(term) ||
+            eq.serialNumber?.toLowerCase().includes(term));
       }
 
       if (this.equipmentCategoryFilter) {
@@ -283,27 +263,27 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
     if (this.odsSameDatesAsContract) {
       this.odsForm.patchValue({
         startDate: this.contractForm.value.startDate || '',
-        endDate: this.contractForm.value.endDate || ''
+        endDate: this.contractForm.value.endDate || '',
       });
     } else {
       this.odsForm.patchValue({
         startDate: '',
-        endDate: ''
+        endDate: '',
       });
     }
   }
 
   get filteredVehicles() {
-    return this.availableVehicles.filter(v => {
+    return this.availableVehicles.filter((v) => {
       let matches = true;
 
       if (this.vehicleSearchTerm) {
         const term = this.vehicleSearchTerm.toLowerCase();
-        matches = matches && (
-          v.plateNumber?.toLowerCase().includes(term) ||
-          v.brand?.toLowerCase().includes(term) ||
-          v.model?.toLowerCase().includes(term)
-        );
+        matches =
+          matches &&
+          (v.plateNumber?.toLowerCase().includes(term) ||
+            v.brand?.toLowerCase().includes(term) ||
+            v.model?.toLowerCase().includes(term));
       }
 
       if (this.vehicleLocationFilter) {
@@ -315,37 +295,29 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
   }
 
   get uniqueEmployeeCategories(): string[] {
-    return [...new Set(this.employees.map(e => e.position).filter(Boolean))];
+    return [...new Set(this.employees.map((e) => e.position).filter(Boolean))];
   }
 
   get uniqueEquipmentCategories(): string[] {
-    return [...new Set(this.equipment.map(e => e.name).filter(Boolean))];
+    return [...new Set(this.equipment.map((e) => e.name).filter(Boolean))];
   }
 
   get uniqueVehicleLocations(): string[] {
-    return [...new Set(this.vehicles.map(v => v.location).filter(Boolean))];
+    return [...new Set(this.vehicles.map((v) => v.location).filter(Boolean))];
   }
 
-
-
-
   private loadProjectForResourceEdit(projectId: number, planId: number, odsIndex: number): void {
-
     this.loading = true;
 
     this.projectService.getProjectById(projectId).subscribe({
-
       next: (project) => {
-
         this.contractForm.patchValue({
           contractCode: project.contract?.contractCode,
           contractName: project.contract?.contractName,
           clientId: project.clientId,
           startDate: project.initialDate,
-          endDate: project.finalDate
+          endDate: project.finalDate,
         });
-
-
 
         this.serviceOrders = project.serviceOrders.map((ods: any) => ({
           odsCode: ods.odsCode,
@@ -354,10 +326,8 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
 
           startDate: ods.startDate,
           endDate: ods.endDate,
-          samplingPlans: ods.samplingPlans || []
-
+          samplingPlans: ods.samplingPlans || [],
         }));
-
 
         this.projectResourceMode = project.projectResourceAssignementMode;
 
@@ -376,31 +346,28 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
 
         this.successMessage = 'Proyecto cargado. Complete la asignación de recursos.';
 
-
-        setTimeout(() => this.successMessage = '', 4000);
+        setTimeout(() => (this.successMessage = ''), 4000);
       },
       error: (error) => {
         console.error('Error cargando proyecto:', error);
         this.errorMessage = 'Error al cargar el proyecto';
         this.loading = false;
-      }
+      },
     });
   }
-
 
   private loadPlanForEditing(plan: any): void {
     this.currentResourceMode = ResourceAssignmentMode.DETAILED;
 
-
-
-    if (plan.employeeQuantities?.length > 0 ||
+    if (
+      plan.employeeQuantities?.length > 0 ||
       plan.equipmentQuantities?.length > 0 ||
-      plan.vehicleQuantity > 0) {
-
+      plan.vehicleQuantity > 0
+    ) {
       this.planRequiredResources = {
         employeeQuantities: plan.employeeQuantities || [],
         equipmentQuantities: plan.equipmentQuantities || [],
-        vehicleQuantity: plan.vehicleQuantity || 0
+        vehicleQuantity: plan.vehicleQuantity || 0,
       };
 
       console.log(' RECURSOS REQUERIDOS CARGADOS:', this.planRequiredResources);
@@ -421,7 +388,7 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
       resourceStartDate: plan.resourceStartDate,
       resourceEndDate: plan.resourceEndDate,
       resourceAssignmentMode: ResourceAssignmentMode.DETAILED,
-      budgetItems: plan.budget?.items || []
+      budgetItems: plan.budget?.items || [],
     });
 
     this.sitesArray.clear();
@@ -434,7 +401,7 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
           subcontractorName: [''],
           executionDate: [site.executionDate],
           hasReport: [site.hasReport],
-          hasGDB: [site.hasGDB]
+          hasGDB: [site.hasGDB],
         });
         this.sitesArray.push(siteGroup);
       });
@@ -444,7 +411,7 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
       this.planForm.patchValue({
         selectedEmployeeIds: plan.resources.employeeIds || [],
         selectedEquipmentIds: plan.resources.equipmentIds || [],
-        selectedVehicleIds: plan.resources.vehicleIds || []
+        selectedVehicleIds: plan.resources.vehicleIds || [],
       });
     }
 
@@ -454,7 +421,6 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
 
     this.editingPlanId = plan.id;
   }
-
 
   ngOnDestroy(): void {
     this.destroy$.next();
@@ -470,7 +436,7 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
       contractName: [''],
       clientId: ['', Validators.required],
       startDate: [''],
-      endDate: ['']
+      endDate: [''],
     });
 
     this.odsForm = this.fb.group({
@@ -478,7 +444,7 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
       odsName: [''],
       odsValue: [0, [Validators.required, Validators.min(0)]],
       startDate: [''],
-      endDate: ['']
+      endDate: [''],
     });
 
     this.planForm = this.fb.group({
@@ -503,9 +469,8 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
       selectedEquipmentIds: [[]],
       selectedVehicleIds: [[]],
       budgetItems: [[]],
-      notes: ['']
+      notes: [''],
     });
-
 
     this.budgetItemForm = this.fb.group({
       category: [BudgetCategory.TRANSPORT, Validators.required],
@@ -515,7 +480,7 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
       unit: ['días', Validators.required],
       costPerUnit: [0, [Validators.required, Validators.min(0)]],
       billedPerUnit: [0, [Validators.required, Validators.min(0)]],
-      notes: ['']
+      notes: [''],
     });
 
     this.addSite();
@@ -528,15 +493,17 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => this.formChanges$.next());
 
-    this.planForm.get('resourceStartDate')?.valueChanges
-      .pipe(takeUntil(this.destroy$))
+    this.planForm
+      .get('resourceStartDate')
+      ?.valueChanges.pipe(takeUntil(this.destroy$))
       .subscribe(() => {
         this.loadAvailableResources();
         this.updateVehicleBudgetDays();
       });
 
-    this.planForm.get('resourceEndDate')?.valueChanges
-      .pipe(takeUntil(this.destroy$))
+    this.planForm
+      .get('resourceEndDate')
+      ?.valueChanges.pipe(takeUntil(this.destroy$))
       .subscribe(() => {
         this.loadAvailableResources();
         this.updateVehicleBudgetDays();
@@ -545,15 +512,15 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
 
   toggleMatrixSelection(matrixId: number): void {
     const current = this.planForm.value.selectedMatrixIds || [];
-    const index = current.indexOf(matrixId)
+    const index = current.indexOf(matrixId);
     if (index === -1) {
       this.planForm.patchValue({
-        selectedMatrixIds: [...current, matrixId]
+        selectedMatrixIds: [...current, matrixId],
       });
     } else {
       current.splice(index, 1);
       this.planForm.patchValue({
-        selectedMatrixIds: [...current]
+        selectedMatrixIds: [...current],
       });
     }
     this.formChanges$.next();
@@ -587,7 +554,7 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
           odsValue: this.odsForm.value.odsValue || 0,
           startDate: this.odsForm.value.startDate,
           endDate: this.odsForm.value.endDate,
-          samplingPlans: this.mapReusablePlansToCurrentProject(reusableOds.samplingPlans || [])
+          samplingPlans: this.mapReusablePlansToCurrentProject(reusableOds.samplingPlans || []),
         };
 
         this.serviceOrders.push(ods);
@@ -596,26 +563,27 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
         this.odsCreationMode = 'new';
         this.errorMessage = '';
         this.successMessage = `ODS "${ods.odsCode}" agregada con ${ods.samplingPlans.length} planes precargados`;
-        setTimeout(() => this.successMessage = '', 5000);
+        setTimeout(() => (this.successMessage = ''), 5000);
         this.formChanges$.next();
         this.loadingReusableOds = false;
       },
       error: (error) => {
         this.errorMessage = 'Error al cargar la configuración de ODS reutilizable';
         this.loadingReusableOds = false;
-      }
+      },
     });
   }
 
-
   private mapReusablePlansToCurrentProject(reusablePlans: any[]): any[] {
-    return reusablePlans.map(plan => ({
+    return reusablePlans.map((plan) => ({
       planCode: plan.planCode || '',
       planName: plan.planName || '',
       startDate: null,
       endDate: null,
       matrixIds: [...new Set((plan.sites || []).map((s: any) => s.matrixId).filter(Boolean))],
-      matrixNames: [...new Set((plan.sites || []).map((s: any) => s.matrixName).filter(Boolean))].join(', '),
+      matrixNames: [
+        ...new Set((plan.sites || []).map((s: any) => s.matrixName).filter(Boolean)),
+      ].join(', '),
       coordinatorId: null,
       hasReport: plan.sites?.[0]?.hasReport || false,
       hasGDB: plan.sites?.[0]?.hasGDB || false,
@@ -628,7 +596,7 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
         subcontractorName: null,
         executionDate: null,
         hasReport: site.hasReport || false,
-        hasGDB: site.hasGDB || false
+        hasGDB: site.hasGDB || false,
       })),
       resources: {
         startDate: null,
@@ -638,27 +606,24 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
         vehicleIds: [],
         employees: [],
         equipment: [],
-        vehicles: []
+        vehicles: [],
       },
       budget: {
         chCode: '',
         items: [],
         summary: null,
-        notes: ''
-      }
+        notes: '',
+      },
     }));
   }
 
   getReusableOdsName(code: string): string {
-
-    const ods = this.reusableOdsList.find(o => o.odsCode === code);
+    const ods = this.reusableOdsList.find((o) => o.odsCode === code);
 
     return ods?.odsName || 'ODS';
-
   }
 
   updateVehicleBudgetDays(): void {
-
     const startDate = this.planForm.value.resourceStartDate;
 
     const endDate = this.planForm.value.resourceEndDate;
@@ -669,32 +634,24 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
 
     const currentItems = [...this.budgetItems];
 
-    currentItems.forEach(item => {
-
+    currentItems.forEach((item) => {
       if (item.id.startsWith('vehicle-')) {
-
         item.quantity = days;
-
       }
-
     });
 
     this.planForm.patchValue({ budgetItems: currentItems });
   }
 
   loadAvailableResources(): void {
-
     const startDate = this.planForm.value.resourceStartDate;
 
     const endDate = this.planForm.value.resourceEndDate;
 
-
     if (!startDate || !endDate) {
-
       this.resourceDatesSet = false;
 
       return;
-
     }
 
     this.resourceDatesSet = true;
@@ -710,88 +667,70 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
     const month = now.getMonth() + 1;
 
     this.employeeService.getMonthlyAvailability(year, month).subscribe({
-
       next: (availability) => {
-
-        this.employeeMonthlyAvailability = new Map(
-
-          availability.map(a => [a.employeeId, a])
-
-        );
-
+        this.employeeMonthlyAvailability = new Map(availability.map((a) => [a.employeeId, a]));
       },
 
       error: () => {
-
         this.employeeMonthlyAvailability = new Map();
-
-      }
-
+      },
     });
 
-
-
     this.employeeService.getAvailableEmployees(startDate, endDate).subscribe({
-
       next: (employees) => {
-
-        this.availableEmployees = this.employees.map(emp => {
-
-          const availableEmp = employees?.find(e => e.id === emp.id);
+        this.availableEmployees = this.employees.map((emp) => {
+          const availableEmp = employees?.find((e) => e.id === emp.id);
 
           return {
-
             ...emp,
 
-            isAvailable: availableEmp ? availableEmp.isAvailable : false
-
+            isAvailable: availableEmp ? availableEmp.isAvailable : false,
           };
-
         });
 
         this.checkAllResourcesLoaded();
       },
       error: (error) => {
         console.error('ERROR loading employees:', error);
-        this.availableEmployees = this.employees.map(e => ({ ...e, isAvailable: false }));
+        this.availableEmployees = this.employees.map((e) => ({ ...e, isAvailable: false }));
         this.checkAllResourcesLoaded();
-      }
+      },
     });
 
     this.equipmentService.getAvailableEquipment(startDate, endDate).subscribe({
       next: (equipment) => {
-        this.availableEquipment = this.equipment.map(eq => {
-          const availableEq = equipment?.find(e => e.id === eq.id);
+        this.availableEquipment = this.equipment.map((eq) => {
+          const availableEq = equipment?.find((e) => e.id === eq.id);
           return {
             ...eq,
-            isAvailable: availableEq ? availableEq.isAvailable : false
+            isAvailable: availableEq ? availableEq.isAvailable : false,
           };
         });
         this.checkAllResourcesLoaded();
       },
       error: (error) => {
         console.error('ERROR loading equipment:', error);
-        this.availableEquipment = this.equipment.map(e => ({ ...e, isAvailable: false }));
+        this.availableEquipment = this.equipment.map((e) => ({ ...e, isAvailable: false }));
         this.checkAllResourcesLoaded();
-      }
+      },
     });
 
     this.vehicleService.getAvailableVehicles(startDate, endDate).subscribe({
       next: (vehicles) => {
-        this.availableVehicles = this.vehicles.map(veh => {
-          const availableVeh = vehicles?.find(v => v.id === veh.id);
+        this.availableVehicles = this.vehicles.map((veh) => {
+          const availableVeh = vehicles?.find((v) => v.id === veh.id);
           return {
             ...veh,
-            isAvailable: availableVeh ? availableVeh.isAvailable : false
+            isAvailable: availableVeh ? availableVeh.isAvailable : false,
           };
         });
         this.checkAllResourcesLoaded();
       },
       error: (error) => {
         console.error('ERROR loading vehicles:', error);
-        this.availableVehicles = this.vehicles.map(v => ({ ...v, isAvailable: false }));
+        this.availableVehicles = this.vehicles.map((v) => ({ ...v, isAvailable: false }));
         this.checkAllResourcesLoaded();
-      }
+      },
     });
   }
 
@@ -839,29 +778,22 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
     if (remaining <= 5) return 'text-amber-600';
     return 'text-emerald-600';
   }
-  
-  
+
   onContractSelected(contractId: any): void {
-    
-    
-    const contract = this.contracts.find(c => c.id === +contractId);
-    
-    
-    
+    const contract = this.contracts.find((c) => c.id === +contractId);
+
     if (!contract) return;
-    
-    const client = this.clients.find(c => c.name === contract.clientName);
-    
-      this.contractForm.patchValue({
+
+    const client = this.clients.find((c) => c.name === contract.clientName);
+
+    this.contractForm.patchValue({
       contractCode: contract.contractCode || contract.projectName,
       contractName: contract.contractName || contract.projectName,
       clientId: client?.id || '',
       startDate: contract.initialDate || '',
-      endDate: contract.finalDate || ''
+      endDate: contract.finalDate || '',
     });
-    
   }
-
 
   private checkAllResourcesLoaded(): void {
     this.resourcesLoadedCount++;
@@ -886,13 +818,13 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
 
     if (index === -1) {
       this.planForm.patchValue({
-        selectedVehicleIds: [...current, vehicleId]
+        selectedVehicleIds: [...current, vehicleId],
       });
       this.addVehicleToBudget(vehicleId);
     } else {
       current.splice(index, 1);
       this.planForm.patchValue({
-        selectedVehicleIds: [...current]
+        selectedVehicleIds: [...current],
       });
       this.removeVehicleFromBudget(vehicleId);
     }
@@ -900,7 +832,7 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
   }
 
   addVehicleToBudget(vehicleId: number): void {
-    const vehicle = this.availableVehicles.find(v => v.id === vehicleId);
+    const vehicle = this.availableVehicles.find((v) => v.id === vehicleId);
     const startDate = this.planForm.value.resourceStartDate;
     const endDate = this.planForm.value.resourceEndDate;
 
@@ -920,11 +852,11 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
       unit: 'días',
       costPerUnit: costPerDay,
       billedPerUnit: costPerDay,
-      notes: 'Agregado automáticamente'
+      notes: 'Agregado automáticamente',
     };
 
     const currentItems = [...this.budgetItems];
-    const existingIndex = currentItems.findIndex(item => item.id === `vehicle-${vehicleId}`);
+    const existingIndex = currentItems.findIndex((item) => item.id === `vehicle-${vehicleId}`);
 
     if (existingIndex === -1) {
       currentItems.push(vehicleBudgetItem);
@@ -934,7 +866,7 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
 
   removeVehicleFromBudget(vehicleId: number): void {
     const currentItems = [...this.budgetItems];
-    const filteredItems = currentItems.filter(item => item.id !== `vehicle-${vehicleId}`);
+    const filteredItems = currentItems.filter((item) => item.id !== `vehicle-${vehicleId}`);
     this.planForm.patchValue({ budgetItems: filteredItems });
   }
 
@@ -949,52 +881,56 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
       this.vehicleService.getAllVehicles().toPromise(),
       this.matrixService.getAllMatrix().toPromise(),
       this.coordinatorService.getAllCoordinators().toPromise(),
-      this.odsService.getReusableOdsList().toPromise()
-      
-    ]).then(([contracts,clients, employees, equipment, vehicles, matrices, coordinators, reusableOds]) => {
-      
-      this.contracts = contracts || [];
-      this.clients = clients || [];
-      this.employees = employees || [];
-      this.equipment = equipment || [];
-      this.vehicles = vehicles || [];
-      this.matrices = matrices || [];
-      this.coordinators = coordinators || [];
-      this.reusableOdsList = reusableOds || [];
+      this.odsService.getReusableOdsList().toPromise(),
+    ])
+      .then(
+        ([
+          contracts,
+          clients,
+          employees,
+          equipment,
+          vehicles,
+          matrices,
+          coordinators,
+          reusableOds,
+        ]) => {
+          this.contracts = contracts || [];
+          this.clients = clients || [];
+          this.employees = employees || [];
+          this.equipment = equipment || [];
+          this.vehicles = vehicles || [];
+          this.matrices = matrices || [];
+          this.coordinators = coordinators || [];
+          this.reusableOdsList = reusableOds || [];
 
-      this.employeeCategories = [...new Set(this.employees
-        .map(e => e.position)
-        .filter(c => c && c.trim() !== '')
-      )];
+          this.employeeCategories = [
+            ...new Set(this.employees.map((e) => e.position).filter((c) => c && c.trim() !== '')),
+          ];
 
-      this.equipmentCategories = [...new Set(this.equipment
-        .map(e => e.name)
-        .filter(c => c && c.trim() !== '')
-      )];
+          this.equipmentCategories = [
+            ...new Set(this.equipment.map((e) => e.name).filter((c) => c && c.trim() !== '')),
+          ];
 
-      this.dataReady = true;
-      this.loading = false;
-    }).catch(error => {
-      console.error('Error cargando catálogos:', error);
-      this.errorMessage = 'Error al cargar los datos necesarios'
-      this.loading = false;
-    });
-  }
-
-  setupAutoSave(): void {
-    this.formChanges$
-      .pipe(
-        debounceTime(30000),
-        takeUntil(this.destroy$)
+          this.dataReady = true;
+          this.loading = false;
+        },
       )
-      .subscribe(() => {
-        if (this.isDraft && this.contractForm.valid) {
-        }
+      .catch((error) => {
+        console.error('Error cargando catálogos:', error);
+        this.errorMessage = 'Error al cargar los datos necesarios';
+        this.loading = false;
       });
   }
 
+  setupAutoSave(): void {
+    this.formChanges$.pipe(debounceTime(30000), takeUntil(this.destroy$)).subscribe(() => {
+      if (this.isDraft && this.contractForm.valid) {
+      }
+    });
+  }
+
   checkForDraftToLoad(): void {
-    this.route.queryParams.subscribe(params => {
+    this.route.queryParams.subscribe((params) => {
       const draftId = params['draftId'];
       if (draftId) {
         this.loadDraft(Number(draftId));
@@ -1003,7 +939,6 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
   }
 
   generateMultipleSites(): void {
-
     const count = this.planForm.value.totalSites || 1;
 
     const planCode = this.planForm.value.planCode;
@@ -1013,40 +948,37 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
     const baseName = this.planForm.value.planName || this.planForm.value.planCode;
 
     const executionDate = this.planForm.value.startDate || '';
-    
+
     const startDate = this.planForm.value.startDate;
-  
-    const endDate   = this.planForm.value.endDate;
+
+    const endDate = this.planForm.value.endDate;
 
     if (!planCode || !planName) {
-
       this.errorMessage = 'Complete el codigo y nombre del plan antes de generar sitios';
 
       return;
-
     }
-    
-    
-    const executionDates = this.distributeDatesAcrossSites(startDate, endDate, count);
 
+    const executionDates = this.distributeDatesAcrossSites(startDate, endDate, count);
 
     this.sitesArray.clear();
 
     for (let i = 0; i < count; i++) {
-      const siteName  = `Sitio #${i + 1} ${planName}-${planCode}`;
+      const siteName = `Sitio #${i + 1} ${planName}-${planCode}`;
       const siteGroup = this.fb.group({
-        name:              [siteName],
-        matrixId:          [''],
-        isSubcontracted:   [false],
+        name: [siteName],
+        matrixId: [''],
+        isSubcontracted: [false],
         subcontractorName: [''],
-        executionDate:     [executionDates[i]],
-        hasReport:         [false],
-        hasGDB:            [false]
-    });
+        executionDate: [executionDates[i]],
+        hasReport: [false],
+        hasGDB: [false],
+      });
 
-      siteGroup.get('isSubcontracted')?.valueChanges
-        .pipe(takeUntil(this.destroy$))
-        .subscribe(isSubcontracted => {
+      siteGroup
+        .get('isSubcontracted')
+        ?.valueChanges.pipe(takeUntil(this.destroy$))
+        .subscribe((isSubcontracted) => {
           const subcontractorControl = siteGroup.get('subcontractorName');
           if (isSubcontracted) {
             subcontractorControl?.setValidators([Validators.required]);
@@ -1060,44 +992,24 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
     }
     this.formChanges$.next();
   }
-  
-  
-  
-  private distributeDatesAcrossSites(
-    startDateStr: string,
-    endDateStr: string,
-    siteCount: number
-  ): string[] {
+  private distributeDatesAcrossSites(start: string, end: string, count: number): string[] {
+    if (!start || !end || count <= 0) return Array(count).fill('');
 
-    if (!startDateStr || !endDateStr || siteCount <= 0) {
-      return Array(siteCount).fill('');
-    }
+    const s = new Date(start);
+    const e = new Date(end);
+    const totalDays = Math.floor((e.getTime() - s.getTime()) / 86400000) + 1;
 
-    const start = new Date(startDateStr);
-    const end = new Date(endDateStr);
+    // Cuántos sitios por día (ceil para no dejar sitios sin fecha)
+    const sitesPerDay = Math.ceil(count / totalDays);
 
-    const totalDays =
-      Math.floor((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-
-    const sitesPerDay = Math.floor(siteCount / totalDays);
-    const remainder = siteCount % totalDays;
-
-    const dates: string[] = [];
-
-    for (let dayIndex = 0; dayIndex < totalDays; dayIndex++) {
-
-      const currentDate = new Date(start);
-      currentDate.setDate(start.getDate() + dayIndex);
-
-      const countForThisDay =
-        sitesPerDay + (dayIndex < remainder ? 1 : 0);
-
-      for (let i = 0; i < countForThisDay; i++) {
-        dates.push(currentDate.toISOString().split('T')[0]);
-      }
-    }
-
-    return dates;
+    return Array.from({ length: count }, (_, i) => {
+      // Todos los sitios del mismo grupo comparten el mismo día
+      const dayIndex = Math.floor(i / sitesPerDay);
+      const d = new Date(s);
+      d.setDate(d.getDate() + dayIndex);
+      // Por si el redondeo supera la fecha fin
+      return (d > e ? e : d).toISOString().split('T')[0];
+    });
   }
 
   get sitesArray(): FormArray {
@@ -1117,12 +1029,13 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
       subcontractorName: [''],
       executionDate: [executionDate],
       hasReport: [false],
-      hasGDB: [false]
+      hasGDB: [false],
     });
 
-    siteGroup.get('isSubcontracted')?.valueChanges
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(isSubcontracted => {
+    siteGroup
+      .get('isSubcontracted')
+      ?.valueChanges.pipe(takeUntil(this.destroy$))
+      .subscribe((isSubcontracted) => {
         const subcontractorControl = siteGroup.get('subcontractorName');
         if (isSubcontracted) {
           subcontractorControl?.setValidators([Validators.required]);
@@ -1143,18 +1056,23 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
     }
   }
 
+  clearSites(): void {
+    this.sitesArray.clear();
+    this.addSite(); // deja al menos uno vacío
+  }
+
   toggleEmployeeSelection(employeeId: number): void {
     const current = this.planForm.value.selectedEmployeeIds || [];
     const index = current.indexOf(employeeId);
 
     if (index === -1) {
       this.planForm.patchValue({
-        selectedEmployeeIds: [...current, employeeId]
+        selectedEmployeeIds: [...current, employeeId],
       });
     } else {
       current.splice(index, 1);
       this.planForm.patchValue({
-        selectedEmployeeIds: [...current]
+        selectedEmployeeIds: [...current],
       });
     }
     this.formChanges$.next();
@@ -1170,12 +1088,12 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
 
     if (index === -1) {
       this.planForm.patchValue({
-        selectedEquipmentIds: [...current, equipmentId]
+        selectedEquipmentIds: [...current, equipmentId],
       });
     } else {
       current.splice(index, 1);
       this.planForm.patchValue({
-        selectedEquipmentIds: [...current]
+        selectedEquipmentIds: [...current],
       });
     }
     this.formChanges$.next();
@@ -1199,7 +1117,7 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
       quantity: 1,
       unit: 'días',
       costPerUnit: 0,
-      billedPerUnit: 0
+      billedPerUnit: 0,
     });
     this.editingBudgetItemIndex = -1;
     this.showBudgetItemModal = true;
@@ -1220,8 +1138,11 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
 
     const formValue = this.budgetItemForm.value;
     const budgetItem: BudgetItem = {
-      id: this.editingBudgetItemIndex === -1 ? this.generateId() : this.budgetItems[this.editingBudgetItemIndex].id,
-      ...formValue
+      id:
+        this.editingBudgetItemIndex === -1
+          ? this.generateId()
+          : this.budgetItems[this.editingBudgetItemIndex].id,
+      ...formValue,
     };
 
     const currentItems = [...this.budgetItems];
@@ -1250,7 +1171,12 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
     this.budgetItemForm.reset();
   }
 
-  calculateItemTotal(item: BudgetItem): { cost: number; billed: number; profit: number; margin: number } {
+  calculateItemTotal(item: BudgetItem): {
+    cost: number;
+    billed: number;
+    profit: number;
+    margin: number;
+  } {
     const cost = item.quantity * item.costPerUnit;
     const billed = item.quantity * item.billedPerUnit;
     const profit = billed - cost;
@@ -1262,10 +1188,10 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
   get planBudgetSummary() {
     const summary = {
       byCategory: new Map<BudgetCategory, any>(),
-      grandTotal: { cost: 0, billed: 0, profit: 0, margin: 0 }
+      grandTotal: { cost: 0, billed: 0, profit: 0, margin: 0 },
     };
 
-    this.budgetItems.forEach(item => {
+    this.budgetItems.forEach((item) => {
       const totals = this.calculateItemTotal(item);
 
       if (!summary.byCategory.has(item.category)) {
@@ -1273,7 +1199,7 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
           cost: 0,
           billed: 0,
           profit: 0,
-          items: []
+          items: [],
         });
       }
 
@@ -1295,7 +1221,11 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
     return summary;
   }
 
-  getOdsBudgetIncludingCurrent(odsIndex: number): { used: number; available: number; percentage: number } {
+  getOdsBudgetIncludingCurrent(odsIndex: number): {
+    used: number;
+    available: number;
+    percentage: number;
+  } {
     const ods = this.serviceOrders[odsIndex];
     if (!ods) return { used: 0, available: 0, percentage: 0 };
 
@@ -1312,9 +1242,11 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
       });
     }
 
-    if (!this.editingPlanId &&
+    if (
+      !this.editingPlanId &&
       this.currentView === ViewMode.PLAN_FORM &&
-      this.currentOdsIndex === odsIndex) {
+      this.currentOdsIndex === odsIndex
+    ) {
       const currentPlanBudget = this.getCurrentBudgetBilledTotal();
       totalUsed += currentPlanBudget;
     }
@@ -1360,7 +1292,7 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
       odsValue: this.odsForm.value.odsValue || 0,
       startDate: this.odsForm.value.startDate,
       endDate: this.odsForm.value.endDate,
-      samplingPlans: []
+      samplingPlans: [],
     };
 
     this.serviceOrders.push(ods);
@@ -1383,7 +1315,7 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
       startDate: ods.startDate || '',
       endDate: ods.endDate || '',
       resourceStartDate: ods.startDate || '',
-      resourceEndDate: ods.endDate || ''
+      resourceEndDate: ods.endDate || '',
     });
 
     if (ods.startDate && ods.endDate) {
@@ -1399,7 +1331,6 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
   }
 
   addPlanToCurrentOds(): void {
-
     if (!this.planForm.valid) {
       this.errorMessage = 'Complete los campos requeridos del plan';
       return;
@@ -1410,7 +1341,10 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (!this.planForm.value.selectedMatrixIds || this.planForm.value.selectedMatrixIds.length === 0) {
+    if (
+      !this.planForm.value.selectedMatrixIds ||
+      this.planForm.value.selectedMatrixIds.length === 0
+    ) {
       this.errorMessage = 'Seleccione al menos una matriz';
       return;
     }
@@ -1418,8 +1352,12 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
     const mode = this.planForm.value.resourceAssignmentMode;
 
     if (mode === ResourceAssignmentMode.QUANTITY) {
-      const hasEmployees = this.employeeQuantities.some(eq => eq.categoryName?.trim() && eq.quantity > 0);
-      const hasEquipment = this.equipmentQuantities.some(eq => eq.categoryName?.trim() && eq.quantity > 0);
+      const hasEmployees = this.employeeQuantities.some(
+        (eq) => eq.categoryName?.trim() && eq.quantity > 0,
+      );
+      const hasEquipment = this.equipmentQuantities.some(
+        (eq) => eq.categoryName?.trim() && eq.quantity > 0,
+      );
       const hasVehicles = this.vehicleQuantity > 0;
 
       if (!hasEmployees && !hasEquipment && !hasVehicles) {
@@ -1427,14 +1365,20 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
         return;
       }
     } else {
-      if (!this.planForm.value.selectedEmployeeIds || this.planForm.value.selectedEmployeeIds.length === 0) {
+      if (
+        !this.planForm.value.selectedEmployeeIds ||
+        this.planForm.value.selectedEmployeeIds.length === 0
+      ) {
         this.errorMessage = 'Seleccione al menos un empleado';
         return;
       }
     }
 
     if (this.budgetItems.length > 0) {
-      const planBilledTotal = this.budgetItems.reduce((sum, item) => sum + (item.quantity * item.billedPerUnit), 0);
+      const planBilledTotal = this.budgetItems.reduce(
+        (sum, item) => sum + item.quantity * item.billedPerUnit,
+        0,
+      );
       const odsBudget = this.getOdsBudgetSummary(this.currentOdsIndex);
 
       if (planBilledTotal > odsBudget.available) {
@@ -1443,8 +1387,8 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
       }
     }
 
-    const selectedMatrices = this.matrices.filter(m =>
-      this.planForm.value.selectedMatrixIds.includes(m.id)
+    const selectedMatrices = this.matrices.filter((m) =>
+      this.planForm.value.selectedMatrixIds.includes(m.id),
     );
 
     if (this.editingPlanId) {
@@ -1452,26 +1396,27 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const coordinator = this.coordinators.find(c => c.id === Number(this.planForm.value.coordinatorId));
+    const coordinator = this.coordinators.find(
+      (c) => c.id === Number(this.planForm.value.coordinatorId),
+    );
 
     const sites = this.sitesArray.value.map((site: any) => ({
       name: site.name,
       matrixIds: this.planForm.value.selectedMatrixIds,
-      matrixNames: selectedMatrices.map(m => m.matrixName).join(', '),
+      matrixNames: selectedMatrices.map((m) => m.matrixName).join(', '),
       isSubcontracted: site.isSubcontracted,
-      subcontractorName: site.isSubcontracted ? (site.subcontractorName?.trim() || null) : null,
+      subcontractorName: site.isSubcontracted ? site.subcontractorName?.trim() || null : null,
       executionDate: site.executionDate || null,
       hasReport: this.planForm.value.hasReport,
-      hasGDB: this.planForm.value.hasGDB
+      hasGDB: this.planForm.value.hasGDB,
     }));
 
-
-    const validEmployeeQtys = this.employeeQuantities.filter(eq =>
-      eq.categoryName?.trim() && eq.quantity > 0
+    const validEmployeeQtys = this.employeeQuantities.filter(
+      (eq) => eq.categoryName?.trim() && eq.quantity > 0,
     );
 
-    const validEquipmentQtys = this.equipmentQuantities.filter(eq =>
-      eq.categoryName?.trim() && eq.quantity > 0
+    const validEquipmentQtys = this.equipmentQuantities.filter(
+      (eq) => eq.categoryName?.trim() && eq.quantity > 0,
     );
 
     const planData: any = {
@@ -1480,7 +1425,7 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
       startDate: this.planForm.value.startDate,
       endDate: this.planForm.value.endDate,
       matrixIds: this.planForm.value.selectedMatrixIds,
-      matrixNames: selectedMatrices.map(m => m.matrixName).join(', '),
+      matrixNames: selectedMatrices.map((m) => m.matrixName).join(', '),
       coordinatorId: Number(this.planForm.value.coordinatorId),
       coordinatorName: coordinator?.name || '',
       hasReport: this.planForm.value.hasReport,
@@ -1490,8 +1435,8 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
         chCode: this.planForm.value.chCode || this.projectChCode,
         items: this.budgetItems,
         summary: this.planBudgetSummary,
-        notes: this.planForm.value.notes
-      }
+        notes: this.planForm.value.notes,
+      },
     };
 
     if (mode === ResourceAssignmentMode.QUANTITY) {
@@ -1503,14 +1448,14 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
       planData.resourceEndDate = this.planForm.value.resourceEndDate;
       planData.resources = null; // Importante: null para modo quantity
     } else {
-      const selectedEmployees = this.employees.filter(e =>
-        this.planForm.value.selectedEmployeeIds.includes(e.id)
+      const selectedEmployees = this.employees.filter((e) =>
+        this.planForm.value.selectedEmployeeIds.includes(e.id),
       );
-      const selectedEquipment = this.equipment.filter(e =>
-        this.planForm.value.selectedEquipmentIds.includes(e.id)
+      const selectedEquipment = this.equipment.filter((e) =>
+        this.planForm.value.selectedEquipmentIds.includes(e.id),
       );
-      const selectedVehicles = this.vehicles.filter(v =>
-        this.planForm.value.selectedVehicleIds.includes(v.id)
+      const selectedVehicles = this.vehicles.filter((v) =>
+        this.planForm.value.selectedVehicleIds.includes(v.id),
       );
 
       planData.resourceAssignmentMode = 'detailed';
@@ -1532,7 +1477,7 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
         vehicles: selectedVehicles,
         employeeQuantities: [],
         equipmentQuantities: [],
-        vehicleQuantity: 0
+        vehicleQuantity: 0,
       };
     }
 
@@ -1542,13 +1487,13 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
       mode: planData.resourceAssignmentMode,
       employeeQtys: planData.employeeQuantities,
       equipmentQtys: planData.equipmentQuantities,
-      vehicleQty: planData.vehicleQuantity
+      vehicleQty: planData.vehicleQuantity,
     });
 
     this.resetPlanForm();
     this.errorMessage = '';
     this.successMessage = 'Plan agregado exitosamente';
-    setTimeout(() => this.successMessage = '', 3000);
+    setTimeout(() => (this.successMessage = ''), 3000);
     this.formChanges$.next();
     this.showSuccessModal = true;
   }
@@ -1570,9 +1515,7 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
   }
 
   private updateExistingPlan(): void {
-
     const resourcesData = {
-
       mode: ResourceAssignmentMode.DETAILED,
       startDate: this.planForm.value.resourceStartDate,
       endDate: this.planForm.value.resourceEndDate,
@@ -1581,22 +1524,19 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
       vehicleIds: this.planForm.value.selectedVehicleIds || [],
       employeeQuantities: [],
       equipmentQuantities: [],
-      vehicleQuantity: 0
-
+      vehicleQuantity: 0,
     };
 
     this.loading = true;
 
     this.projectCreationService.updatePlanResources(this.editingPlanId!, resourcesData).subscribe({
       next: (response) => {
-
         if (this.serviceOrders[this.currentOdsIndex]?.samplingPlans) {
-
-          const plan = this.serviceOrders[this.currentOdsIndex].samplingPlans
-            .find((p: any) => p.id === this.editingPlanId);
+          const plan = this.serviceOrders[this.currentOdsIndex].samplingPlans.find(
+            (p: any) => p.id === this.editingPlanId,
+          );
 
           if (plan) {
-
             plan.resourceAssignmentMode = 'DETAILED';
             plan.resources = {
               mode: 'DETAILED',
@@ -1605,50 +1545,37 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
               employeeIds: resourcesData.employeeIds,
               equipmentIds: resourcesData.equipmentIds,
               vehicleIds: resourcesData.vehicleIds,
-              employees: this.employees.filter(e => resourcesData.employeeIds.includes(e.id)),
-              equipment: this.equipment.filter(e => resourcesData.equipmentIds.includes(e.id)),
-              vehicles: this.vehicles.filter(v => resourcesData.vehicleIds.includes(v.id))
-
-            }
-
+              employees: this.employees.filter((e) => resourcesData.employeeIds.includes(e.id)),
+              equipment: this.equipment.filter((e) => resourcesData.equipmentIds.includes(e.id)),
+              vehicles: this.vehicles.filter((v) => resourcesData.vehicleIds.includes(v.id)),
+            };
           }
-
         }
 
         this.successMessage = 'Recursos asignados exitosamente';
         this.loading = false;
 
         setTimeout(() => {
-
           this.router.navigate(['/projects-dashboard']);
-
         }, 2000);
-
       },
       error: (error) => {
-
         console.error('Error actualizando recursos:', error);
 
         this.errorMessage = 'Error al actualizar los recursos';
 
         this.loading = false;
-
-      }
-
+      },
     });
-
   }
 
   resetPlanForm(): void {
-
     this.planRequiredResources = null;
 
-    const odsStartDate = this.currentOdsIndex !== -1
-      ? this.serviceOrders[this.currentOdsIndex].startDate
-      : '';
-    const odsEndDate = this.currentOdsIndex !== -1
-      ? this.serviceOrders[this.currentOdsIndex].endDate
-      : '';
+    const odsStartDate =
+      this.currentOdsIndex !== -1 ? this.serviceOrders[this.currentOdsIndex].startDate : '';
+    const odsEndDate =
+      this.currentOdsIndex !== -1 ? this.serviceOrders[this.currentOdsIndex].endDate : '';
 
     this.planForm.reset({
       startDate: odsStartDate,
@@ -1662,7 +1589,7 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
       selectedEmployeeIds: [],
       selectedEquipmentIds: [],
       selectedVehicleIds: [],
-      budgetItems: []
+      budgetItems: [],
     });
 
     this.currentResourceMode = ResourceAssignmentMode.QUANTITY;
@@ -1674,30 +1601,28 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
     this.addSite();
   }
 
-
   getPlanBudgetTotal(plan: any): number {
     if (!plan.budget || !plan.budget.items) return 0;
-    return plan.budget.items.reduce((sum: number, item: BudgetItem) => sum + (item.quantity * item.billedPerUnit), 0);
+    return plan.budget.items.reduce(
+      (sum: number, item: BudgetItem) => sum + item.quantity * item.billedPerUnit,
+      0,
+    );
   }
-
 
   getPlanBilledTotal(plan: any): number {
     if (!plan.budgetItems) return 0;
-    return plan.budgetItems.reduce((sum: number, item: BudgetItem) =>
-      sum + (item.quantity * item.billedPerUnit), 0
+    return plan.budgetItems.reduce(
+      (sum: number, item: BudgetItem) => sum + item.quantity * item.billedPerUnit,
+      0,
     );
   }
 
   getCurrentBudgetCostTotal(): number {
-    return this.budgetItems.reduce((sum, item) =>
-      sum + (item.quantity * item.costPerUnit), 0
-    );
+    return this.budgetItems.reduce((sum, item) => sum + item.quantity * item.costPerUnit, 0);
   }
 
   getCurrentBudgetBilledTotal(): number {
-    return this.budgetItems.reduce((sum, item) =>
-      sum + (item.quantity * item.billedPerUnit), 0
-    );
+    return this.budgetItems.reduce((sum, item) => sum + item.quantity * item.billedPerUnit, 0);
   }
 
   getCurrentBudgetProfit(): number {
@@ -1711,10 +1636,12 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
     }
 
     const coordinatorId = this.coordinatorForm.value.coordinatorId;
-    const coordinator = this.coordinators.find(c => c.id === Number(coordinatorId));
+    const coordinator = this.coordinators.find((c) => c.id === Number(coordinatorId));
 
     if (coordinator) {
-      const alreadyAdded = this.assignedCoordinators.some(c => c.coordinatorId === Number(coordinatorId));
+      const alreadyAdded = this.assignedCoordinators.some(
+        (c) => c.coordinatorId === Number(coordinatorId),
+      );
       if (alreadyAdded) {
         this.errorMessage = 'Este coordinador ya fue agregado';
         return;
@@ -1722,7 +1649,7 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
 
       this.assignedCoordinators.push({
         coordinatorId: Number(coordinatorId),
-        coordinatorName: coordinator.name
+        coordinatorName: coordinator.name,
       });
       this.coordinatorForm.reset();
       this.errorMessage = '';
@@ -1731,11 +1658,9 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
   }
 
   removeCoordinator(index: number): void {
-
     this.assignedCoordinators.splice(index, 1);
 
     this.formChanges$.next();
-
   }
 
   saveDraft(isAutoSave: boolean = false): void {
@@ -1755,12 +1680,11 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
         ClientId: Number(this.contractForm.value.clientId),
         ClientName: null,
         StartDate: this.contractForm.value.startDate || null,
-        EndDate: this.contractForm.value.endDate || null
+        EndDate: this.contractForm.value.endDate || null,
       },
       ServiceOrders: this.serviceOrders || [],
-      Coordinators: this.assignedCoordinators || []
+      Coordinators: this.assignedCoordinators || [],
     };
-
 
     if (isAutoSave) {
       this.autoSaving = true;
@@ -1778,7 +1702,7 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
 
         if (!isAutoSave) {
           this.successMessage = 'Borrador guardado exitosamente';
-          setTimeout(() => this.successMessage = '', 3000);
+          setTimeout(() => (this.successMessage = ''), 3000);
         }
 
         this.loading = false;
@@ -1793,7 +1717,7 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
         }
         this.loading = false;
         this.autoSaving = false;
-      }
+      },
     });
   }
 
@@ -1806,13 +1730,13 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
         this.restoreDraftData(draft);
         this.loading = false;
         this.successMessage = 'Borrador cargado exitosamente';
-        setTimeout(() => this.successMessage = '', 3000);
+        setTimeout(() => (this.successMessage = ''), 3000);
       },
       error: (error) => {
         console.error('Error cargando draft:', error);
         this.errorMessage = 'Error al cargar el borrador';
         this.loading = false;
-      }
+      },
     });
   }
 
@@ -1833,7 +1757,7 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
         console.error('Error eliminando draft:', error);
         this.errorMessage = 'Error al eliminar el borrador';
         this.loading = false;
-      }
+      },
     });
   }
 
@@ -1848,7 +1772,7 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
         contractName: contract.contractName || contract.ContractName,
         clientId: contract.clientId || contract.ClientId,
         startDate: contract.startDate || contract.StartDate,
-        endDate: contract.endDate || contract.EndDate
+        endDate: contract.endDate || contract.EndDate,
       });
     }
     if (serviceOrders) {
@@ -1860,9 +1784,9 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
   }
 
   canFinalize(): boolean {
-    return this.contractForm.valid &&
-      this.serviceOrders.length > 0 &&
-      this.projectChCode.trim() !== '';
+    return (
+      this.contractForm.valid && this.serviceOrders.length > 0 && this.projectChCode.trim() !== ''
+    );
   }
 
   finalizeProject(): void {
@@ -1894,9 +1818,10 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
         console.error('ERROR COMPLETO:', error);
         console.error('ERROR RESPONSE:', error.error);
         console.error('ERROR STATUS:', error.status);
-        this.errorMessage = 'Error al crear el proyecto: ' + (error.error?.message || error.message);
+        this.errorMessage =
+          'Error al crear el proyecto: ' + (error.error?.message || error.message);
         this.loading = false;
-      }
+      },
     });
   }
 
@@ -1912,10 +1837,10 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
       fluvialTransportBilledToClient: 0,
       reportsCostChemilab: 0,
       reportsBilledToClient: 0,
-      notes: this.planForm.value.notes || null
+      notes: this.planForm.value.notes || null,
     };
 
-    budgetItems.forEach(item => {
+    budgetItems.forEach((item) => {
       const itemTotals = this.calculateItemTotal(item);
       switch (item.category) {
         case BudgetCategory.TRANSPORT:
@@ -1947,13 +1872,12 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
   private buildProjectDto(): CreateProject {
     const contractData = this.contractForm.value;
 
-    const serviceOrders = this.serviceOrders.map(ods => ({
+    const serviceOrders = this.serviceOrders.map((ods) => ({
       odsCode: ods.odsCode,
       odsName: ods.odsName || ods.odsCode,
       startDate: ods.startDate || null,
       endDate: ods.endDate || null,
       samplingPlans: ods.samplingPlans.map((plan: any) => {
-
         return {
           planCode: plan.planCode,
           planName: plan.planName || plan.planCode,
@@ -1962,10 +1886,10 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
           coordinatorId: plan.coordinatorId,
           sites: plan.sites.map((site: any) => ({
             name: site.name,
-            matrixId: Array.isArray(site.matrixIds) ? site.matrixIds[0] : (site.matrixId || 0),
+            matrixId: Array.isArray(site.matrixIds) ? site.matrixIds[0] : site.matrixId || 0,
             executionDate: site.executionDate || null,
             hasReport: site.hasReport || false,
-            hasGDB: site.hasGDB || false
+            hasGDB: site.hasGDB || false,
           })),
           resources: {
             mode: plan.resourceAssignmentMode || 'QUANTITY',
@@ -1977,11 +1901,11 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
             vehicleIds: plan.resources?.vehicleIds || [],
             employeeQuantities: plan.employeeQuantities || [],
             equipmentQuantities: plan.equipmentQuantities || [],
-            vehicleQuantity: plan.vehicleQuantity || 0
+            vehicleQuantity: plan.vehicleQuantity || 0,
           },
-          budget: this.calculatePlanBudgetTotals(plan.budget?.items || [])
+          budget: this.calculatePlanBudgetTotals(plan.budget?.items || []),
         };
-      })
+      }),
     }));
 
     return {
@@ -1990,29 +1914,29 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
         contractName: contractData.contractName || '',
         clientId: Number(contractData.clientId),
         startDate: contractData.startDate || null,
-        endDate: contractData.endDate || null
+        endDate: contractData.endDate || null,
       },
       chCode: this.projectChCode,
       serviceOrders: serviceOrders,
-      coordinatorIds: this.assignedCoordinators.map(c => c.coordinatorId),
+      coordinatorIds: this.assignedCoordinators.map((c) => c.coordinatorId),
       projectDetails: {
         projectName: contractData.contractName || contractData.contractCode,
         projectDescription: '',
-        priority: 'media'
+        priority: 'media',
       },
-      projectResourceAssignementMode: this.hasDetailedPlans() ? 1 : 0
+      projectResourceAssignementMode: this.hasDetailedPlans() ? 1 : 0,
     };
   }
 
   private hasDetailedPlans(): boolean {
-    return this.serviceOrders.some(ods =>
-      ods.samplingPlans.some((plan: any) =>
-        plan.resourceAssignmentMode === 'DETAILED' ||
-        plan.resourceAssignmentMode === ResourceAssignmentMode.DETAILED
-      )
+    return this.serviceOrders.some((ods) =>
+      ods.samplingPlans.some(
+        (plan: any) =>
+          plan.resourceAssignmentMode === 'DETAILED' ||
+          plan.resourceAssignmentMode === ResourceAssignmentMode.DETAILED,
+      ),
     );
   }
-
 
   createAnotherProject(): void {
     this.router.navigate(['/projects/new']);
@@ -2025,7 +1949,7 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
 
   get getClientName(): string {
     const clientId = this.contractForm.value.clientId;
-    const client = this.clients.find(c => c.id === Number(clientId));
+    const client = this.clients.find((c) => c.id === Number(clientId));
     return client?.name || 'No asignado';
   }
 
@@ -2049,7 +1973,7 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
 
     if (this.contractForm.valid) completed++;
     if (this.serviceOrders.length > 0) completed++;
-    if (this.serviceOrders.some(ods => ods.samplingPlans.length > 0)) completed++;
+    if (this.serviceOrders.some((ods) => ods.samplingPlans.length > 0)) completed++;
     if (this.assignedCoordinators.length > 0) completed++;
     if (this.canFinalize()) completed++;
 
@@ -2061,7 +1985,7 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
   }
 
   get hasAnyPlans(): boolean {
-    return this.serviceOrders.some(ods => ods.samplingPlans.length > 0);
+    return this.serviceOrders.some((ods) => ods.samplingPlans.length > 0);
   }
 
   get totalPlansCount(): number {
@@ -2069,15 +1993,13 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
   }
 
   setResourceMode(mode: ResourceAssignmentMode): void {
-
     if (this.editingPlanId && mode === ResourceAssignmentMode.QUANTITY) {
+      this.errorMessage =
+        'No se puede cambiar de modo detallado a cantidad una vez asignados los recursos específicos';
 
-      this.errorMessage = 'No se puede cambiar de modo detallado a cantidad una vez asignados los recursos específicos';
-
-      setTimeout(() => this.errorMessage = '', 3000);
+      setTimeout(() => (this.errorMessage = ''), 3000);
 
       return;
-
     }
 
     this.currentResourceMode = mode;
@@ -2085,7 +2007,6 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
     this.planForm.patchValue({ resourceAssignmentMode: mode });
 
     if (mode === ResourceAssignmentMode.DETAILED) {
-
       this.loadRequiredResourcesFromQuantities();
 
       const startDate = this.planForm.value.resourceStartDate;
@@ -2093,11 +2014,8 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
       const endDate = this.planForm.value.resourceEndDate;
 
       if (startDate && endDate) {
-
         this.loadAvailableResources();
-
       }
-
     }
 
     this.formChanges$.next();
@@ -2140,19 +2058,18 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
 
   getTotalRequiredEmployees(): number {
     if (!this.planRequiredResources) return 0;
-    return this.planRequiredResources.employeeQuantities
-      .reduce((sum, eq) => sum + eq.quantity, 0);
+    return this.planRequiredResources.employeeQuantities.reduce((sum, eq) => sum + eq.quantity, 0);
   }
 
   getTotalRequiredEquipment(): number {
     if (!this.planRequiredResources) return 0;
-    return this.planRequiredResources.equipmentQuantities
-      .reduce((sum, eq) => sum + eq.quantity, 0);
+    return this.planRequiredResources.equipmentQuantities.reduce((sum, eq) => sum + eq.quantity, 0);
   }
 
   getSelectionProgress(type: 'employees' | 'equipment' | 'vehicles'): number {
     if (!this.planRequiredResources) return 0;
-    let selected = 0, required = 0;
+    let selected = 0,
+      required = 0;
 
     switch (type) {
       case 'employees':
@@ -2173,7 +2090,6 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
     return Math.min((selected / required) * 100, 100);
   }
 
-
   get hasRequiredEmployees(): boolean {
     return !!this.planRequiredResources?.employeeQuantities?.length;
   }
@@ -2183,22 +2099,27 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
   }
 
   get hasRequiredVehicles(): boolean {
-    return this.planRequiredResources?.vehicleQuantity ? this.planRequiredResources.vehicleQuantity > 0 : false;
+    return this.planRequiredResources?.vehicleQuantity
+      ? this.planRequiredResources.vehicleQuantity > 0
+      : false;
   }
   loadRequiredResourcesFromQuantities() {
     const mode = this.planForm.value.resourceAssignmentMode;
 
     if (mode === ResourceAssignmentMode.DETAILED && !this.planRequiredResources) {
-
-      const employeeQtys = this.employeeQuantities.filter(eq => eq.categoryName && eq.quantity > 0);
-      const equipmentQtys = this.equipmentQuantities.filter(eq => eq.categoryName && eq.quantity > 0);
+      const employeeQtys = this.employeeQuantities.filter(
+        (eq) => eq.categoryName && eq.quantity > 0,
+      );
+      const equipmentQtys = this.equipmentQuantities.filter(
+        (eq) => eq.categoryName && eq.quantity > 0,
+      );
       const vehicleQty = this.vehicleQuantity || 0;
 
       if (employeeQtys.length > 0 || equipmentQtys.length > 0 || vehicleQty > 0) {
         this.planRequiredResources = {
           employeeQuantities: employeeQtys,
           equipmentQuantities: equipmentQtys,
-          vehicleQuantity: vehicleQty
+          vehicleQuantity: vehicleQty,
         };
         console.log('Recursos requeridos cargados desde cantidades:', this.planRequiredResources);
       } else {
@@ -2209,23 +2130,22 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
   }
 
   loadRequiredResourcesFromPlan(plan: any) {
-    if (plan.employeeQuantities?.length > 0 ||
+    if (
+      plan.employeeQuantities?.length > 0 ||
       plan.equipmentQuantities?.length > 0 ||
-      plan.vehicleQuantity > 0) {
-
+      plan.vehicleQuantity > 0
+    ) {
       this.planRequiredResources = {
         employeeQuantities: plan.employeeQuantities || [],
         equipmentQuantities: plan.equipmentQuantities || [],
-        vehicleQuantity: plan.vehicleQuantity || 0
+        vehicleQuantity: plan.vehicleQuantity || 0,
       };
-
-    }
-    else if (plan.resources) {
+    } else if (plan.resources) {
       if (plan.resources.mode === ResourceAssignmentMode.QUANTITY) {
         this.planRequiredResources = {
           employeeQuantities: plan.resources.employeeQuantities || [],
           equipmentQuantities: plan.resources.equipmentQuantities || [],
-          vehicleQuantity: plan.resources.vehicleQuantity || 0
+          vehicleQuantity: plan.resources.vehicleQuantity || 0,
         };
       } else {
         const employeeCount = plan.resources.employeeIds?.length || 0;
@@ -2233,37 +2153,32 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
         const vehicleCount = plan.resources.vehicleIds?.length || 0;
 
         this.planRequiredResources = {
-          employeeQuantities: employeeCount > 0 ? [{ categoryName: 'Personal', quantity: employeeCount }] : [],
-          equipmentQuantities: equipmentCount > 0 ? [{ categoryName: 'Equipos', quantity: equipmentCount }] : [],
-          vehicleQuantity: vehicleCount
+          employeeQuantities:
+            employeeCount > 0 ? [{ categoryName: 'Personal', quantity: employeeCount }] : [],
+          equipmentQuantities:
+            equipmentCount > 0 ? [{ categoryName: 'Equipos', quantity: equipmentCount }] : [],
+          vehicleQuantity: vehicleCount,
         };
       }
     }
   }
 
-
   saveDetailedResourcesAndExit(): void {
-
     if (!this.editingPlanId) {
-
       this.errorMessage = 'Error: No hay un plan en edición';
 
       return;
-
     }
 
     const selectedEmployees = this.planForm.value.selectedEmployeeIds || [];
 
     if (selectedEmployees.length === 0) {
-
       this.errorMessage = 'Debe seleccionar al menos un empleado';
 
       return;
-
     }
 
     const dto = {
-
       mode: 'DETAILED',
 
       startDate: this.planForm.value.resourceStartDate || null,
@@ -2282,12 +2197,7 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
 
       vehicleQuantity: null,
 
-      budget: this.budgetItems.length > 0
-
-        ? this.calculatePlanBudgetTotals(this.budgetItems)
-
-        : null
-
+      budget: this.budgetItems.length > 0 ? this.calculatePlanBudgetTotals(this.budgetItems) : null,
     };
 
     console.log('DTO enviado:', JSON.stringify(dto, null, 2));
@@ -2309,17 +2219,16 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
         // Mostrar errores de validación
         if (error.error?.errors) {
           console.error('DETALLES DE VALIDACIÓN:');
-          Object.keys(error.error.errors).forEach(key => {
+          Object.keys(error.error.errors).forEach((key) => {
             console.error(`  - ${key}:`, error.error.errors[key]);
           });
         }
 
         this.errorMessage = error.error?.message || 'Error al actualizar recursos';
         this.loading = false;
-      }
+      },
     });
   }
-
 
   loadReusablePlanIntoForm(plan: any): void {
     this.sitesArray.clear();
@@ -2331,10 +2240,11 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
       endDate: plan.endDate || '',
       hasReport: plan.hasReport || false,
       hasGDB: plan.hasGDB || false,
-      selectedMatrixIds: plan.matrixIds ||
-        [...new Set((plan.sites || []).map((s: any) => s.matrixId).filter(Boolean))],
+      selectedMatrixIds: plan.matrixIds || [
+        ...new Set((plan.sites || []).map((s: any) => s.matrixId).filter(Boolean)),
+      ],
       totalSites: plan.sites?.length || 1,
-      budgetItems: plan.budget?.items || []
+      budgetItems: plan.budget?.items || [],
     });
 
     (plan.sites || []).forEach((site: any) => {
@@ -2345,12 +2255,13 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
         subcontractorName: [site.subcontractorName || ''],
         executionDate: [site.executionDate || ''],
         hasReport: [site.hasReport || false],
-        hasGDB: [site.hasGDB || false]
+        hasGDB: [site.hasGDB || false],
       });
 
-      siteGroup.get('isSubcontracted')?.valueChanges
-        .pipe(takeUntil(this.destroy$))
-        .subscribe(isSubcontracted => {
+      siteGroup
+        .get('isSubcontracted')
+        ?.valueChanges.pipe(takeUntil(this.destroy$))
+        .subscribe((isSubcontracted) => {
           const subcontractorControl = siteGroup.get('subcontractorName');
           if (isSubcontracted) {
             subcontractorControl?.setValidators([Validators.required]);
@@ -2367,23 +2278,18 @@ export class ProjectWizardComponent implements OnInit, OnDestroy {
     if (this.sitesArray.length === 0) {
       this.addSite();
     }
-    
-    
-     this.loadRequiredResourcesFromPlan(plan);
 
-    this.employeeQuantities = plan.employeeQuantities
-      ? [...plan.employeeQuantities]
-      : [];
-    this.equipmentQuantities = plan.equipmentQuantities
-      ? [...plan.equipmentQuantities]
-      : [];
+    this.loadRequiredResourcesFromPlan(plan);
+
+    this.employeeQuantities = plan.employeeQuantities ? [...plan.employeeQuantities] : [];
+    this.equipmentQuantities = plan.equipmentQuantities ? [...plan.equipmentQuantities] : [];
     this.vehicleQuantity = plan.vehicleQuantity || 0;
 
     this.editingPlanId = plan.id || plan.planCode;
     this.currentResourceMode = ResourceAssignmentMode.DETAILED;
     this.planForm.patchValue({ resourceAssignmentMode: ResourceAssignmentMode.DETAILED });
   }
-  
+
   hasQuantityRequirements(): boolean {
     return !!(
       this.planRequiredResources?.employeeQuantities?.length ||
