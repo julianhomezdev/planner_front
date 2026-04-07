@@ -1,8 +1,5 @@
-version: '3.9'
-
-services: 
-
+services:
   api:
     build:
-      context: ./api
-      dockerfile: Dockerfile
+      context: ./planner_front
+      dockerfile: DockerfileQU

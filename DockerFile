@@ -1,20 +1,14 @@
-# Construir angular
 FROM node:20-alpine AS build
-
+WORKDIR /app
 
 # Instalar dependencias
-COPY package*.json .
-RUN npm ci
-
-
-# Copiar codigo y compilar para producción
 COPY . .
-RUN npm run build -- --configuration production
+RUN npm ci && npx ng build
 
-# Nginx para servir estaticos
 FROM nginx:alpine
 
-COPY --from=builder /dist/CHEMILAB_MANAGEMENT_FRONT/browser /usr/share/nginx/html
+
+COPY --from=build /app/dist/CHEMILAB_MANAGEMENT_FRONT/browser /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 86
