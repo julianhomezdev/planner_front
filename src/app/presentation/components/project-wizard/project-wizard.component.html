@@ -3,26 +3,42 @@
   <div class="max-w-4xl mx-auto">
     <div class="bg-white rounded-lg shadow-sm p-8 mb-8 border-l-4 border-emerald-600">
       <div class="text-center">
-        <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-emerald-50 mb-4">
-          <svg class="h-10 w-10 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+        <div
+          class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-emerald-50 mb-4"
+        >
+          <svg
+            class="h-10 w-10 text-emerald-600"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M5 13l4 4L19 7"
+            ></path>
           </svg>
         </div>
         <h2 class="text-2xl font-semibold text-gray-900 mb-2">Proyecto Creado Exitosamente</h2>
         <p class="text-gray-600 mb-6">
-          El proyecto ha sido registrado con todas sus órdenes de servicio, planes de muestreo y recursos asignados.
+          El proyecto ha sido registrado con todas sus órdenes de servicio, planes de muestreo y
+          recursos asignados.
         </p>
-
       </div>
     </div>
 
     <div class="flex justify-center gap-4">
-      <button (click)="createAnotherProject()"
-        class="px-6 py-2.5 bg-gray-900 text-white rounded-md font-medium hover:bg-gray-800 transition-colors">
+      <button
+        (click)="createAnotherProject()"
+        class="px-6 py-2.5 bg-gray-900 text-white rounded-md font-medium hover:bg-gray-800 transition-colors"
+      >
         Crear Nuevo Proyecto
       </button>
-      <button (click)="goToDashboard()"
-        class="px-6 py-2.5 bg-white text-gray-700 border border-gray-300 rounded-md font-medium hover:bg-gray-50 transition-colors">
+      <button
+        (click)="goToDashboard()"
+        class="px-6 py-2.5 bg-white text-gray-700 border border-gray-300 rounded-md font-medium hover:bg-gray-50 transition-colors"
+      >
         Ir al Panel Principal
       </button>
     </div>
@@ -32,22 +48,48 @@
 <!-- VISTA PRINCIPAL -->
 <div *ngIf="!showFinalDashboard" class="min-h-screen bg-gray-50 py-6 px-4">
   <div class="max-w-7xl mx-auto">
-
     <!-- HEADER -->
     <div class="bg-white rounded-lg shadow-sm p-6 mb-6 border-l-4 border-gray-900">
       <div class="flex items-center justify-between">
-        <div class="flex-1">
+        <div class="flex items-center justify-between mb-4">
+          <button
+            (click)="goToDashboard()"
+            type="button"
+            class="cursor-pointer flex items-center gap-2 px-2 py-2 bg-white border border-gray-300 text-gray-700 rounded-md text-sm font-medium hover:bg-gray-50 transition-colors"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
+          </button>
+        </div>
+
+        <div class="flex-1 pl-4">
           <div class="flex items-center gap-3 mb-2">
-            <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
-              </path>
+            <svg
+              class="w-6 h-6 text-gray-700"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              ></path>
             </svg>
             <h1 class="text-xl font-semibold text-gray-900">
               {{ contractForm.value.contractCode || 'Nuevo Proyecto' }}
             </h1>
-            <span *ngIf="isDraft"
-              class="px-2.5 py-1 bg-amber-50 text-amber-700 text-xs font-medium rounded border border-amber-200">
+            <span
+              *ngIf="isDraft"
+              class="px-2.5 py-1 bg-amber-50 text-amber-700 text-xs font-medium rounded border border-amber-200"
+            >
               Borrador
             </span>
           </div>
@@ -59,16 +101,30 @@
           <div class="flex items-center gap-4 mt-2 text-xs text-gray-500">
             <span *ngIf="lastSaved" class="flex items-center">
               <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M5 13l4 4L19 7"
+                ></path>
               </svg>
               Guardado {{ getTimeSinceLastSave() }}
             </span>
             <span *ngIf="autoSaving" class="flex items-center text-gray-600">
               <svg class="animate-spin w-3.5 h-3.5 mr-1" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                </path>
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                ></circle>
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
               </svg>
               Guardando...
             </span>
@@ -82,13 +138,20 @@
           </div>
 
           <div class="flex gap-2">
-            <button (click)="saveDraft(false)" [disabled]="loading || !contractForm.valid"
-              class="px-4 py-2 bg-gray-900 text-white text-sm rounded-md font-medium hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+            <button
+              (click)="saveDraft(false)"
+              [disabled]="loading || !contractForm.valid"
+              class="px-4 py-2 bg-gray-900 text-white text-sm rounded-md font-medium hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
               Guardar Borrador
             </button>
 
-            <button *ngIf="draftId" (click)="deleteDraft()" [disabled]="loading"
-              class="px-4 py-2 bg-white text-red-600 border border-red-300 text-sm rounded-md font-medium hover:bg-red-50 disabled:opacity-50 transition-colors">
+            <button
+              *ngIf="draftId"
+              (click)="deleteDraft()"
+              [disabled]="loading"
+              class="px-4 py-2 bg-white text-red-600 border border-red-300 text-sm rounded-md font-medium hover:bg-red-50 disabled:opacity-50 transition-colors"
+            >
               Eliminar
             </button>
           </div>
@@ -98,19 +161,28 @@
       <!-- Barra de progreso -->
       <div class="mt-4">
         <div class="w-full bg-gray-200 rounded-full h-1.5">
-          <div class="bg-gray-900 h-1.5 rounded-full transition-all duration-300" [style.width.%]="progressPercentage">
-          </div>
+          <div
+            class="bg-gray-900 h-1.5 rounded-full transition-all duration-300"
+            [style.width.%]="progressPercentage"
+          ></div>
         </div>
         <div class="flex justify-between mt-2 text-xs text-gray-600">
-          <span [class.text-gray-900]="contractForm.valid" [class.font-medium]="contractForm.valid">Contrato</span>
-          <span [class.text-gray-900]="serviceOrders.length > 0" [class.font-medium]="serviceOrders.length > 0">
+          <span [class.text-gray-900]="contractForm.valid" [class.font-medium]="contractForm.valid"
+            >Contrato</span
+          >
+          <span
+            [class.text-gray-900]="serviceOrders.length > 0"
+            [class.font-medium]="serviceOrders.length > 0"
+          >
             {{ serviceOrders.length }} ODS
           </span>
           <span [class.text-gray-900]="hasAnyPlans" [class.font-medium]="hasAnyPlans">
             {{ totalPlansCount }} Planes
           </span>
-          <span [class.text-gray-900]="assignedCoordinators.length > 0"
-            [class.font-medium]="assignedCoordinators.length > 0">
+          <span
+            [class.text-gray-900]="assignedCoordinators.length > 0"
+            [class.font-medium]="assignedCoordinators.length > 0"
+          >
             {{ assignedCoordinators.length }} Coordinadores
           </span>
         </div>
@@ -118,30 +190,45 @@
     </div>
 
     <!-- ALERTAS -->
-    <div *ngIf="errorMessage" class="bg-red-50 border-l-4 border-red-600 p-4 mb-6 rounded-md shadow-sm">
+    <div
+      *ngIf="errorMessage"
+      class="bg-red-50 border-l-4 border-red-600 p-4 mb-6 rounded-md shadow-sm"
+    >
       <div class="flex items-center justify-between">
         <div class="flex items-center">
           <svg class="h-5 w-5 text-red-600 mr-3" fill="currentColor" viewBox="0 0 20 20">
-            <path fill-rule="evenodd"
+            <path
+              fill-rule="evenodd"
               d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-              clip-rule="evenodd" />
+              clip-rule="evenodd"
+            />
           </svg>
           <p class="text-sm text-red-800">{{ errorMessage }}</p>
         </div>
         <button (click)="errorMessage = ''" class="text-red-500 hover:text-red-700">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            ></path>
           </svg>
         </button>
       </div>
     </div>
 
-    <div *ngIf="successMessage" class="bg-emerald-50 border-l-4 border-emerald-600 p-4 mb-6 rounded-md shadow-sm">
+    <div
+      *ngIf="successMessage"
+      class="bg-emerald-50 border-l-4 border-emerald-600 p-4 mb-6 rounded-md shadow-sm"
+    >
       <div class="flex items-center">
         <svg class="h-5 w-5 text-emerald-600 mr-3" fill="currentColor" viewBox="0 0 20 20">
-          <path fill-rule="evenodd"
+          <path
+            fill-rule="evenodd"
             d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-            clip-rule="evenodd" />
+            clip-rule="evenodd"
+          />
         </svg>
         <p class="text-sm text-emerald-800">{{ successMessage }}</p>
       </div>
@@ -150,20 +237,40 @@
     <!-- NAVEGACIÓN -->
     <div class="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200 mb-6">
       <div class="flex border-b border-gray-200">
-        <button (click)="currentView = ViewMode.CONTRACT" [disabled]="loading"
-          [class]="'flex-1 px-6 py-3 text-sm font-medium transition-colors border-b-2 ' + 
-            (currentView === ViewMode.CONTRACT ? 'border-gray-900 text-gray-900 bg-gray-50' : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50')">
+        <button
+          (click)="currentView = ViewMode.CONTRACT"
+          [disabled]="loading"
+          [class]="
+            'flex-1 px-6 py-3 text-sm font-medium transition-colors border-b-2 ' +
+            (currentView === ViewMode.CONTRACT
+              ? 'border-gray-900 text-gray-900 bg-gray-50'
+              : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50')
+          "
+        >
           Contrato
         </button>
-        <button (click)="currentView = ViewMode.ODS_LIST; currentOdsIndex = -1"
+        <button
+          (click)="currentView = ViewMode.ODS_LIST; currentOdsIndex = -1"
           [disabled]="!contractForm.valid || loading"
-          [class]="'flex-1 px-6 py-3 text-sm font-medium transition-colors border-b-2 ' + 
-            (currentView === ViewMode.ODS_LIST ? 'border-gray-900 text-gray-900 bg-gray-50' : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed')">
+          [class]="
+            'flex-1 px-6 py-3 text-sm font-medium transition-colors border-b-2 ' +
+            (currentView === ViewMode.ODS_LIST
+              ? 'border-gray-900 text-gray-900 bg-gray-50'
+              : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed')
+          "
+        >
           Órdenes de Servicio ({{ serviceOrders.length }})
         </button>
-        <button (click)="currentView = ViewMode.ODS_LIST" [disabled]="serviceOrders.length === 0 || loading"
-          [class]="'flex-1 px-6 py-3 text-sm font-medium transition-colors border-b-2 ' + 
-            (currentView === ViewMode.PLAN_FORM ? 'border-gray-900 text-gray-900 bg-gray-50' : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed')">
+        <button
+          (click)="currentView = ViewMode.ODS_LIST"
+          [disabled]="serviceOrders.length === 0 || loading"
+          [class]="
+            'flex-1 px-6 py-3 text-sm font-medium transition-colors border-b-2 ' +
+            (currentView === ViewMode.PLAN_FORM
+              ? 'border-gray-900 text-gray-900 bg-gray-50'
+              : 'border-transparent text-gray-600 hover:text-gray-900 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed')
+          "
+        >
           Planes de Muestreo
         </button>
       </div>
@@ -172,34 +279,29 @@
     <!-- VISTA: CONTRATO -->
     <div *ngIf="currentView === ViewMode.CONTRACT" class="bg-white rounded-lg shadow-sm p-6 mb-6">
       <div class="border-b border-gray-200 pb-4 mb-6">
-
-
-
         <h2 class="text-lg font-semibold text-gray-900">Información del Contrato</h2>
         <p class="text-sm text-gray-600 mt-1">Complete los datos básicos del contrato</p>
       </div>
 
       <form [formGroup]="contractForm" class="space-y-6">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
           <!-- Select contrato -->
           <div class="md:col-span-2">
             <label class="block text-sm font-medium text-gray-700 mb-1.5">
               Seleccionar Contrato Existente
             </label>
-            <select [(ngModel)]="selectedContract" [ngModelOptions]="{standalone: true}" (ngModelChange)="onContractSelected($event)"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 text-sm bg-white">
+            <select
+              [(ngModel)]="selectedContract"
+              [ngModelOptions]="{ standalone: true }"
+              (ngModelChange)="onContractSelected($event)"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 text-sm bg-white"
+            >
               <option value="" disabled selected>Seleccionar contrato...</option>
               <option *ngFor="let contract of contracts" [value]="contract.id">
-                
-                @if(contract.contractName) {
-                  
+                @if (contract.contractName) {
                   {{ contract.contractName }}
-                  
-                  
-                } {{ contract.contractId }}
-                
-                
+                }
+                {{ contract.contractId }}
               </option>
             </select>
           </div>
@@ -209,11 +311,19 @@
             <label class="block text-sm font-medium text-gray-700 mb-1.5">
               Código del Contrato <span class="text-red-600">*</span>
             </label>
-            <input type="text" formControlName="contractCode"
+            <input
+              type="text"
+              formControlName="contractCode"
               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 text-sm"
-              placeholder="Ej: CON-2026-001" />
-            <p *ngIf="contractForm.get('contractCode')?.invalid && contractForm.get('contractCode')?.touched"
-              class="text-xs text-red-600 mt-1">
+              placeholder="Ej: CON-2026-001"
+            />
+            <p
+              *ngIf="
+                contractForm.get('contractCode')?.invalid &&
+                contractForm.get('contractCode')?.touched
+              "
+              class="text-xs text-red-600 mt-1"
+            >
               Este campo es requerido
             </p>
           </div>
@@ -223,9 +333,12 @@
             <label class="block text-sm font-medium text-gray-700 mb-1.5">
               Nombre del Contrato
             </label>
-            <input type="text" formControlName="contractName"
+            <input
+              type="text"
+              formControlName="contractName"
               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 text-sm"
-              placeholder="Ej: Monitoreo Ambiental 2026" />
+              placeholder="Ej: Monitoreo Ambiental 2026"
+            />
           </div>
 
           <!-- Cliente -->
@@ -233,13 +346,17 @@
             <label class="block text-sm font-medium text-gray-700 mb-1.5">
               Cliente <span class="text-red-600">*</span>
             </label>
-            <select formControlName="clientId"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 text-sm bg-white">
+            <select
+              formControlName="clientId"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 text-sm bg-white"
+            >
               <option value="">Seleccione un cliente</option>
               <option *ngFor="let client of clients" [value]="client.id">{{ client.name }}</option>
             </select>
-            <p *ngIf="contractForm.get('clientId')?.invalid && contractForm.get('clientId')?.touched"
-              class="text-xs text-red-600 mt-1">
+            <p
+              *ngIf="contractForm.get('clientId')?.invalid && contractForm.get('clientId')?.touched"
+              class="text-xs text-red-600 mt-1"
+            >
               Debe seleccionar un cliente
             </p>
           </div>
@@ -247,22 +364,33 @@
           <!-- Fecha inicio -->
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1.5">Fecha de Inicio</label>
-            <input type="date" formControlName="startDate"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 text-sm" />
+            <input
+              type="date"
+              formControlName="startDate"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 text-sm"
+            />
           </div>
 
           <!-- Fecha fin -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1.5">Fecha de Finalización</label>
-            <input type="date" formControlName="endDate"
-              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 text-sm" />
+            <label class="block text-sm font-medium text-gray-700 mb-1.5"
+              >Fecha de Finalización</label
+            >
+            <input
+              type="date"
+              formControlName="endDate"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 text-sm"
+            />
           </div>
-
         </div>
 
         <div class="flex justify-end pt-4">
-          <button (click)="currentView = ViewMode.ODS_LIST" [disabled]="!contractForm.valid" type="button"
-            class="px-6 py-2 bg-gray-900 text-white rounded-md font-medium hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm">
+          <button
+            (click)="currentView = ViewMode.ODS_LIST"
+            [disabled]="!contractForm.valid"
+            type="button"
+            class="px-6 py-2 bg-gray-900 text-white rounded-md font-medium hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
+          >
             Continuar
           </button>
         </div>
@@ -271,16 +399,20 @@
 
     <!-- VISTA: LISTA DE ODS -->
     <div *ngIf="currentView === ViewMode.ODS_LIST">
-
       <!-- ODS existentes -->
-      <div *ngIf="serviceOrders.length > 0" class="bg-white rounded-lg shadow-sm p-6 mb-6 border border-gray-200">
+      <div
+        *ngIf="serviceOrders.length > 0"
+        class="bg-white rounded-lg shadow-sm p-6 mb-6 border border-gray-200"
+      >
         <h3 class="text-base font-semibold text-gray-900 mb-4">
           Órdenes de Servicio ({{ serviceOrders.length }})
         </h3>
 
         <div class="space-y-3">
-          <div *ngFor="let ods of serviceOrders; let i = index"
-            class="bg-gray-50 rounded-md p-4 border border-gray-200 hover:border-gray-300 transition-colors">
+          <div
+            *ngFor="let ods of serviceOrders; let i = index"
+            class="bg-gray-50 rounded-md p-4 border border-gray-200 hover:border-gray-300 transition-colors"
+          >
             <div class="flex justify-between items-start">
               <div class="flex-1">
                 <div class="flex items-center gap-2 mb-2">
@@ -291,10 +423,18 @@
                 </div>
                 <div class="flex gap-3 items-center text-xs text-gray-600">
                   <span class="flex items-center">
-                    <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
-                      </path>
+                    <svg
+                      class="w-3.5 h-3.5 mr-1"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                      ></path>
                     </svg>
                     {{ ods.samplingPlans.length }} planes
                   </span>
@@ -302,16 +442,27 @@
                 </div>
               </div>
 
-              <button type="button" (click)="removeServiceOrder(i)"
-                class="text-gray-400 hover:text-red-600 p-1 rounded transition-colors">
+              <button
+                type="button"
+                (click)="removeServiceOrder(i)"
+                class="text-gray-400 hover:text-red-600 p-1 rounded transition-colors"
+              >
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  ></path>
                 </svg>
               </button>
             </div>
 
-            <button (click)="selectOdsForPlans(i)" type="button"
-              class="w-full mt-3 px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-md text-sm font-medium hover:bg-gray-50 transition-colors">
+            <button
+              (click)="selectOdsForPlans(i)"
+              type="button"
+              class="w-full mt-3 px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-md text-sm font-medium hover:bg-gray-50 transition-colors"
+            >
               Gestionar Planes de Muestreo
             </button>
           </div>
@@ -320,48 +471,75 @@
 
       <!-- Nueva ODS -->
       <div class="bg-white rounded-lg shadow-sm p-6 mb-6 border border-gray-200">
-        <h3 class="text-base font-semibold text-gray-900 mb-4">
-          Agregar Orden de Servicio
-        </h3>
+        <h3 class="text-base font-semibold text-gray-900 mb-4">Agregar Orden de Servicio</h3>
 
         <!-- Selector de modo -->
         <div class="flex gap-2 mb-6">
-          <button type="button" (click)="setOdsCreationMode('new')" [class]="'flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors ' + 
-        (odsCreationMode === 'new' ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200')">
+          <button
+            type="button"
+            (click)="setOdsCreationMode('new')"
+            [class]="
+              'flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors ' +
+              (odsCreationMode === 'new'
+                ? 'bg-gray-900 text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200')
+            "
+          >
             <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 4v16m8-8H4"
+              ></path>
             </svg>
             Nueva ODS
           </button>
 
-          <button type="button" (click)="setOdsCreationMode('reuse')" [class]="'flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors ' + 
-        (odsCreationMode === 'reuse' ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200')">
+          <button
+            type="button"
+            (click)="setOdsCreationMode('reuse')"
+            [class]="
+              'flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors ' +
+              (odsCreationMode === 'reuse'
+                ? 'bg-gray-900 text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200')
+            "
+          >
             <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
-              </path>
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+              ></path>
             </svg>
             Reutilizar Configuración
           </button>
         </div>
 
         <form [formGroup]="odsForm" class="space-y-4">
-
           <!-- Selector de ODS reutilizable (solo cuando mode = 'reuse') -->
-          <div *ngIf="odsCreationMode === 'reuse'" class="bg-blue-50 border border-blue-200 rounded-md p-4 mb-4">
+          <div
+            *ngIf="odsCreationMode === 'reuse'"
+            class="bg-blue-50 border border-blue-200 rounded-md p-4 mb-4"
+          >
             <label class="block text-sm font-medium text-gray-700 mb-2">
               Seleccionar ODS a Reutilizar <span class="text-red-600">*</span>
             </label>
-            <select [(ngModel)]="selectedReusableOdsCode" [ngModelOptions]="{standalone: true}"
-              class="w-full px-3 py-2 border border-blue-300 rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm">
+            <select
+              [(ngModel)]="selectedReusableOdsCode"
+              [ngModelOptions]="{ standalone: true }"
+              class="w-full px-3 py-2 border border-blue-300 rounded-md focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm"
+            >
               <option [value]="null">Seleccione una ODS existente</option>
               <option *ngFor="let ods of reusableOdsList" [value]="ods.odsCode">
-                {{ ods.odsCode }} - {{ods.odsName}} - ({{ ods.quantitySamplingPlans }} planes)
+                {{ ods.odsCode }} - {{ ods.odsName }} - ({{ ods.quantitySamplingPlans }} planes)
               </option>
             </select>
             <p class="text-xs text-blue-700 mt-2">
-              Se copiarán todos los planes de muestreo con sus sitios y presupuestos. Deberá asignar recursos
-              posteriormente.
+              Se copiarán todos los planes de muestreo con sus sitios y presupuestos. Deberá asignar
+              recursos posteriormente.
             </p>
           </div>
 
@@ -370,18 +548,27 @@
               <label class="block text-sm font-medium text-gray-700 mb-1.5">
                 Código ODS <span class="text-red-600">*</span>
               </label>
-              <input type="text" formControlName="odsCode"
+              <input
+                type="text"
+                formControlName="odsCode"
                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 text-sm"
-                placeholder="Ej: ODS-118631" />
+                placeholder="Ej: ODS-118631"
+              />
             </div>
 
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1.5">Nombre ODS</label>
-              <input type="text" formControlName="odsName"
+              <input
+                type="text"
+                formControlName="odsName"
                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 text-sm"
-                [placeholder]="odsCreationMode === 'reuse' && selectedReusableOdsCode ? 'Se usará el nombre de la ODS seleccionada' : 'Ej: Tocancipá'" />
+                [placeholder]="
+                  odsCreationMode === 'reuse' && selectedReusableOdsCode
+                    ? 'Se usará el nombre de la ODS seleccionada'
+                    : 'Ej: Tocancipá'
+                "
+              />
             </div>
-
 
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1.5">
@@ -389,25 +576,39 @@
               </label>
               <div class="relative">
                 <span class="absolute left-3 top-2 text-gray-500 text-sm">$</span>
-                <input type="number" formControlName="odsValue" min="0"
+                <input
+                  type="number"
+                  formControlName="odsValue"
+                  min="0"
                   class="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 text-sm"
-                  placeholder="0" />
+                  placeholder="0"
+                />
               </div>
               <p class="text-xs text-gray-500 mt-1">Presupuesto total disponible para esta ODS</p>
             </div>
 
             <div class="md:col-span-2">
               <label class="inline-flex items-center gap-2 cursor-pointer select-none">
-                <input type="checkbox" [(ngModel)]="odsSameDatesAsContract" [ngModelOptions]="{standalone: true}"
+                <input
+                  type="checkbox"
+                  [(ngModel)]="odsSameDatesAsContract"
+                  [ngModelOptions]="{ standalone: true }"
                   (change)="onOdsSameDatesChange()"
                   [disabled]="!contractForm.value.startDate && !contractForm.value.endDate"
-                  class="w-4 h-4 rounded text-gray-900 border-gray-300" />
+                  class="w-4 h-4 rounded text-gray-900 border-gray-300"
+                />
                 <span class="text-sm text-gray-700 font-medium">Igual que contrato</span>
-                <span *ngIf="contractForm.value.startDate || contractForm.value.endDate" class="text-xs text-gray-500">
-                  ({{ contractForm.value.startDate || '—' }} → {{ contractForm.value.endDate || '—' }})
+                <span
+                  *ngIf="contractForm.value.startDate || contractForm.value.endDate"
+                  class="text-xs text-gray-500"
+                >
+                  ({{ contractForm.value.startDate || '—' }} →
+                  {{ contractForm.value.endDate || '—' }})
                 </span>
-                <span *ngIf="!contractForm.value.startDate && !contractForm.value.endDate"
-                  class="text-xs text-amber-600">
+                <span
+                  *ngIf="!contractForm.value.startDate && !contractForm.value.endDate"
+                  class="text-xs text-amber-600"
+                >
                   (El contrato no tiene fechas definidas)
                 </span>
               </label>
@@ -415,30 +616,53 @@
 
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1.5">Fecha Inicio</label>
-              <input type="date" formControlName="startDate" [attr.disabled]="odsSameDatesAsContract ? true : null"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 text-sm disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed" />
+              <input
+                type="date"
+                formControlName="startDate"
+                [attr.disabled]="odsSameDatesAsContract ? true : null"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 text-sm disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
+              />
             </div>
 
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1.5">Fecha Fin</label>
-              <input type="date" formControlName="endDate" [attr.disabled]="odsSameDatesAsContract ? true : null"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 text-sm disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed" />
+              <input
+                type="date"
+                formControlName="endDate"
+                [attr.disabled]="odsSameDatesAsContract ? true : null"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 text-sm disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
+              />
             </div>
-
-
           </div>
 
           <div class="flex justify-end">
-            <button type="button"
-              (click)="odsCreationMode === 'new' ? addServiceOrder() : addServiceOrderFromReusable()"
-              [disabled]="!odsForm.valid || (odsCreationMode === 'reuse' && !selectedReusableOdsCode) || loadingReusableOds"
-              class="px-6 py-2 bg-gray-900 text-white rounded-md font-medium hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm">
+            <button
+              type="button"
+              (click)="
+                odsCreationMode === 'new' ? addServiceOrder() : addServiceOrderFromReusable()
+              "
+              [disabled]="
+                !odsForm.valid ||
+                (odsCreationMode === 'reuse' && !selectedReusableOdsCode) ||
+                loadingReusableOds
+              "
+              class="px-6 py-2 bg-gray-900 text-white rounded-md font-medium hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
+            >
               <span *ngIf="loadingReusableOds" class="flex items-center">
                 <svg class="animate-spin w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                  </path>
+                  <circle
+                    class="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    stroke-width="4"
+                  ></circle>
+                  <path
+                    class="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
                 </svg>
                 Cargando...
               </span>
@@ -448,19 +672,21 @@
         </form>
       </div>
 
-
-
       <div class="bg-white rounded-lg shadow-sm p-6 mb-6 border border-gray-200">
         <h3 class="text-base font-semibold text-gray-900 mb-4">Centro de Costos del Proyecto</h3>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1.5">
-            Código CH
-          </label>
-          <input type="text" [(ngModel)]="projectChCode" [ngModelOptions]="{standalone: true}"
+          <label class="block text-sm font-medium text-gray-700 mb-1.5"> Código CH </label>
+          <input
+            type="text"
+            [(ngModel)]="projectChCode"
+            [ngModelOptions]="{ standalone: true }"
             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 text-sm"
-            placeholder="Ej: CH 26 050" />
-          <p class="text-xs text-gray-500 mt-1">Centro de costos que agrupa todo el presupuesto del proyecto</p>
+            placeholder="Ej: CH 26 050"
+          />
+          <p class="text-xs text-gray-500 mt-1">
+            Centro de costos que agrupa todo el presupuesto del proyecto
+          </p>
         </div>
       </div>
 
@@ -469,11 +695,13 @@
         <div class="flex items-center justify-between">
           <div>
             <h3 class="text-base font-semibold text-gray-900 mb-1">Finalizar Proyecto</h3>
-
           </div>
 
-          <button (click)="finalizeProject()" [disabled]="!canFinalize() || loading"
-            class="px-6 py-2.5 bg-emerald-600 text-white rounded-md font-medium hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+          <button
+            (click)="finalizeProject()"
+            [disabled]="!canFinalize() || loading"
+            class="px-6 py-2.5 bg-emerald-600 text-white rounded-md font-medium hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
             {{ loading ? 'Creando...' : 'Crear Proyecto' }}
           </button>
         </div>
@@ -482,7 +710,6 @@
 
     <!-- PLAN DE MUESTREO -->
     <div *ngIf="currentView === ViewMode.PLAN_FORM && currentOdsIndex !== -1">
-
       <!-- header volver -->
       <div class="bg-white rounded-lg shadow-sm p-6 mb-6 border border-gray-200">
         <div class="flex justify-between items-center">
@@ -492,8 +719,11 @@
             </h2>
             <p class="text-sm text-gray-600 mt-1">Configure sitios, recursos y presupuesto</p>
           </div>
-          <button (click)="backToOdsList()" type="button"
-            class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-md font-medium hover:bg-gray-50 transition-colors text-sm">
+          <button
+            (click)="backToOdsList()"
+            type="button"
+            class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-md font-medium hover:bg-gray-50 transition-colors text-sm"
+          >
             Volver
           </button>
         </div>
@@ -505,65 +735,100 @@
         <div class="grid grid-cols-3 gap-4 mb-3 text-sm">
           <div>
             <span class="text-gray-600">Valor Total:</span>
-            <p class="font-semibold text-gray-900">${{ serviceOrders[currentOdsIndex].odsValue?.toLocaleString() || 0 }}
+            <p class="font-semibold text-gray-900">
+              ${{ serviceOrders[currentOdsIndex].odsValue?.toLocaleString() || 0 }}
             </p>
           </div>
           <div>
             <span class="text-gray-600">Consumido:</span>
-            <p class="font-semibold text-blue-600">${{ getOdsBudgetSummary(currentOdsIndex).used.toLocaleString() }}</p>
+            <p class="font-semibold text-blue-600">
+              ${{ getOdsBudgetSummary(currentOdsIndex).used.toLocaleString() }}
+            </p>
           </div>
           <div>
             <span class="text-gray-600">Disponible:</span>
             <p
-              [class]="'font-semibold ' + (getOdsBudgetSummary(currentOdsIndex).available >= 0 ? 'text-emerald-600' : 'text-red-600')">
+              [class]="
+                'font-semibold ' +
+                (getOdsBudgetSummary(currentOdsIndex).available >= 0
+                  ? 'text-emerald-600'
+                  : 'text-red-600')
+              "
+            >
               ${{ getOdsBudgetSummary(currentOdsIndex).available.toLocaleString() }}
             </p>
           </div>
         </div>
         <div class="w-full bg-gray-200 rounded-full h-3">
-          <div [class]="'h-3 rounded-full transition-all duration-300 ' + 
-        (getOdsBudgetSummary(currentOdsIndex).percentage > 100 ? 'bg-red-600' : 
-         getOdsBudgetSummary(currentOdsIndex).percentage > 90 ? 'bg-amber-500' : 'bg-blue-600')"
-            [style.width.%]="getOdsBudgetSummary(currentOdsIndex).percentage > 100 ? 100 : getOdsBudgetSummary(currentOdsIndex).percentage">
-          </div>
+          <div
+            [class]="
+              'h-3 rounded-full transition-all duration-300 ' +
+              (getOdsBudgetSummary(currentOdsIndex).percentage > 100
+                ? 'bg-red-600'
+                : getOdsBudgetSummary(currentOdsIndex).percentage > 90
+                  ? 'bg-amber-500'
+                  : 'bg-blue-600')
+            "
+            [style.width.%]="
+              getOdsBudgetSummary(currentOdsIndex).percentage > 100
+                ? 100
+                : getOdsBudgetSummary(currentOdsIndex).percentage
+            "
+          ></div>
         </div>
         <p class="text-xs text-gray-600 mt-1 text-right">
           {{ getOdsBudgetSummary(currentOdsIndex).percentage.toFixed(1) }}% utilizado
         </p>
         <div *ngIf="editingPlanId" class="mt-3 bg-gray-100 border border-gray-300 rounded p-2">
-          <p class="text-xs text-gray-700"><strong>Modo edición:</strong> Los cambios no afectan el cálculo hasta
-            guardar.</p>
+          <p class="text-xs text-gray-700">
+            <strong>Modo edición:</strong> Los cambios no afectan el cálculo hasta guardar.
+          </p>
         </div>
-        <div *ngIf="!editingPlanId && getCurrentBudgetBilledTotal() > 0"
-          class="mt-3 bg-blue-100 border border-blue-300 rounded p-2">
-          <p class="text-xs text-blue-800">Plan actual: <strong>${{ getCurrentBudgetBilledTotal().toLocaleString()
-              }}</strong> será agregado</p>
+        <div
+          *ngIf="!editingPlanId && getCurrentBudgetBilledTotal() > 0"
+          class="mt-3 bg-blue-100 border border-blue-300 rounded p-2"
+        >
+          <p class="text-xs text-blue-800">
+            Plan actual: <strong>${{ getCurrentBudgetBilledTotal().toLocaleString() }}</strong> será
+            agregado
+          </p>
         </div>
-        <div *ngIf="getOdsBudgetSummary(currentOdsIndex).percentage > 100"
-          class="mt-3 bg-red-50 border border-red-200 rounded p-2">
-          <p class="text-xs text-red-800">❌ Presupuesto excedido por ${{
-            Math.abs(getOdsBudgetSummary(currentOdsIndex).available).toLocaleString() }}</p>
+        <div
+          *ngIf="getOdsBudgetSummary(currentOdsIndex).percentage > 100"
+          class="mt-3 bg-red-50 border border-red-200 rounded p-2"
+        >
+          <p class="text-xs text-red-800">
+            ❌ Presupuesto excedido por ${{
+              Math.abs(getOdsBudgetSummary(currentOdsIndex).available).toLocaleString()
+            }}
+          </p>
         </div>
       </div>
 
       <!-- ✅ PLANES EXISTENTES — plan e idx viven aquí -->
-      <div class="bg-white rounded-lg shadow-sm p-6 mb-6 border border-gray-200"
-        *ngIf="serviceOrders[currentOdsIndex].samplingPlans.length > 0">
+      <div
+        class="bg-white rounded-lg shadow-sm p-6 mb-6 border border-gray-200"
+        *ngIf="serviceOrders[currentOdsIndex].samplingPlans.length > 0"
+      >
         <h3 class="text-base font-semibold text-gray-900 mb-4">
           Planes Configurados ({{ serviceOrders[currentOdsIndex].samplingPlans.length }})
         </h3>
         <div class="space-y-3">
-          <div *ngFor="let plan of serviceOrders[currentOdsIndex].samplingPlans; let idx = index"
-            class="bg-gray-50 rounded-md p-4 border border-gray-200">
-
+          <div
+            *ngFor="let plan of serviceOrders[currentOdsIndex].samplingPlans; let idx = index"
+            class="bg-gray-50 rounded-md p-4 border border-gray-200"
+          >
             <div class="flex justify-between items-start mb-3">
               <div class="flex-1">
                 <div class="flex items-center gap-2 mb-2">
-                  <span class="px-2.5 py-1 bg-gray-900 text-white text-xs font-medium rounded">{{ plan.planCode
-                    }}</span>
+                  <span class="px-2.5 py-1 bg-gray-900 text-white text-xs font-medium rounded">{{
+                    plan.planCode
+                  }}</span>
                   <span class="text-sm font-medium text-gray-900">{{ plan.planName }}</span>
-                  <span *ngIf="!plan.coordinatorId"
-                    class="px-2 py-0.5 bg-amber-100 text-amber-700 text-xs rounded-full border border-amber-200">
+                  <span
+                    *ngIf="!plan.coordinatorId"
+                    class="px-2 py-0.5 bg-amber-100 text-amber-700 text-xs rounded-full border border-amber-200"
+                  >
                     ⚡ Requiere completar
                   </span>
                 </div>
@@ -573,171 +838,275 @@
                   <span *ngIf="plan.coordinatorName">Coord: {{ plan.coordinatorName }}</span>
                 </div>
               </div>
-              <button type="button" (click)="removePlanFromOds(currentOdsIndex, idx)"
-                class="text-gray-400 hover:text-red-600 p-1 rounded transition-colors">
+              <button
+                type="button"
+                (click)="removePlanFromOds(currentOdsIndex, idx)"
+                class="text-gray-400 hover:text-red-600 p-1 rounded transition-colors"
+              >
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  ></path>
                 </svg>
               </button>
             </div>
 
-            <button (click)="loadReusablePlanIntoForm(plan)" type="button"
-              class="w-full mb-2 px-4 py-2 bg-amber-50 border border-amber-300 text-amber-800 rounded-md text-sm font-medium hover:bg-amber-100 transition-colors">
+            <button
+              (click)="loadReusablePlanIntoForm(plan)"
+              type="button"
+              class="w-full mb-2 px-4 py-2 bg-amber-50 border border-amber-300 text-amber-800 rounded-md text-sm font-medium hover:bg-amber-100 transition-colors"
+            >
               ✏️ Editar / Completar este plan
             </button>
 
-            <button type="button" (click)="togglePlanDetails(idx)"
-              class="w-full text-left text-xs text-gray-600 hover:text-gray-900 flex items-center justify-between py-2 border-t border-gray-200">
+            <button
+              type="button"
+              (click)="togglePlanDetails(idx)"
+              class="w-full text-left text-xs text-gray-600 hover:text-gray-900 flex items-center justify-between py-2 border-t border-gray-200"
+            >
               <span>{{ expandedPlanIndex === idx ? 'Ocultar' : 'Ver' }} detalles</span>
-              <svg class="w-4 h-4 transition-transform" [class.rotate-180]="expandedPlanIndex === idx" fill="none"
-                stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+              <svg
+                class="w-4 h-4 transition-transform"
+                [class.rotate-180]="expandedPlanIndex === idx"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 9l-7 7-7-7"
+                ></path>
               </svg>
             </button>
 
-            <div *ngIf="expandedPlanIndex === idx" class="mt-3 max-h-64 overflow-y-auto border-t border-gray-200 pt-3">
+            <div
+              *ngIf="expandedPlanIndex === idx"
+              class="mt-3 max-h-64 overflow-y-auto border-t border-gray-200 pt-3"
+            >
               <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-                <div *ngFor="let site of plan.sites" class="bg-white p-2 rounded border border-gray-200 text-xs">
+                <div
+                  *ngFor="let site of plan.sites"
+                  class="bg-white p-2 rounded border border-gray-200 text-xs"
+                >
                   <p class="font-medium text-gray-900 mb-1">{{ site.name }}</p>
                   <p class="text-gray-600">{{ site.matrixName }}</p>
-                  <p *ngIf="site.executionDate" class="text-gray-600">📅 {{ site.executionDate }}</p>
-                  <p *ngIf="site.isSubcontracted" class="text-amber-600">🔗 {{ site.subcontractorName }}</p>
+                  <p *ngIf="site.executionDate" class="text-gray-600">
+                    📅 {{ site.executionDate }}
+                  </p>
+                  <p *ngIf="site.isSubcontracted" class="text-amber-600">
+                    🔗 {{ site.subcontractorName }}
+                  </p>
                 </div>
               </div>
             </div>
-
-          </div><!-- ✅ cierre *ngFor plan -->
+          </div>
+          <!-- ✅ cierre *ngFor plan -->
         </div>
-      </div><!-- ✅ cierre planes existentes -->
+      </div>
+      <!-- ✅ cierre planes existentes -->
 
       <!-- FORMULARIO NUEVO PLAN -->
       <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
         <h3 class="text-base font-semibold text-gray-900 mb-6">Nuevo Plan de Muestreo</h3>
 
         <form [formGroup]="planForm" class="space-y-8">
-
           <!-- Información básica -->
           <div>
-            <h4 class="text-sm font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">Información Básica</h4>
+            <h4 class="text-sm font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">
+              Información Básica
+            </h4>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1.5">Código del Plan <span
-                    class="text-red-600">*</span></label>
-                <input type="text" formControlName="planCode"
+                <label class="block text-sm font-medium text-gray-700 mb-1.5"
+                  >Código del Plan <span class="text-red-600">*</span></label
+                >
+                <input
+                  type="text"
+                  formControlName="planCode"
                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 text-sm"
-                  placeholder="Ej: PM2345" />
+                  placeholder="Ej: PM2345"
+                />
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1.5">Nombre del Plan <span
-                    class="text-red-600">*</span></label>
-                <input type="text" formControlName="planName"
+                <label class="block text-sm font-medium text-gray-700 mb-1.5"
+                  >Nombre del Plan <span class="text-red-600">*</span></label
+                >
+                <input
+                  type="text"
+                  formControlName="planName"
                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 text-sm"
-                  placeholder="Ej: Tocancipá" />
+                  placeholder="Ej: Tocancipá"
+                />
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1.5">Cantidad de Sitios <span
-                    class="text-red-600">*</span></label>
-                <input type="number" formControlName="totalSites" min="1"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 text-sm" />
+                <label class="block text-sm font-medium text-gray-700 mb-1.5"
+                  >Cantidad de Sitios <span class="text-red-600">*</span></label
+                >
+                <input
+                  type="number"
+                  formControlName="totalSites"
+                  min="1"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 text-sm"
+                />
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1.5">Matrices <span
-                    class="text-red-600">*</span></label>
-                <div class="max-h-32 overflow-y-auto border border-gray-300 rounded-md p-2 bg-white">
+                <label class="block text-sm font-medium text-gray-700 mb-1.5"
+                  >Matrices <span class="text-red-600">*</span></label
+                >
+                <div
+                  class="max-h-32 overflow-y-auto border border-gray-300 rounded-md p-2 bg-white"
+                >
                   <div *ngFor="let matrix of matrices" class="flex items-center py-1">
-                    <input type="checkbox" [checked]="isMatrixSelected(matrix.id)"
+                    <input
+                      type="checkbox"
+                      [checked]="isMatrixSelected(matrix.id)"
                       (change)="toggleMatrixSelection(matrix.id)"
-                      class="w-4 h-4 rounded text-gray-900 border-gray-300" />
+                      class="w-4 h-4 rounded text-gray-900 border-gray-300"
+                    />
                     <span class="ml-2 text-sm text-gray-700">{{ matrix.matrixName }}</span>
                   </div>
                 </div>
-                <p class="text-xs text-gray-500 mt-1">{{ planForm.value.selectedMatrixIds?.length || 0 }} seleccionadas
+                <p class="text-xs text-gray-500 mt-1">
+                  {{ planForm.value.selectedMatrixIds?.length || 0 }} seleccionadas
                 </p>
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1.5">Coordinador <span
-                    class="text-red-600">*</span></label>
-                <select formControlName="coordinatorId"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 text-sm">
+                <label class="block text-sm font-medium text-gray-700 mb-1.5"
+                  >Coordinador <span class="text-red-600">*</span></label
+                >
+                <select
+                  formControlName="coordinatorId"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 text-sm"
+                >
                   <option value="">Seleccione</option>
-                  <option *ngFor="let coord of coordinators" [value]="coord.id">{{ coord.name }}</option>
+                  <option *ngFor="let coord of coordinators" [value]="coord.id">
+                    {{ coord.name }}
+                  </option>
                 </select>
               </div>
               <div class="flex items-center gap-4 pt-6">
                 <label class="flex items-center cursor-pointer">
-                  <input type="checkbox" formControlName="hasReport"
-                    class="w-4 h-4 rounded text-gray-900 border-gray-300" />
+                  <input
+                    type="checkbox"
+                    formControlName="hasReport"
+                    class="w-4 h-4 rounded text-gray-900 border-gray-300"
+                  />
                   <span class="ml-2 text-sm text-gray-700">Informe</span>
                 </label>
                 <label class="flex items-center cursor-pointer">
-                  <input type="checkbox" formControlName="hasGDB"
-                    class="w-4 h-4 rounded text-gray-900 border-gray-300" />
+                  <input
+                    type="checkbox"
+                    formControlName="hasGDB"
+                    class="w-4 h-4 rounded text-gray-900 border-gray-300"
+                  />
                   <span class="ml-2 text-sm text-gray-700">GDB</span>
                 </label>
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1.5">Fecha Inicio</label>
-                <input type="date" formControlName="startDate"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 text-sm" />
+                <input
+                  type="date"
+                  formControlName="startDate"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 text-sm"
+                />
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1.5">Fecha Fin</label>
-                <input type="date" formControlName="endDate"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 text-sm" />
+                <input
+                  type="date"
+                  formControlName="endDate"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 text-sm"
+                />
               </div>
             </div>
             <div class="flex justify-end mt-4">
-              <button type="button" (click)="generateMultipleSites()"
-                class="px-6 py-2 bg-gray-900 text-white rounded-md text-sm font-medium hover:bg-gray-800 transition-colors">
+              <button
+                type="button"
+                (click)="generateMultipleSites()"
+                class="px-6 py-2 bg-gray-900 text-white rounded-md text-sm font-medium hover:bg-gray-800 transition-colors"
+              >
                 Generar {{ planForm.value.totalSites || 0 }} Sitios
               </button>
             </div>
 
             <div class="flex justify-end mt-3">
-
-            <button type="button" (click)="clearSites()"
-            class="px-5 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors">
-              Limpiar sitios
-            </button>
-          </div>
+              <button
+                type="button"
+                (click)="clearSites()"
+                class="px-5 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors"
+              >
+                Limpiar sitios
+              </button>
+            </div>
           </div>
 
           <!-- Sitios -->
           <div>
             <h4 class="text-sm font-semibold text-gray-900 pb-2 border-b border-gray-200 mb-4">
               Sitios de Monitoreo <span class="text-red-600">*</span>
-              <span class="text-xs font-normal text-gray-600 ml-2">({{ sitesArray.length }} sitios)</span>
+              <span class="text-xs font-normal text-gray-600 ml-2"
+                >({{ sitesArray.length }} sitios)</span
+              >
             </h4>
             <div class="max-h-96 overflow-y-auto border border-gray-200 rounded-md p-2 bg-gray-50">
               <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-                <div *ngFor="let siteControl of sitesArray.controls; let idx = index" [formGroup]="$any(siteControl)"
-                  class="bg-white p-2 rounded border border-gray-200 hover:border-gray-300 transition-colors">
+                <div
+                  *ngFor="let siteControl of sitesArray.controls; let idx = index"
+                  [formGroup]="$any(siteControl)"
+                  class="bg-white p-2 rounded border border-gray-200 hover:border-gray-300 transition-colors"
+                >
                   <div class="flex justify-between items-start mb-2">
-                    <span class="text-xs font-medium text-gray-900">{{ siteControl.value.name || 'Sitio ' + (idx + 1)
-                      }}</span>
-                    <button type="button" (click)="removeSite(idx)" *ngIf="sitesArray.length > 1"
-                      class="text-gray-400 hover:text-red-600 transition-colors">
+                    <span class="text-xs font-medium text-gray-900">{{
+                      siteControl.value.name || 'Sitio ' + (idx + 1)
+                    }}</span>
+                    <button
+                      type="button"
+                      (click)="removeSite(idx)"
+                      *ngIf="sitesArray.length > 1"
+                      class="text-gray-400 hover:text-red-600 transition-colors"
+                    >
                       <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
-                        </path>
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M6 18L18 6M6 6l12 12"
+                        ></path>
                       </svg>
                     </button>
                   </div>
                   <div class="space-y-2">
                     <div>
                       <label class="block text-xs text-gray-600 mb-1">Fecha Ejecución</label>
-                      <input type="date" formControlName="executionDate"
-                        class="w-full px-2 py-1 border border-gray-300 rounded text-xs focus:ring-1 focus:ring-gray-900 focus:border-gray-900" />
+                      <input
+                        type="date"
+                        formControlName="executionDate"
+                        class="w-full px-2 py-1 border border-gray-300 rounded text-xs focus:ring-1 focus:ring-gray-900 focus:border-gray-900"
+                      />
                     </div>
                     <label class="flex items-center cursor-pointer">
-                      <input type="checkbox" formControlName="isSubcontracted"
-                        class="w-3 h-3 rounded text-gray-900 border-gray-300" />
+                      <input
+                        type="checkbox"
+                        formControlName="isSubcontracted"
+                        class="w-3 h-3 rounded text-gray-900 border-gray-300"
+                      />
                       <span class="ml-1.5 text-xs text-gray-700">Subcontratado</span>
                     </label>
-                    <div *ngIf="siteControl.get('isSubcontracted')?.value"
-                      class="p-2 bg-amber-50 border border-amber-200 rounded">
-                      <input type="text" formControlName="subcontractorName"
-                        class="w-full px-2 py-1 border border-amber-300 rounded text-xs" placeholder="Proveedor" />
+                    <div
+                      *ngIf="siteControl.get('isSubcontracted')?.value"
+                      class="p-2 bg-amber-50 border border-amber-200 rounded"
+                    >
+                      <input
+                        type="text"
+                        formControlName="subcontractorName"
+                        class="w-full px-2 py-1 border border-amber-300 rounded text-xs"
+                        placeholder="Proveedor"
+                      />
                     </div>
                   </div>
                 </div>
@@ -759,20 +1128,32 @@
                 </span>
               </p>
             </div>
-            <div *ngIf="false"class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div *ngIf="false" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1.5">Fecha Inicio Recursos</label>
-                <input type="date" formControlName="resourceStartDate"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 text-sm" />
+                <label class="block text-sm font-medium text-gray-700 mb-1.5"
+                  >Fecha Inicio Recursos</label
+                >
+                <input
+                  type="date"
+                  formControlName="resourceStartDate"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 text-sm"
+                />
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1.5">Fecha Fin Recursos</label>
-                <input type="date" formControlName="resourceEndDate"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 text-sm" />
+                <label class="block text-sm font-medium text-gray-700 mb-1.5"
+                  >Fecha Fin Recursos</label
+                >
+                <input
+                  type="date"
+                  formControlName="resourceEndDate"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-900 focus:border-gray-900 text-sm"
+                />
               </div>
             </div>
-            <div *ngIf="editingPlanId && hasQuantityRequirements()"
-              class="bg-amber-50 border border-amber-200 rounded-md p-4 mb-4">
+            <div
+              *ngIf="editingPlanId && hasQuantityRequirements()"
+              class="bg-amber-50 border border-amber-200 rounded-md p-4 mb-4"
+            >
               <h5 class="text-sm font-semibold text-amber-900 mb-3">
                 Requerimientos definidos (modo cantidad)
               </h5>
@@ -780,8 +1161,10 @@
               <div *ngIf="planRequiredResources?.employeeQuantities?.length" class="mb-3">
                 <p class="text-xs font-medium text-gray-700 mb-1">Personal necesario:</p>
                 <div class="flex flex-wrap gap-2">
-                  <span *ngFor="let eq of planRequiredResources?.employeeQuantities"
-                    class="px-2 py-1 bg-white border border-amber-300 rounded text-xs text-gray-800">
+                  <span
+                    *ngFor="let eq of planRequiredResources?.employeeQuantities"
+                    class="px-2 py-1 bg-white border border-amber-300 rounded text-xs text-gray-800"
+                  >
                     {{ eq.quantity }}x {{ eq.categoryName }}
                   </span>
                 </div>
@@ -790,16 +1173,25 @@
               <div *ngIf="planRequiredResources?.equipmentQuantities?.length" class="mb-3">
                 <p class="text-xs font-medium text-gray-700 mb-1">Equipos necesarios:</p>
                 <div class="flex flex-wrap gap-2">
-                  <span *ngFor="let eq of planRequiredResources?.equipmentQuantities"
-                    class="px-2 py-1 bg-white border border-amber-300 rounded text-xs text-gray-800">
+                  <span
+                    *ngFor="let eq of planRequiredResources?.equipmentQuantities"
+                    class="px-2 py-1 bg-white border border-amber-300 rounded text-xs text-gray-800"
+                  >
                     {{ eq.quantity }}x {{ eq.categoryName }}
                   </span>
                 </div>
               </div>
 
-              <div *ngIf="planRequiredResources?.vehicleQuantity && planRequiredResources!.vehicleQuantity > 0">
+              <div
+                *ngIf="
+                  planRequiredResources?.vehicleQuantity &&
+                  planRequiredResources!.vehicleQuantity > 0
+                "
+              >
                 <p class="text-xs font-medium text-gray-700 mb-1">Vehículos necesarios:</p>
-                <span class="px-2 py-1 bg-white border border-amber-300 rounded text-xs text-gray-800">
+                <span
+                  class="px-2 py-1 bg-white border border-amber-300 rounded text-xs text-gray-800"
+                >
                   {{ planRequiredResources?.vehicleQuantity }}x Vehículo
                 </span>
               </div>
@@ -809,14 +1201,28 @@
             <div class="mb-6">
               <label class="block text-sm font-medium text-gray-700 mb-2">Modo de Asignación</label>
               <div class="flex gap-2">
-                <button type="button" (click)="setResourceMode(ResourceAssignmentMode.QUANTITY)"
-                  [class]="'flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors ' +
-                (currentResourceMode === ResourceAssignmentMode.QUANTITY ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200')">
+                <button
+                  type="button"
+                  (click)="setResourceMode(ResourceAssignmentMode.QUANTITY)"
+                  [class]="
+                    'flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors ' +
+                    (currentResourceMode === ResourceAssignmentMode.QUANTITY
+                      ? 'bg-gray-900 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200')
+                  "
+                >
                   Por Cantidad
                 </button>
-                <button type="button" (click)="setResourceMode(ResourceAssignmentMode.DETAILED)"
-                  [class]="'flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors ' +
-                (currentResourceMode === ResourceAssignmentMode.DETAILED ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200')">
+                <button
+                  type="button"
+                  (click)="setResourceMode(ResourceAssignmentMode.DETAILED)"
+                  [class]="
+                    'flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors ' +
+                    (currentResourceMode === ResourceAssignmentMode.DETAILED
+                      ? 'bg-gray-900 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200')
+                  "
+                >
                   Detallado
                 </button>
               </div>
@@ -827,36 +1233,60 @@
               <div class="mb-6">
                 <div class="flex justify-between items-center mb-3">
                   <label class="block text-sm font-medium text-gray-700">Personal</label>
-                  <button type="button" (click)="addEmployeeQuantity()"
-                    class="px-3 py-1.5 bg-gray-900 text-white rounded-md text-xs font-medium hover:bg-gray-800">
+                  <button
+                    type="button"
+                    (click)="addEmployeeQuantity()"
+                    class="px-3 py-1.5 bg-gray-900 text-white rounded-md text-xs font-medium hover:bg-gray-800"
+                  >
                     + Agregar Categoría
                   </button>
                 </div>
-                <div *ngIf="employeeQuantities.length === 0"
-                  class="bg-gray-50 border border-gray-200 rounded-md p-4 text-center">
+                <div
+                  *ngIf="employeeQuantities.length === 0"
+                  class="bg-gray-50 border border-gray-200 rounded-md p-4 text-center"
+                >
                   <p class="text-sm text-gray-600">No hay categorías de personal agregadas</p>
                 </div>
-                <div *ngFor="let item of employeeQuantities; let idx = index"
-                  class="bg-gray-50 border border-gray-200 rounded-md p-3 mb-2">
+                <div
+                  *ngFor="let item of employeeQuantities; let idx = index"
+                  class="bg-gray-50 border border-gray-200 rounded-md p-3 mb-2"
+                >
                   <div class="flex gap-3 items-start">
                     <div class="flex-1">
-                      <select [(ngModel)]="item.categoryName" [ngModelOptions]="{standalone: true}"
+                      <select
+                        [(ngModel)]="item.categoryName"
+                        [ngModelOptions]="{ standalone: true }"
                         (ngModelChange)="updateEmployeeQuantitiesInForm()"
-                        class="w-full px-2 py-1.5 border border-gray-300 rounded-md text-sm">
+                        class="w-full px-2 py-1.5 border border-gray-300 rounded-md text-sm"
+                      >
                         <option value="">Seleccione categoría</option>
-                        <option *ngFor="let cat of employeeCategories" [value]="cat">{{ cat }}</option>
+                        <option *ngFor="let cat of employeeCategories" [value]="cat">
+                          {{ cat }}
+                        </option>
                       </select>
                     </div>
                     <div class="w-28">
-                      <input type="number" [(ngModel)]="item.quantity" [ngModelOptions]="{standalone: true}"
-                        (ngModelChange)="updateEmployeeQuantitiesInForm()" min="1"
-                        class="w-full px-2 py-1.5 border border-gray-300 rounded-md text-sm" />
+                      <input
+                        type="number"
+                        [(ngModel)]="item.quantity"
+                        [ngModelOptions]="{ standalone: true }"
+                        (ngModelChange)="updateEmployeeQuantitiesInForm()"
+                        min="1"
+                        class="w-full px-2 py-1.5 border border-gray-300 rounded-md text-sm"
+                      />
                     </div>
-                    <button type="button" (click)="removeEmployeeQuantity(idx)"
-                      class="mt-1 text-gray-400 hover:text-red-600">
+                    <button
+                      type="button"
+                      (click)="removeEmployeeQuantity(idx)"
+                      class="mt-1 text-gray-400 hover:text-red-600"
+                    >
                       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
-                        </path>
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M6 18L18 6M6 6l12 12"
+                        ></path>
                       </svg>
                     </button>
                   </div>
@@ -866,36 +1296,60 @@
               <div class="mb-6">
                 <div class="flex justify-between items-center mb-3">
                   <label class="block text-sm font-medium text-gray-700">Equipos</label>
-                  <button type="button" (click)="addEquipmentQuantity()"
-                    class="px-3 py-1.5 bg-gray-900 text-white rounded-md text-xs font-medium hover:bg-gray-800">
+                  <button
+                    type="button"
+                    (click)="addEquipmentQuantity()"
+                    class="px-3 py-1.5 bg-gray-900 text-white rounded-md text-xs font-medium hover:bg-gray-800"
+                  >
                     + Agregar Categoría
                   </button>
                 </div>
-                <div *ngIf="equipmentQuantities.length === 0"
-                  class="bg-gray-50 border border-gray-200 rounded-md p-4 text-center">
+                <div
+                  *ngIf="equipmentQuantities.length === 0"
+                  class="bg-gray-50 border border-gray-200 rounded-md p-4 text-center"
+                >
                   <p class="text-sm text-gray-600">No hay categorías de equipos agregadas</p>
                 </div>
-                <div *ngFor="let item of equipmentQuantities; let idx = index"
-                  class="bg-gray-50 border border-gray-200 rounded-md p-3 mb-2">
+                <div
+                  *ngFor="let item of equipmentQuantities; let idx = index"
+                  class="bg-gray-50 border border-gray-200 rounded-md p-3 mb-2"
+                >
                   <div class="flex gap-3 items-start">
                     <div class="flex-1">
-                      <select [(ngModel)]="item.categoryName" [ngModelOptions]="{standalone: true}"
+                      <select
+                        [(ngModel)]="item.categoryName"
+                        [ngModelOptions]="{ standalone: true }"
                         (ngModelChange)="updateEquipmentQuantitiesInForm()"
-                        class="w-full px-2 py-1.5 border border-gray-300 rounded-md text-sm">
+                        class="w-full px-2 py-1.5 border border-gray-300 rounded-md text-sm"
+                      >
                         <option value="">Seleccione categoría</option>
-                        <option *ngFor="let cat of equipmentCategories" [value]="cat">{{ cat }}</option>
+                        <option *ngFor="let cat of equipmentCategories" [value]="cat">
+                          {{ cat }}
+                        </option>
                       </select>
                     </div>
                     <div class="w-28">
-                      <input type="number" [(ngModel)]="item.quantity" [ngModelOptions]="{standalone: true}"
-                        (ngModelChange)="updateEquipmentQuantitiesInForm()" min="1"
-                        class="w-full px-2 py-1.5 border border-gray-300 rounded-md text-sm" />
+                      <input
+                        type="number"
+                        [(ngModel)]="item.quantity"
+                        [ngModelOptions]="{ standalone: true }"
+                        (ngModelChange)="updateEquipmentQuantitiesInForm()"
+                        min="1"
+                        class="w-full px-2 py-1.5 border border-gray-300 rounded-md text-sm"
+                      />
                     </div>
-                    <button type="button" (click)="removeEquipmentQuantity(idx)"
-                      class="mt-1 text-gray-400 hover:text-red-600">
+                    <button
+                      type="button"
+                      (click)="removeEquipmentQuantity(idx)"
+                      class="mt-1 text-gray-400 hover:text-red-600"
+                    >
                       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
-                        </path>
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M6 18L18 6M6 6l12 12"
+                        ></path>
                       </svg>
                     </button>
                   </div>
@@ -907,9 +1361,14 @@
                 <div class="bg-gray-50 border border-gray-200 rounded-md p-3">
                   <div class="flex items-center gap-3">
                     <span class="text-sm text-gray-700">Cantidad necesaria:</span>
-                    <input type="number" [(ngModel)]="vehicleQuantity" [ngModelOptions]="{standalone: true}"
-                      (ngModelChange)="updateVehicleQuantity()" min="0"
-                      class="w-24 px-3 py-1.5 border border-gray-300 rounded-md text-sm" />
+                    <input
+                      type="number"
+                      [(ngModel)]="vehicleQuantity"
+                      [ngModelOptions]="{ standalone: true }"
+                      (ngModelChange)="updateVehicleQuantity()"
+                      min="0"
+                      class="w-24 px-3 py-1.5 border border-gray-300 rounded-md text-sm"
+                    />
                   </div>
                 </div>
               </div>
@@ -917,67 +1376,116 @@
 
             <!-- MODO DETALLADO -->
             <div *ngIf="currentResourceMode === ResourceAssignmentMode.DETAILED">
-              <div *ngIf="!resourceDatesSet" class="bg-amber-50 border border-amber-200 rounded-md p-4 mb-4">
-                <p class="text-sm text-amber-800">Configure las fechas de recursos para ver disponibilidad</p>
+              <div
+                *ngIf="!resourceDatesSet"
+                class="bg-amber-50 border border-amber-200 rounded-md p-4 mb-4"
+              >
+                <p class="text-sm text-amber-800">
+                  Configure las fechas de recursos para ver disponibilidad
+                </p>
               </div>
 
               <!-- Personal -->
               <div class="mb-6">
                 <div class="flex justify-between items-center mb-3">
-                  <label class="block text-sm font-medium text-gray-700">Personal <span
-                      class="text-red-600">*</span></label>
+                  <label class="block text-sm font-medium text-gray-700"
+                    >Personal <span class="text-red-600">*</span></label
+                  >
                   <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
                     {{ planForm.value.selectedEmployeeIds?.length || 0 }} seleccionados
                   </span>
                 </div>
                 <div class="bg-gray-50 p-3 rounded-md mb-3 border border-gray-200">
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <input type="text" [(ngModel)]="employeeSearchTerm" [ngModelOptions]="{standalone: true}"
+                    <input
+                      type="text"
+                      [(ngModel)]="employeeSearchTerm"
+                      [ngModelOptions]="{ standalone: true }"
                       placeholder="Buscar por nombre..."
-                      class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm" />
-                    <select [(ngModel)]="employeeCategoryFilter" [ngModelOptions]="{standalone: true}"
-                      class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm">
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                    />
+                    <select
+                      [(ngModel)]="employeeCategoryFilter"
+                      [ngModelOptions]="{ standalone: true }"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                    >
                       <option value="">Todas las posiciones</option>
-                      <option *ngFor="let cat of uniqueEmployeeCategories" [value]="cat">{{ cat }}</option>
+                      <option *ngFor="let cat of uniqueEmployeeCategories" [value]="cat">
+                        {{ cat }}
+                      </option>
                     </select>
                   </div>
                 </div>
-                <div *ngIf="!loading && resourceDatesSet"
-                  class="max-h-64 overflow-y-auto border border-gray-200 rounded-md p-2 bg-gray-50">
-                  <div *ngFor="let employee of filteredEmployees" class="py-1.5 border-b border-gray-100 last:border-0">
-                    <label class="flex items-start cursor-pointer hover:bg-white rounded px-2 py-2 transition-colors"
-                      [class.opacity-50]="!employee.isAvailable || isEmployeeMonthFull(employee.id)">
-                      <input type="checkbox" [checked]="isEmployeeSelected(employee.id)"
+                <div
+                  *ngIf="!loading && resourceDatesSet"
+                  class="max-h-64 overflow-y-auto border border-gray-200 rounded-md p-2 bg-gray-50"
+                >
+                  <div
+                    *ngFor="let employee of filteredEmployees"
+                    class="py-1.5 border-b border-gray-100 last:border-0"
+                  >
+                    <label
+                      class="flex items-start cursor-pointer hover:bg-white rounded px-2 py-2 transition-colors"
+                      [class.opacity-50]="!employee.isAvailable || isEmployeeMonthFull(employee.id)"
+                    >
+                      <input
+                        type="checkbox"
+                        [checked]="isEmployeeSelected(employee.id)"
                         (change)="toggleEmployeeSelection(employee.id)"
                         [disabled]="!employee.isAvailable || isEmployeeMonthFull(employee.id)"
-                        class="mt-1 w-4 h-4 rounded text-gray-900 border-gray-300" />
+                        class="mt-1 w-4 h-4 rounded text-gray-900 border-gray-300"
+                      />
                       <div class="ml-3 flex-1">
                         <div class="flex items-center flex-wrap gap-2">
                           <span class="text-sm font-medium text-gray-900">{{ employee.name }}</span>
-                          <span class="px-2 py-0.5 bg-gray-100 text-gray-700 rounded-full text-xs">{{ employee.position
-                            }}</span>
+                          <span
+                            class="px-2 py-0.5 bg-gray-100 text-gray-700 rounded-full text-xs"
+                            >{{ employee.position }}</span
+                          >
                         </div>
                         <div class="flex items-center gap-2 mt-1 text-xs">
-                          <span *ngIf="employee.isAvailable && !isEmployeeMonthFull(employee.id)"
-                            class="px-1.5 py-0.5 bg-green-100 text-green-700 rounded-full font-medium">Disponible</span>
-                          <span *ngIf="!employee.isAvailable"
-                            class="px-1.5 py-0.5 bg-red-100 text-red-700 rounded-full font-medium">No disponible</span>
-                          <span *ngIf="isEmployeeMonthFull(employee.id)"
-                            class="px-1.5 py-0.5 bg-red-100 text-red-700 rounded-full font-medium">Mes completo</span>
+                          <span
+                            *ngIf="employee.isAvailable && !isEmployeeMonthFull(employee.id)"
+                            class="px-1.5 py-0.5 bg-green-100 text-green-700 rounded-full font-medium"
+                            >Disponible</span
+                          >
+                          <span
+                            *ngIf="!employee.isAvailable"
+                            class="px-1.5 py-0.5 bg-red-100 text-red-700 rounded-full font-medium"
+                            >No disponible</span
+                          >
+                          <span
+                            *ngIf="isEmployeeMonthFull(employee.id)"
+                            class="px-1.5 py-0.5 bg-red-100 text-red-700 rounded-full font-medium"
+                            >Mes completo</span
+                          >
                         </div>
                         <div class="mt-2">
                           <div class="flex justify-between text-xs mb-1">
                             <span class="text-gray-500">Días mes actual</span>
                             <span [class]="getRemainingDaysColor(employee.id)">
-                              {{ getEmployeeWorkedDays(employee.id) }}/{{ getEmployeeWorkDaysPerMonth(employee.id) }} —
-                              {{ getEmployeeRemainingDays(employee.id) }} restantes
+                              {{ getEmployeeWorkedDays(employee.id) }}/{{
+                                getEmployeeWorkDaysPerMonth(employee.id)
+                              }}
+                              — {{ getEmployeeRemainingDays(employee.id) }} restantes
                             </span>
                           </div>
                           <div class="w-full bg-gray-200 rounded-full h-1.5">
-                            <div class="h-1.5 rounded-full"
-                              [class]="getEmployeeRemainingDays(employee.id) <= 0 ? 'bg-red-500' : getEmployeeRemainingDays(employee.id) <= 5 ? 'bg-amber-500' : 'bg-emerald-500'"
-                              [style.width.%]="(getEmployeeWorkedDays(employee.id) / getEmployeeWorkDaysPerMonth(employee.id)) * 100">
-                            </div>
+                            <div
+                              class="h-1.5 rounded-full"
+                              [class]="
+                                getEmployeeRemainingDays(employee.id) <= 0
+                                  ? 'bg-red-500'
+                                  : getEmployeeRemainingDays(employee.id) <= 5
+                                    ? 'bg-amber-500'
+                                    : 'bg-emerald-500'
+                              "
+                              [style.width.%]="
+                                (getEmployeeWorkedDays(employee.id) /
+                                  getEmployeeWorkDaysPerMonth(employee.id)) *
+                                100
+                              "
+                            ></div>
                           </div>
                         </div>
                       </div>
@@ -995,41 +1503,66 @@
                   </span>
                 </div>
 
-
                 <div class="bg-gray-50 p-3 rounded-md mb-3 border border-gray-200">
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <input type="text" [(ngModel)]="equipmentSearchTerm" [ngModelOptions]="{standalone: true}"
+                    <input
+                      type="text"
+                      [(ngModel)]="equipmentSearchTerm"
+                      [ngModelOptions]="{ standalone: true }"
                       placeholder="Buscar por categoria / serial / codigo ..."
-                      class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm" />
-                    <select [(ngModel)]="equipmentCategoryFilter" [ngModelOptions]="{standalone: true}"
-                      class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm">
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                    />
+                    <select
+                      [(ngModel)]="equipmentCategoryFilter"
+                      [ngModelOptions]="{ standalone: true }"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                    >
                       <option value="">Todas las categorias</option>
-                      <option *ngFor="let cat of uniqueEquipmentCategories" [value]="cat">{{ cat }}</option>
+                      <option *ngFor="let cat of uniqueEquipmentCategories" [value]="cat">
+                        {{ cat }}
+                      </option>
                     </select>
                   </div>
                 </div>
 
-
-
-
-                <div *ngIf="!loading && resourceDatesSet"
-                  class="max-h-64 overflow-y-auto border border-gray-200 rounded-md p-2 bg-gray-50">
-                  <div *ngFor="let eq of filteredEquipment" class="py-1.5 border-b border-gray-100 last:border-0">
-                    <label class="flex items-start cursor-pointer hover:bg-white rounded px-2 py-2"
-                      [class.opacity-50]="!eq.isAvailable">
-                      <input type="checkbox" [checked]="isEquipmentSelected(eq.id)"
-                        (change)="toggleEquipmentSelection(eq.id)" [disabled]="!eq.isAvailable"
-                        class="mt-1 w-4 h-4 rounded text-gray-900 border-gray-300" />
+                <div
+                  *ngIf="!loading && resourceDatesSet"
+                  class="max-h-64 overflow-y-auto border border-gray-200 rounded-md p-2 bg-gray-50"
+                >
+                  <div
+                    *ngFor="let eq of filteredEquipment"
+                    class="py-1.5 border-b border-gray-100 last:border-0"
+                  >
+                    <label
+                      class="flex items-start cursor-pointer hover:bg-white rounded px-2 py-2"
+                      [class.opacity-50]="!eq.isAvailable"
+                    >
+                      <input
+                        type="checkbox"
+                        [checked]="isEquipmentSelected(eq.id)"
+                        (change)="toggleEquipmentSelection(eq.id)"
+                        [disabled]="!eq.isAvailable"
+                        class="mt-1 w-4 h-4 rounded text-gray-900 border-gray-300"
+                      />
                       <div class="ml-3 flex-1">
                         <div class="flex items-center gap-2">
                           <span class="text-sm font-medium text-gray-900">{{ eq.name }}</span>
-                          <span class="px-2 py-0.5 bg-gray-100 text-gray-700 rounded-full text-xs">{{ eq.code }}</span>
+                          <span
+                            class="px-2 py-0.5 bg-gray-100 text-gray-700 rounded-full text-xs"
+                            >{{ eq.code }}</span
+                          >
                         </div>
                         <div class="flex items-center gap-2 mt-1 text-xs">
-                          <span *ngIf="eq.isAvailable"
-                            class="px-1.5 py-0.5 bg-green-100 text-green-700 rounded-full font-medium">Disponible</span>
-                          <span *ngIf="!eq.isAvailable"
-                            class="px-1.5 py-0.5 bg-red-100 text-red-700 rounded-full font-medium">No disponible</span>
+                          <span
+                            *ngIf="eq.isAvailable"
+                            class="px-1.5 py-0.5 bg-green-100 text-green-700 rounded-full font-medium"
+                            >Disponible</span
+                          >
+                          <span
+                            *ngIf="!eq.isAvailable"
+                            class="px-1.5 py-0.5 bg-red-100 text-red-700 rounded-full font-medium"
+                            >No disponible</span
+                          >
                         </div>
                       </div>
                     </label>
@@ -1046,46 +1579,71 @@
                   </span>
                 </div>
 
-
-
                 <div class="bg-gray-50 p-3 rounded-md mb-3 border border-gray-200">
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <input type="text" [(ngModel)]="vehicleSearchTerm" [ngModelOptions]="{standalone: true}"
+                    <input
+                      type="text"
+                      [(ngModel)]="vehicleSearchTerm"
+                      [ngModelOptions]="{ standalone: true }"
                       placeholder="Buscar por placa..."
-                      class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm" />
-                    <select [(ngModel)]="vehicleLocationFilter" [ngModelOptions]="{standalone: true}"
-                      class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm">
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                    />
+                    <select
+                      [(ngModel)]="vehicleLocationFilter"
+                      [ngModelOptions]="{ standalone: true }"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                    >
                       <option value="">Todas las ubicaciones</option>
-                      <option *ngFor="let cat of uniqueVehicleLocations" [value]="cat">{{ cat }}</option>
+                      <option *ngFor="let cat of uniqueVehicleLocations" [value]="cat">
+                        {{ cat }}
+                      </option>
                     </select>
                   </div>
                 </div>
 
-
-
-
-
-                <div *ngIf="!loading && resourceDatesSet"
-                  class="max-h-64 overflow-y-auto border border-gray-200 rounded-md p-2 bg-gray-50">
-                  <div *ngFor="let vehicle of filteredVehicles" class="py-1.5 border-b border-gray-100 last:border-0">
-                    <label class="flex items-start cursor-pointer hover:bg-white rounded px-2 py-2"
-                      [class.opacity-50]="!vehicle.isAvailable">
-                      <input type="checkbox" [checked]="isVehicleSelected(vehicle.id)"
-                        (change)="toggleVehicleSelection(vehicle.id)" [disabled]="!vehicle.isAvailable"
-                        class="mt-1 w-4 h-4 rounded text-gray-900 border-gray-300" />
+                <div
+                  *ngIf="!loading && resourceDatesSet"
+                  class="max-h-64 overflow-y-auto border border-gray-200 rounded-md p-2 bg-gray-50"
+                >
+                  <div
+                    *ngFor="let vehicle of filteredVehicles"
+                    class="py-1.5 border-b border-gray-100 last:border-0"
+                  >
+                    <label
+                      class="flex items-start cursor-pointer hover:bg-white rounded px-2 py-2"
+                      [class.opacity-50]="!vehicle.isAvailable"
+                    >
+                      <input
+                        type="checkbox"
+                        [checked]="isVehicleSelected(vehicle.id)"
+                        (change)="toggleVehicleSelection(vehicle.id)"
+                        [disabled]="!vehicle.isAvailable"
+                        class="mt-1 w-4 h-4 rounded text-gray-900 border-gray-300"
+                      />
                       <div class="ml-3 flex-1">
                         <div class="flex items-center gap-2">
-                          <span class="text-sm font-medium text-gray-900">{{ vehicle.plateNumber }}</span>
-                          <span class="px-2 py-0.5 bg-gray-100 text-gray-700 rounded-full text-xs">{{ vehicle.brand }}
-                            {{ vehicle.model }}</span>
+                          <span class="text-sm font-medium text-gray-900">{{
+                            vehicle.plateNumber
+                          }}</span>
+                          <span class="px-2 py-0.5 bg-gray-100 text-gray-700 rounded-full text-xs"
+                            >{{ vehicle.brand }} {{ vehicle.model }}</span
+                          >
                         </div>
                         <div class="flex items-center gap-3 mt-1 text-xs">
                           <span class="text-gray-600">{{ vehicle.location }}</span>
-                          <span class="text-gray-600">${{ vehicle.costPerDay?.toLocaleString() }}/día</span>
-                          <span *ngIf="vehicle.isAvailable"
-                            class="px-1.5 py-0.5 bg-green-100 text-green-700 rounded-full font-medium">Disponible</span>
-                          <span *ngIf="!vehicle.isAvailable"
-                            class="px-1.5 py-0.5 bg-red-100 text-red-700 rounded-full font-medium">No disponible</span>
+                          <span class="text-gray-600"
+                            >${{ vehicle.costPerDay?.toLocaleString() }}/día</span
+                          >
+                          <span
+                            *ngIf="vehicle.isAvailable"
+                            class="px-1.5 py-0.5 bg-green-100 text-green-700 rounded-full font-medium"
+                            >Disponible</span
+                          >
+                          <span
+                            *ngIf="!vehicle.isAvailable"
+                            class="px-1.5 py-0.5 bg-red-100 text-red-700 rounded-full font-medium"
+                            >No disponible</span
+                          >
                         </div>
                       </div>
                     </label>
@@ -1101,61 +1659,118 @@
               <h4 class="text-sm font-semibold text-gray-900 pb-2 border-b border-gray-200 flex-1">
                 Presupuesto
               </h4>
-              <button type="button" (click)="openBudgetItemModal()"
-                class="px-4 py-2 bg-gray-900 text-white rounded-md text-sm font-medium hover:bg-gray-800">
+              <button
+                type="button"
+                (click)="openBudgetItemModal()"
+                class="px-4 py-2 bg-gray-900 text-white rounded-md text-sm font-medium hover:bg-gray-800"
+              >
                 + Agregar Ítem
               </button>
             </div>
-            <div *ngIf="budgetItems.length === 0" class="bg-gray-50 border border-gray-200 rounded-md p-6 text-center">
+            <div
+              *ngIf="budgetItems.length === 0"
+              class="bg-gray-50 border border-gray-200 rounded-md p-6 text-center"
+            >
               <p class="text-sm text-gray-600">No hay ítems de presupuesto</p>
             </div>
-            <div *ngFor="let item of budgetItems; let idx = index"
-              class="bg-gray-50 border border-gray-200 rounded-md p-3 mb-2 hover:border-gray-300">
+            <div
+              *ngFor="let item of budgetItems; let idx = index"
+              class="bg-gray-50 border border-gray-200 rounded-md p-3 mb-2 hover:border-gray-300"
+            >
               <div class="flex justify-between items-start">
                 <div class="flex-1">
                   <div class="flex items-center gap-2 mb-2">
-                    <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded">{{ item.category
-                      }}</span>
+                    <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded">{{
+                      item.category
+                    }}</span>
                     <span class="text-sm font-medium text-gray-900">{{ item.concept }}</span>
                   </div>
                   <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs text-gray-600">
-                    <div><span class="text-gray-500">Cantidad:</span> <span class="font-medium text-gray-900">{{
-                        item.quantity }} {{ item.unit }}</span></div>
-                    <div><span class="text-gray-500">Costo:</span> <span class="font-medium text-gray-900">${{
-                        (item.quantity * item.costPerUnit).toLocaleString() }}</span></div>
-                    <div><span class="text-gray-500">Facturado:</span> <span class="font-medium text-emerald-600">${{
-                        (item.quantity * item.billedPerUnit).toLocaleString() }}</span></div>
-                    <div><span class="text-gray-500">Margen:</span> <span class="font-medium text-emerald-600">{{
-                        ((item.billedPerUnit - item.costPerUnit) / item.billedPerUnit * 100).toFixed(1) }}%</span></div>
+                    <div>
+                      <span class="text-gray-500">Cantidad:</span>
+                      <span class="font-medium text-gray-900"
+                        >{{ item.quantity }} {{ item.unit }}</span
+                      >
+                    </div>
+                    <div>
+                      <span class="text-gray-500">Costo:</span>
+                      <span class="font-medium text-gray-900"
+                        >${{ (item.quantity * item.costPerUnit).toLocaleString() }}</span
+                      >
+                    </div>
+                    <div>
+                      <span class="text-gray-500">Facturado:</span>
+                      <span class="font-medium text-emerald-600"
+                        >${{ (item.quantity * item.billedPerUnit).toLocaleString() }}</span
+                      >
+                    </div>
+                    <div>
+                      <span class="text-gray-500">Margen:</span>
+                      <span class="font-medium text-emerald-600"
+                        >{{
+                          (
+                            ((item.billedPerUnit - item.costPerUnit) / item.billedPerUnit) *
+                            100
+                          ).toFixed(1)
+                        }}%</span
+                      >
+                    </div>
                   </div>
                 </div>
                 <div class="flex gap-1 ml-3">
-                  <button type="button" (click)="editBudgetItem(idx)" class="text-gray-400 hover:text-blue-600 p-1">
+                  <button
+                    type="button"
+                    (click)="editBudgetItem(idx)"
+                    class="text-gray-400 hover:text-blue-600 p-1"
+                  >
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
-                      </path>
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                      ></path>
                     </svg>
                   </button>
-                  <button type="button" (click)="removeBudgetItem(idx)" class="text-gray-400 hover:text-red-600 p-1">
+                  <button
+                    type="button"
+                    (click)="removeBudgetItem(idx)"
+                    class="text-gray-400 hover:text-red-600 p-1"
+                  >
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
-                      </path>
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M6 18L18 6M6 6l12 12"
+                      ></path>
                     </svg>
                   </button>
                 </div>
               </div>
             </div>
-            <div *ngIf="budgetItems.length > 0" class="bg-blue-50 border border-blue-200 rounded-md p-3 mt-3">
+            <div
+              *ngIf="budgetItems.length > 0"
+              class="bg-blue-50 border border-blue-200 rounded-md p-3 mt-3"
+            >
               <div class="grid grid-cols-3 gap-4 text-sm">
-                <div><span class="text-gray-600">Total Costo:</span>
-                  <p class="font-semibold text-gray-900">${{ getCurrentBudgetCostTotal().toLocaleString() }}</p>
+                <div>
+                  <span class="text-gray-600">Total Costo:</span>
+                  <p class="font-semibold text-gray-900">
+                    ${{ getCurrentBudgetCostTotal().toLocaleString() }}
+                  </p>
                 </div>
-                <div><span class="text-gray-600">Total Facturado:</span>
-                  <p class="font-semibold text-emerald-600">${{ getCurrentBudgetBilledTotal().toLocaleString() }}</p>
+                <div>
+                  <span class="text-gray-600">Total Facturado:</span>
+                  <p class="font-semibold text-emerald-600">
+                    ${{ getCurrentBudgetBilledTotal().toLocaleString() }}
+                  </p>
                 </div>
-                <div><span class="text-gray-600">Utilidad:</span>
-                  <p class="font-semibold text-emerald-600">${{ getCurrentBudgetProfit().toLocaleString() }}</p>
+                <div>
+                  <span class="text-gray-600">Utilidad:</span>
+                  <p class="font-semibold text-emerald-600">
+                    ${{ getCurrentBudgetProfit().toLocaleString() }}
+                  </p>
                 </div>
               </div>
             </div>
@@ -1163,39 +1778,76 @@
 
           <!-- Botones -->
           <div class="flex justify-end gap-3 pt-6 border-t border-gray-200">
-            <button type="button" (click)="backToOdsList()"
-              class="px-6 py-2.5 bg-white border border-gray-300 text-gray-700 rounded-md font-medium hover:bg-gray-50">
+            <button
+              type="button"
+              (click)="backToOdsList()"
+              class="px-6 py-2.5 bg-white border border-gray-300 text-gray-700 rounded-md font-medium hover:bg-gray-50"
+            >
               Cancelar
             </button>
-            <button *ngIf="!editingPlanId" type="button" (click)="addPlanToCurrentOds()"
-              class="px-6 py-2.5 bg-emerald-600 text-white rounded-md font-medium hover:bg-emerald-700">
-              <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            <button
+              *ngIf="!editingPlanId"
+              type="button"
+              (click)="addPlanToCurrentOds()"
+              class="px-6 py-2.5 bg-emerald-600 text-white rounded-md font-medium hover:bg-emerald-700"
+            >
+              <svg
+                class="w-5 h-5 inline mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 4v16m8-8H4"
+                ></path>
               </svg>
               Agregar Plan a ODS
             </button>
-            <button *ngIf="editingPlanId" type="button" (click)="saveDetailedResourcesAndExit()"
+            <button
+              *ngIf="editingPlanId"
+              type="button"
+              (click)="saveDetailedResourcesAndExit()"
               [disabled]="loading || planForm.value.selectedEmployeeIds?.length === 0"
-              class="px-6 py-2.5 bg-blue-600 text-white rounded-md font-medium hover:bg-blue-700 disabled:opacity-50 flex items-center">
-              <svg *ngIf="loading" class="animate-spin w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                </path>
+              class="px-6 py-2.5 bg-blue-600 text-white rounded-md font-medium hover:bg-blue-700 disabled:opacity-50 flex items-center"
+            >
+              <svg
+                *ngIf="loading"
+                class="animate-spin w-4 h-4 mr-2"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                ></circle>
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
               </svg>
               <span *ngIf="!loading">✓ Guardar Asignación y Salir</span>
               <span *ngIf="loading">Guardando...</span>
             </button>
           </div>
-
         </form>
-      </div><!-- ✅ cierre formulario nuevo plan -->
-
-    </div><!-- ✅ cierre *ngIf PLAN_FORM -->
+      </div>
+      <!-- ✅ cierre formulario nuevo plan -->
+    </div>
+    <!-- ✅ cierre *ngIf PLAN_FORM -->
 
     <!-- MODAL PRESUPUESTO — fuera de todo -->
-    <div *ngIf="showBudgetItemModal"
-      class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div
+      *ngIf="showBudgetItemModal"
+      class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50 p-4"
+    >
       <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div class="bg-gray-900 px-6 py-4 flex justify-between items-center">
           <h3 class="text-lg font-semibold text-white">
@@ -1203,130 +1855,203 @@
           </h3>
           <button (click)="closeBudgetItemModal()" class="text-gray-300 hover:text-white">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              ></path>
             </svg>
           </button>
         </div>
         <form [formGroup]="budgetItemForm" class="p-6 space-y-4">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="md:col-span-2">
-              <label class="block text-sm font-medium text-gray-700 mb-1.5">Categoría <span
-                  class="text-red-600">*</span></label>
-              <select formControlName="category" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm">
+              <label class="block text-sm font-medium text-gray-700 mb-1.5"
+                >Categoría <span class="text-red-600">*</span></label
+              >
+              <select
+                formControlName="category"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+              >
                 <option *ngFor="let cat of budgetCategories" [value]="cat">{{ cat }}</option>
               </select>
             </div>
             <div class="md:col-span-2">
-              <label class="block text-sm font-medium text-gray-700 mb-1.5">Concepto <span
-                  class="text-red-600">*</span></label>
-              <input type="text" formControlName="concept"
+              <label class="block text-sm font-medium text-gray-700 mb-1.5"
+                >Concepto <span class="text-red-600">*</span></label
+              >
+              <input
+                type="text"
+                formControlName="concept"
                 class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-                placeholder="Ej: Camioneta alquilada" />
+                placeholder="Ej: Camioneta alquilada"
+              />
             </div>
             <div class="md:col-span-2">
               <label class="block text-sm font-medium text-gray-700 mb-1.5">Proveedor</label>
-              <input type="text" formControlName="provider"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm" />
+              <input
+                type="text"
+                formControlName="provider"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+              />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1.5">Cantidad <span
-                  class="text-red-600">*</span></label>
-              <input type="number" formControlName="quantity" min="1"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm" />
+              <label class="block text-sm font-medium text-gray-700 mb-1.5"
+                >Cantidad <span class="text-red-600">*</span></label
+              >
+              <input
+                type="number"
+                formControlName="quantity"
+                min="1"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+              />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1.5">Unidad <span
-                  class="text-red-600">*</span></label>
-              <input type="text" formControlName="unit"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm" placeholder="días" />
+              <label class="block text-sm font-medium text-gray-700 mb-1.5"
+                >Unidad <span class="text-red-600">*</span></label
+              >
+              <input
+                type="text"
+                formControlName="unit"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                placeholder="días"
+              />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1.5">Costo Unitario <span
-                  class="text-red-600">*</span></label>
+              <label class="block text-sm font-medium text-gray-700 mb-1.5"
+                >Costo Unitario <span class="text-red-600">*</span></label
+              >
               <div class="relative">
                 <span class="absolute left-3 top-2 text-gray-500 text-sm">$</span>
-                <input type="number" formControlName="costPerUnit" min="0"
-                  class="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-md text-sm" />
+                <input
+                  type="number"
+                  formControlName="costPerUnit"
+                  min="0"
+                  class="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-md text-sm"
+                />
               </div>
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1.5">Tarifa Cliente <span
-                  class="text-red-600">*</span></label>
+              <label class="block text-sm font-medium text-gray-700 mb-1.5"
+                >Tarifa Cliente <span class="text-red-600">*</span></label
+              >
               <div class="relative">
                 <span class="absolute left-3 top-2 text-gray-500 text-sm">$</span>
-                <input type="number" formControlName="billedPerUnit" min="0"
-                  class="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-md text-sm" />
+                <input
+                  type="number"
+                  formControlName="billedPerUnit"
+                  min="0"
+                  class="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-md text-sm"
+                />
               </div>
             </div>
             <div class="md:col-span-2">
               <label class="block text-sm font-medium text-gray-700 mb-1.5">Notas</label>
-              <textarea formControlName="notes" rows="2"
-                class="w-full px-3 py-2 border border-gray-300 rounded-md resize-none text-sm"></textarea>
+              <textarea
+                formControlName="notes"
+                rows="2"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md resize-none text-sm"
+              ></textarea>
             </div>
           </div>
-          <div *ngIf="budgetItemForm.valid" class="bg-gray-50 p-4 rounded-md border border-gray-200">
+          <div
+            *ngIf="budgetItemForm.valid"
+            class="bg-gray-50 p-4 rounded-md border border-gray-200"
+          >
             <h4 class="text-sm font-semibold text-gray-900 mb-2">Vista Previa</h4>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
-              <div><span class="text-gray-600">Costo:</span>
-                <p class="font-semibold">${{ (budgetItemForm.value.quantity *
-                  budgetItemForm.value.costPerUnit).toLocaleString() }}</p>
+              <div>
+                <span class="text-gray-600">Costo:</span>
+                <p class="font-semibold">
+                  ${{
+                    (
+                      budgetItemForm.value.quantity * budgetItemForm.value.costPerUnit
+                    ).toLocaleString()
+                  }}
+                </p>
               </div>
-              <div><span class="text-gray-600">Facturado:</span>
-                <p class="font-semibold">${{ (budgetItemForm.value.quantity *
-                  budgetItemForm.value.billedPerUnit).toLocaleString() }}</p>
+              <div>
+                <span class="text-gray-600">Facturado:</span>
+                <p class="font-semibold">
+                  ${{
+                    (
+                      budgetItemForm.value.quantity * budgetItemForm.value.billedPerUnit
+                    ).toLocaleString()
+                  }}
+                </p>
               </div>
-              <div><span class="text-gray-600">Utilidad:</span>
-                <p class="font-semibold text-emerald-600">${{ ((budgetItemForm.value.quantity *
-                  budgetItemForm.value.billedPerUnit) - (budgetItemForm.value.quantity *
-                  budgetItemForm.value.costPerUnit)).toLocaleString() }}</p>
+              <div>
+                <span class="text-gray-600">Utilidad:</span>
+                <p class="font-semibold text-emerald-600">
+                  ${{
+                    (
+                      budgetItemForm.value.quantity * budgetItemForm.value.billedPerUnit -
+                      budgetItemForm.value.quantity * budgetItemForm.value.costPerUnit
+                    ).toLocaleString()
+                  }}
+                </p>
               </div>
-              <div><span class="text-gray-600">Margen:</span>
-                <p class="font-semibold text-emerald-600">{{ ((budgetItemForm.value.billedPerUnit -
-                  budgetItemForm.value.costPerUnit) / budgetItemForm.value.billedPerUnit * 100).toFixed(2) }}%</p>
+              <div>
+                <span class="text-gray-600">Margen:</span>
+                <p class="font-semibold text-emerald-600">
+                  {{
+                    (
+                      ((budgetItemForm.value.billedPerUnit - budgetItemForm.value.costPerUnit) /
+                        budgetItemForm.value.billedPerUnit) *
+                      100
+                    ).toFixed(2)
+                  }}%
+                </p>
               </div>
             </div>
           </div>
           <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
-            <button type="button" (click)="closeBudgetItemModal()"
-              class="px-5 py-2 bg-white border border-gray-300 text-gray-700 rounded-md font-medium hover:bg-gray-50 text-sm">
+            <button
+              type="button"
+              (click)="closeBudgetItemModal()"
+              class="px-5 py-2 bg-white border border-gray-300 text-gray-700 rounded-md font-medium hover:bg-gray-50 text-sm"
+            >
               Cancelar
             </button>
-            <button type="button" (click)="saveBudgetItem()" [disabled]="!budgetItemForm.valid"
-              class="px-5 py-2 bg-gray-900 text-white rounded-md font-medium hover:bg-gray-800 disabled:opacity-50 text-sm">
+            <button
+              type="button"
+              (click)="saveBudgetItem()"
+              [disabled]="!budgetItemForm.valid"
+              class="px-5 py-2 bg-gray-900 text-white rounded-md font-medium hover:bg-gray-800 disabled:opacity-50 text-sm"
+            >
               {{ editingBudgetItemIndex === -1 ? 'Agregar' : 'Guardar' }}
             </button>
           </div>
         </form>
       </div>
-    </div><!-- ✅ cierre modal -->
-
-  @if (showSuccessModal) {
-  <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-
-    <div class="bg-white rounded-xl shadow-lg p-6 w-[400px] text-center">
-
-      <!-- Icono -->
-      <div class="w-12 h-12 mx-auto mb-3 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center">
-        ✓
-      </div>
-
-      <!-- Mensaje -->
-      <h2 class="text-lg font-bold text-gray-900 mb-2">
-        Plan guardado
-      </h2>
-
-      <p class="text-sm text-gray-600 mb-4">
-        El plan se agregó correctamente a la ODS.
-      </p>
-
-      <!-- Botón -->
-      <button
-        (click)="closeSuccessModal()"
-        class="px-4 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700">
-        Aceptar
-      </button>
-
     </div>
+    <!-- ✅ cierre modal -->
 
+    @if (showSuccessModal) {
+      <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-xl shadow-lg p-6 w-[400px] text-center">
+          <!-- Icono -->
+          <div
+            class="w-12 h-12 mx-auto mb-3 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center"
+          >
+            ✓
+          </div>
+
+          <!-- Mensaje -->
+          <h2 class="text-lg font-bold text-gray-900 mb-2">Plan guardado</h2>
+
+          <p class="text-sm text-gray-600 mb-4">El plan se agregó correctamente a la ODS.</p>
+
+          <!-- Botón -->
+          <button
+            (click)="closeSuccessModal()"
+            class="px-4 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700"
+          >
+            Aceptar
+          </button>
+        </div>
+      </div>
+    }
   </div>
-}
+</div>
