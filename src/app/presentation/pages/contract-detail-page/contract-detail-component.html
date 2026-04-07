@@ -1,0 +1,229 @@
+@if (charging) {
+  <div class="flex items-center justify-center h-64">
+    <p class="text-slate-500 text-sm">Cargando...</p>
+  </div>
+} @else if (contract) {
+  <div class="min-h-screen bg-white p-6 space-y-6">
+    <!-- Volver -->
+    <button
+      (click)="goBack()"
+      class="flex items-center gap-2 text-sm text-slate-500 hover:text-slate-300 transition-colors cursor-pointer"
+    >
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+      </svg>
+      Volver
+    </button>
+
+    <!-- Header contrato -->
+    <div class="rounded-xl border border-white/10 bg-slate-900 p-6">
+      <div class="flex items-start gap-4">
+        <div
+          class="w-10 h-10 bg-white/7 border border-white/10 rounded-lg flex items-center justify-center shrink-0"
+        >
+          <svg
+            class="w-5 h-5 stroke-white/70"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="1.8"
+              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+            />
+          </svg>
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-[10px] font-semibold tracking-widest text-slate-500 uppercase mb-1">
+            Contrato
+          </p>
+          <span
+            class="font-mono text-xs text-slate-400 bg-white/7 border border-white/10 px-2 py-0.5 rounded"
+          >
+            {{ contract.contract.contractCode }}
+          </span>
+          <h1 class="text-white font-semibold text-base leading-snug mt-1 mb-3">
+            {{ contract.contract.contractName }}
+          </h1>
+          <div class="flex flex-wrap gap-4 text-xs text-slate-500">
+            <span
+              >Cliente: <span class="text-slate-300">{{ contract.client.name }}</span></span
+            >
+            <span
+              >Inicio: <span class="text-slate-300">{{ contract.contract.initialDate }}</span></span
+            >
+            <span
+              >Fin: <span class="text-slate-300">{{ contract.contract.finalDate }}</span></span
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Órdenes de servicio -->
+    <div class="space-y-4">
+      <div class="flex items-center justify-between px-1">
+        <h2 class="text-xs font-semibold tracking-widest text-slate-500 uppercase">
+          Órdenes de servicio
+        </h2>
+        <button
+          class="cursor-pointer flex items-center gap-1.5 text-xs font-medium text-blue-600 bg-blue-50 border border-blue-200 hover:bg-blue-100 transition-colors px-3 py-1.5 rounded-lg"
+          (click)="navigateAddOds()"
+        >
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 4v16m8-8H4"
+            />
+          </svg>
+          Agregar ODS
+        </button>
+      </div>
+
+      @for (ods of contract.serviceOrders; track ods.id) {
+        <div class="rounded-xl border border-gray-400 overflow-hidden">
+          <!-- Header ODS -->
+          <div class="flex items-start gap-3 p-5 bg-gray-200 border-b border-gray-200">
+            <div
+              class="w-8 h-8 bg-white border border-gray-300 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
+            >
+              <svg
+                class="w-4 h-4 stroke-gray-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.8"
+                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                />
+              </svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <span
+                class="font-mono text-xs text-black bg-white border border-gray-300 px-2 py-0.5 rounded"
+              >
+                {{ ods.odsCode }}
+              </span>
+              <p class="text-sm font-medium text-black leading-snug mt-1 mb-2">
+                {{ ods.odsName }}
+              </p>
+              <div class="flex gap-4 text-xs text-gray-400">
+                <span
+                  >Inicio: <span class="text-black">{{ ods.startDate }}</span></span
+                >
+                <span
+                  >Fin: <span class="text-black">{{ ods.endDate }}</span></span
+                >
+              </div>
+            </div>
+          </div>
+
+          <!-- Planes de muestreo -->
+          @if (ods.samplingPlans?.length > 0) {
+            <div class="p-5 bg-white">
+              <div class="flex items-center justify-between mb-3">
+                <p class="text-[10px] font-semibold tracking-widest text-gray-400 uppercase">
+                  Planes de muestreo
+                </p>
+                <button
+                  class="cursor-pointer flex items-center gap-1.5 text-xs font-medium text-blue-600 bg-blue-50 border border-blue-200 hover:bg-blue-100 transition-colors px-3 py-1.5 rounded-lg"
+                  (click)="navigateAddPlan(ods)"
+                >
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 4v16m8-8H4"
+                    />
+                  </svg>
+                  Agregar plan
+                </button>
+              </div>
+              <div class="space-y-2">
+                @for (plan of ods.samplingPlans; track plan.id) {
+                  <div
+                    class="flex items-center justify-between gap-3 px-3 py-2.5 bg-gray-50 border border-gray-400 rounded-lg"
+                  >
+                    <!-- Código y nombre -->
+                    <div class="flex items-center gap-2.5 min-w-0">
+                      <span
+                        class="font-mono text-[11px] text-black bg-gray-100 border border-gray-200 px-1.5 py-0.5 rounded shrink-0"
+                      >
+                        {{ plan.planCode }}
+                      </span>
+                      <span class="text-xs text-black truncate">{{ plan.planName }}</span>
+                    </div>
+
+                    <!-- Fechas y estado -->
+                    <div class="flex items-center gap-3 shrink-0">
+                      <span class="text-xs text-black"
+                        >{{ plan.startDate }} → {{ plan.endDate }}</span
+                      >
+
+                      @if (plan.resourceAssignmentMode === 'quantity') {
+                        <span
+                          class="inline-flex items-center gap-1 text-[11px] font-medium text-amber-600 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full"
+                        >
+                          <svg
+                            class="w-3 h-3"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M12 9v2m0 4h.01M12 3a9 9 0 100 18A9 9 0 0012 3z"
+                            />
+                          </svg>
+                          Modo cantidad
+                        </span>
+                        <button
+                          class="cursor-pointer text-[11px] font-medium text-blue-600 bg-blue-50 border border-blue-200 hover:bg-blue-100 transition-colors px-2.5 py-0.5 rounded-full"
+                        >
+                          Asignar recursos
+                        </button>
+                      } @else {
+                        <span
+                          class="inline-flex items-center gap-1 text-[11px] font-medium text-green-600 bg-green-50 border border-green-200 px-2 py-0.5 rounded-full"
+                        >
+                          <svg
+                            class="w-3 h-3"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M5 13l4 4L19 7"
+                            />
+                          </svg>
+                          Recursos asignados
+                        </span>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          } @else {
+            <div class="px-5 py-4 bg-white">
+              <p class="text-xs text-gray-400">Sin planes de muestreo registrados.</p>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+}

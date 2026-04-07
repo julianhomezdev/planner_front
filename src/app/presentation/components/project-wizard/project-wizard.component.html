@@ -692,6 +692,14 @@
                 Generar {{ planForm.value.totalSites || 0 }} Sitios
               </button>
             </div>
+
+            <div class="flex justify-end mt-3">
+
+            <button type="button" (click)="clearSites()"
+            class="px-5 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors">
+              Limpiar sitios
+            </button>
+          </div>
           </div>
 
           <!-- Sitios -->
