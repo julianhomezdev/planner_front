@@ -69,28 +69,28 @@ export class ContractDetailPage implements OnInit {
     }
   }
 
-  /**navegarAAsignarRecursos(planId: number, proyectoId: number): void {
-        let odsIndex = -1;
-    
-        if (this.proyectoSeleccionado?.serviceOrders) {
-          for (let i = 0; i < this.proyectoSeleccionado.serviceOrders.length; i++) {
-            const ods = this.proyectoSeleccionado.serviceOrders[i];
-            if (ods.samplingPlans?.some((p: any) => p.id === planId)) {
-              odsIndex = i;
-              break;
-            }
-          }
+  navegarAAsignarRecursos(planId: number, proyectoId: number): void {
+    let odsIndex = -1;
+
+    if (this.contract?.serviceOrders) {
+      for (let i = 0; i < this.contract.serviceOrders.length; i++) {
+        const ods = this.contract.serviceOrders[i];
+        if (ods.samplingPlans?.some((p: any) => p.id === planId)) {
+          odsIndex = i;
+          break;
         }
-    
-        this.router.navigate(['/planner'], {
-          queryParams: {
-            mode: 'edit-resources',
-            projectId: proyectoId,
-            planId,
-            odsIndex,
-          },
-        });
-    }**/
+      }
+    }
+
+    this.router.navigate(['/planner'], {
+      queryParams: {
+        mode: 'edit-resources',
+        projectId: proyectoId,
+        planId,
+        odsIndex,
+      },
+    });
+  }
 
   /**verProyecto(proyectoId: number): void {
         this.projectService.getProjectById(proyectoId).subscribe({
