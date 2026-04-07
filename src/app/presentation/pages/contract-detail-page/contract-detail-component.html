@@ -128,9 +128,25 @@
           <!-- Planes de muestreo -->
           @if (ods.samplingPlans?.length > 0) {
             <div class="p-5 bg-white">
-              <p class="text-[10px] font-semibold tracking-widest text-gray-400 uppercase mb-3">
-                Planes de muestreo
-              </p>
+              <div class="flex items-center justify-between mb-3">
+                <p class="text-[10px] font-semibold tracking-widest text-gray-400 uppercase">
+                  Planes de muestreo
+                </p>
+                <button
+                  class="cursor-pointer flex items-center gap-1.5 text-xs font-medium text-blue-600 bg-blue-50 border border-blue-200 hover:bg-blue-100 transition-colors px-3 py-1.5 rounded-lg"
+                  (click)="navigateAddPlan(ods)"
+                >
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 4v16m8-8H4"
+                    />
+                  </svg>
+                  Agregar plan
+                </button>
+              </div>
               <div class="space-y-2">
                 @for (plan of ods.samplingPlans; track plan.id) {
                   <div

@@ -3,42 +3,32 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/development.environment';
 import { CreateProject } from '../../domain/Entities/project/project-creation.model';
+import { AddPlansToOdsDto } from '../../domain/Entities/samplingPlan/sampling-plan.model';
 
 @Injectable({
-  
-  providedIn: 'root'
-
+  providedIn: 'root',
 })
 export class ProjectCreationService {
-  
   private apiUrl = `${environment.apiUrl}/Project`;
 
   constructor(private http: HttpClient) {}
 
   createCompleteProject(projectDto: CreateProject): Observable<number> {
-    
     return this.http.post<number>(`${this.apiUrl}/create-complete`, projectDto);
   }
 
-
   updatePlanResources(planId: number, dto: any): Observable<any> {
-    
-  return this.http.patch(
-    
-    `${this.apiUrl}/sampling-plans/${planId}/resources`,
-    dto 
-    
-  );
-  
+    return this.http.patch(`${this.apiUrl}/sampling-plans/${planId}/resources`, dto);
   }
-  
-  
-  // Agregar ods a un contrato-proyecto
-  addServiceOrderToProject(projectId : number, serviceOrderDto: any): Observable<any> {
-    
-    return this.http.post(`${this.apiUrl}/${projectId}/add-ods`, serviceOrderDto)
-    
-  }
-  
 
+  // Agregar ods a un contrato-proyecto
+  addServiceOrderToProject(projectId: number, serviceOrderDto: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/${projectId}/add-ods`, serviceOrderDto);
+  }
+
+  // Agregar plan de muestreo a una ods existente
+
+  addSamplingPlanToOds(odsId: number, dto: AddPlansToOdsDto): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/service-orders/${odsId}/sampling-plans`, dto);
+  }
 }

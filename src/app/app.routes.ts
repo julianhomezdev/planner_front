@@ -114,12 +114,23 @@ export const routes: Routes = [
           },
         ],
       },
+      // Agregar nueva ods a un contrato
       {
         path: 'projects/:projectId/add-ods',
 
         loadComponent: () =>
           import('./presentation/pages/ods-wizard-page/ods-wizard-page.component').then(
             (m) => m.OdsWizardPage,
+          ),
+      },
+
+      // Agregar nuevo plan a ods existente
+      {
+        path: 'contracts/:contractId/service-orders/:odsId/add-plans',
+
+        loadComponent: () =>
+          import('./presentation/pages/plan-wizard-page/plan-wizard-page.component').then(
+            (m) => m.PlanWizardPage,
           ),
       },
 

@@ -43,15 +43,29 @@ export class ContractDetailPage implements OnInit {
     });
   }
 
+  // Ir atras -> dashboard de proyectos
   goBack(): void {
     this.router.navigate(['/projects-dashboard']);
   }
 
+  // Nabegar a agregar ODS al contrato
   navigateAddOds(): void {
     const projectId = this.contract?.id;
 
     if (projectId) {
       this.router.navigate(['/projects', projectId, 'add-ods']);
+    }
+  }
+
+  navigateAddPlan(ods: any): void {
+    const contractId = this.contract?.id;
+    if (contractId && ods.id) {
+      this.router.navigate(['/contracts', contractId, 'service-orders', ods.id, 'add-plans'], {
+        queryParams: {
+          startDate: ods.startDate,
+          endDate: ods.endDate,
+        },
+      });
     }
   }
 
