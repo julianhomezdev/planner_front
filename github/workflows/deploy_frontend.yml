@@ -1,27 +1,53 @@
-name: Deploy Frontend to Server
+name: Build & Deploy
 
-on: 
+on:
   push:
     branches:
-      - main
-      
+      - deploy
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_BACK: ghcr.io/${{ github.repository_owner }}/miapp-back
+  IMAGE_FRONT: ghcr.io/${{ github.repository_owner }}/miapp-front
+
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
-    - name: Check out the frontend code
-      uses: actions/checkout@v3
-      
-    - name: SSH into the server and deploy frontend
-      uses: appleboy/ssh-action@v0.1.10
-      with:
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.USERNAME }}
-        key: ${{ secrets.PRIVATE_KEY }}
-        port: 22
-        script: |
-          cd /var/www/dev/frontend/erp_front
-          git pull origin main
-          sudo docker compose down
-          sudo docker compose up -d --build
+      - name: Checkout código
+        uses: actions/checkout@v3
+
+      - name: Login a GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GH_TOKEN }}
+
+      - name: Build y Push — Backend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./back
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/miapp-back:latest
+
+      - name: Build y Push — Frontend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./front
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/miapp-front:latest
+
+      - name: Deploy en servidor via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            cd /opt/CHEMILAB_MANAGEMENT/planner_front/
+            echo ${{ secrets.GH_TOKEN }} | docker login ghcr.io -u ${{ secrets.SERVER_USER }} --password-stdin
+            docker compose pull
+            docker compose up -d --force-recreate
+            docker image prune -f
